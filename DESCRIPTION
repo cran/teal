@@ -1,13 +1,16 @@
 Type: Package
 Package: teal
 Title: Exploratory Web Apps for Analyzing Clinical Trials Data
-Version: 0.15.0
-Date: 2024-02-07
+Version: 0.15.1
+Date: 2024-02-20
 Authors@R: c(
-    person("Dawid", "Kaledkowski", , "dawid.kaledkowski@roche.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0001-9533-457X")),
+    person("Dawid", "Kaledkowski", , "dawid.kaledkowski@roche.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0001-9533-457X")),
     person("Pawel", "Rucki", , "pawel.rucki@roche.com", role = "aut"),
-    person("Aleksander", "Chlebowski", , "aleksander.chlebowski@contractors.roche.com", role = "aut", comment = c(ORCID = "0000-0001-5018-6294")),
-    person("Andre", "Verissimo", , "andre.verissimo@roche.com", role = "aut", comment = c(ORCID = "0000-0002-2212-339X")),
+    person("Aleksander", "Chlebowski", , "aleksander.chlebowski@contractors.roche.com", role = "aut",
+           comment = c(ORCID = "0000-0001-5018-6294")),
+    person("Andre", "Verissimo", , "andre.verissimo@roche.com", role = "aut",
+           comment = c(ORCID = "0000-0002-2212-339X")),
     person("Kartikeya", "Kirar", , "kartikeya.kirar@businesspartner.roche.com", role = "aut"),
     person("Vedha", "Viyash", , "vedha.viyash@roche.com", role = "aut"),
     person("Marcin", "Kosinski", , "marcin.kosinski.mk1@roche.com", role = "aut"),
@@ -19,6 +22,7 @@ Authors@R: c(
     person("Maciej", "Nasinski", role = "aut"),
     person("Konrad", "Pagacz", role = "aut"),
     person("Junlue", "Zhao", role = "aut"),
+    person("Tadeusz", "Lewandowski", role = "aut"),
     person("F. Hoffmann-La Roche AG", role = c("cph", "fnd")),
     person("Maximilian", "Mordig", role = "ctb")
   )
@@ -66,7 +70,7 @@ Collate: 'dummy_functions.R' 'get_rcode_utils.R' 'include_css_js.R'
         'teal_slices-store.R' 'teal_slices.R' 'utils.R'
         'validate_inputs.R' 'validations.R' 'zzz.R'
 NeedsCompilation: no
-Packaged: 2024-02-07 18:04:54 UTC; unardid
+Packaged: 2024-02-22 18:04:08 UTC; unardid
 Author: Dawid Kaledkowski [aut, cre] (<https://orcid.org/0000-0001-9533-457X>),
   Pawel Rucki [aut],
   Aleksander Chlebowski [aut] (<https://orcid.org/0000-0001-5018-6294>),
@@ -82,8 +86,9 @@ Author: Dawid Kaledkowski [aut, cre] (<https://orcid.org/0000-0001-9533-457X>),
   Maciej Nasinski [aut],
   Konrad Pagacz [aut],
   Junlue Zhao [aut],
+  Tadeusz Lewandowski [aut],
   F. Hoffmann-La Roche AG [cph, fnd],
   Maximilian Mordig [ctb]
 Maintainer: Dawid Kaledkowski <dawid.kaledkowski@roche.com>
 Repository: CRAN
-Date/Publication: 2024-02-09 00:30:02 UTC
+Date/Publication: 2024-02-22 23:00:03 UTC
