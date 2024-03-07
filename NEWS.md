@@ -1,3 +1,8 @@
+# teal 0.15.2
+
+### Bug fixes
+* Fixed a bug in handling `datanames` of modules that crashed module-specific applications when filtering child datasets.
+
 # teal 0.15.1
 
 ### Bug fixes

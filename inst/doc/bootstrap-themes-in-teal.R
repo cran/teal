@@ -1,10 +1,15 @@
-## ----eval = FALSE-------------------------------------------------------------
+## ----include=FALSE------------------------------------------------------------
+knitr::opts_template$set(
+  remove_linter_comments = list(tidy = function(code, ...) gsub(pattern = "#\\s?nolint.*", replacement = "", code))
+)
+
+## ----eval = FALSE, opts.label=c("remove_linter_comments")---------------------
 #  options("teal.bs_theme" = bslib::bs_theme(version = "5"))
 #  
 #  library(teal)
 #  
 #  app <- init(
-#    data = teal_data(IRIS = iris), # nolint
+#    data = teal_data(IRIS = iris), # nolint: line_length.
 #    filter = teal_slices(teal_slice("IRIS", "Sepal.Length", selected = c(5, 7))),
 #    modules = modules(example_module(), example_module()),
 #    header = "My first teal application"
