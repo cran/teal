@@ -1,99 +1,64 @@
-# This module is the main teal module that puts everything together.
-
-#' `teal` main app module
+#' `teal` main module
 #'
-#' This is the main `teal` app that puts everything together.
+#' @description
+#' `r lifecycle::badge("stable")`
+#' Module to create a `teal` app as a Shiny Module.
 #'
-#' It displays the splash UI which is used to fetch the data, possibly
-#' prompting for a password input to fetch the data. Once the data is ready,
-#' the splash screen is replaced by the actual `teal` UI that is tabsetted and
-#' has a filter panel with `datanames` that are relevant for the current tab.
-#' Nested tabs are possible, but we limit it to two nesting levels for reasons
-#' of clarity of the UI.
+#' @details
+#' This module can be used instead of [init()] in custom Shiny applications. Unlike [init()], it doesn't
+#' automatically include [`module_session_info`].
 #'
-#' The splash screen functionality can also be used
-#' for non-delayed data which takes time to load into memory, avoiding
-#' `shiny` session timeouts.
+#' Module is responsible for creating the main `shiny` app layout and initializing all the necessary
+#' components. This module establishes reactive connection between the input `data` and every other
+#' component in the app. Reactive change of the `data` passed as an argument, reloads the app and
+#' possibly keeps all input settings the same so the user can continue where one left off.
 #'
-#' Server evaluates the `teal_data_rv` (delayed data mechanism) and creates the
-#' `datasets` object that is shared across modules.
-#' Once it is ready and non-`NULL`, the splash screen is replaced by the
-#' main `teal` UI that depends on the data.
-#' The currently active tab is tracked and the right filter panel
-#' updates the displayed datasets to filter for according to the active `datanames`
-#' of the tab.
+#' ## data flow in `teal` application
 #'
-#' It is written as a `shiny` module so it can be added into other apps as well.
+#' This module supports multiple data inputs but eventually, they are all converted to `reactive`
+#' returning `teal_data` in this module. On this `reactive teal_data` object several actions are
+#' performed:
+#' - data loading in [`module_init_data`]
+#' - data filtering in [`module_filter_data`]
+#' - data transformation in [`module_transform_data`]
 #'
+#' ## Fallback on failure
+#'
+#' `teal` is designed in such way that app will never crash if the error is introduced in any
+#' custom `shiny` module provided by app developer (e.g. [teal_data_module()], [teal_transform_module()]).
+#' If any module returns a failing object, the app will halt the evaluation and display a warning message.
+#' App user should always have a chance to fix the improper input and continue without restarting the session.
+#'
+#' @rdname module_teal
 #' @name module_teal
 #'
-#' @inheritParams module_teal_with_splash
+#' @inheritParams init
+#' @param id (`character(1)`) `shiny` module instance id.
+#' @param data (`teal_data`, `teal_data_module`, or `reactive` returning `teal_data`)
+#' The data which application will depend on.
+#' @param modules (`teal_modules`)
+#'   `teal_modules` object. These are the specific output modules which
+#'   will be displayed in the `teal` application. See [modules()] and [module()] for
+#'   more details.
 #'
-#' @param splash_ui (`shiny.tag`) UI to display initially,
-#'   can be a splash screen or a `shiny` module UI. For the latter, see
-#'   [init()] about how to call the corresponding server function.
-#'
-#' @param teal_data_rv (`reactive`)
-#'   returns the `teal_data`, only evaluated once, `NULL` value is ignored
-#'
-#' @return
-#' Returns a `reactive` expression which returns the currently active module.
-#'
-#' @keywords internal
-#'
+#' @return `NULL` invisibly
 NULL
 
 #' @rdname module_teal
-ui_teal <- function(id,
-                    splash_ui = tags$h2("Starting the Teal App"),
-                    title = build_app_title(),
-                    header = tags$p(),
-                    footer = tags$p()) {
+#' @export
+ui_teal <- function(id, modules) {
   checkmate::assert_character(id, max.len = 1, any.missing = FALSE)
-
-  checkmate::assert_multi_class(splash_ui, c("shiny.tag", "shiny.tag.list", "html"))
-
-  if (is.character(title)) {
-    title <- build_app_title(title)
-  } else {
-    validate_app_title_tag(title)
-  }
-
-  checkmate::assert(
-    .var.name = "header",
-    checkmate::check_string(header),
-    checkmate::check_multi_class(header, c("shiny.tag", "shiny.tag.list", "html"))
-  )
-  if (checkmate::test_string(header)) {
-    header <- tags$p(header)
-  }
-
-  checkmate::assert(
-    .var.name = "footer",
-    checkmate::check_string(footer),
-    checkmate::check_multi_class(footer, c("shiny.tag", "shiny.tag.list", "html"))
-  )
-  if (checkmate::test_string(footer)) {
-    footer <- tags$p(footer)
-  }
-
+  checkmate::assert_class(modules, "teal_modules")
   ns <- NS(id)
 
-  # Once the data is loaded, we will remove this element and add the real teal UI instead
-  splash_ui <- div(
-    # id so we can remove the splash screen once ready, which is the first child of this container
-    id = ns("main_ui_container"),
-    # we put it into a div, so it can easily be removed as a whole, also when it is a tagList (and not
-    # just the first item of the tagList)
-    div(splash_ui)
-  )
+  modules <- append_reporter_module(modules)
 
   # show busy icon when `shiny` session is busy computing stuff
   # based on https://stackoverflow.com/questions/17325521/r-shiny-display-loading-message-while-function-is-running/22475216#22475216 # nolint: line_length.
   shiny_busy_message_panel <- conditionalPanel(
     condition = "(($('html').hasClass('shiny-busy')) && (document.getElementById('shiny-notification-panel') == null))", # nolint: line_length.
-    div(
-      icon("arrows-rotate", "spin fa-spin"),
+    tags$div(
+      icon("arrows-rotate", class = "fa-spin", prefer_type = "solid"),
       "Computing ...",
       # CSS defined in `custom.css`
       class = "shinybusymessage"
@@ -101,40 +66,63 @@ ui_teal <- function(id,
   )
 
   fluidPage(
-    title = title,
+    id = id,
     theme = get_teal_bs_theme(),
     include_teal_css_js(),
-    tags$header(header),
     tags$hr(class = "my-2"),
     shiny_busy_message_panel,
-    splash_ui,
-    tags$hr(),
-    tags$footer(
-      div(
-        footer,
-        teal.widgets::verbatim_popup_ui(ns("sessionInfo"), "Session Info", type = "link"),
-        textOutput(ns("identifier"))
+    tags$div(
+      id = ns("tabpanel_wrapper"),
+      class = "teal-body",
+      ui_teal_module(id = ns("teal_modules"), modules = modules)
+    ),
+    tags$div(
+      id = ns("options_buttons"),
+      style = "position: absolute; right: 10px;",
+      ui_bookmark_panel(ns("bookmark_manager"), modules),
+      tags$button(
+        class = "btn action-button filter_hamburger", # see sidebar.css for style filter_hamburger
+        href = "javascript:void(0)",
+        onclick = sprintf("toggleFilterPanel('%s');", ns("tabpanel_wrapper")),
+        title = "Toggle filter panel",
+        icon("fas fa-bars")
+      ),
+      ui_snapshot_manager_panel(ns("snapshot_manager_panel")),
+      ui_filter_manager_panel(ns("filter_manager_panel"))
+    ),
+    tags$script(
+      HTML(
+        sprintf(
+          "
+            $(document).ready(function() {
+              $('#%s').appendTo('#%s');
+            });
+          ",
+          ns("options_buttons"),
+          ns("teal_modules-active_tab")
+        )
       )
-    )
+    ),
+    tags$hr()
   )
 }
 
-
 #' @rdname module_teal
-srv_teal <- function(id, modules, teal_data_rv, filter = teal_slices()) {
-  stopifnot(is.reactive(teal_data_rv))
+#' @export
+srv_teal <- function(id, data, modules, filter = teal_slices()) {
+  checkmate::assert_character(id, max.len = 1, any.missing = FALSE)
+  checkmate::assert_multi_class(data, c("teal_data", "teal_data_module", "reactive"))
+  checkmate::assert_class(modules, "teal_modules")
+  checkmate::assert_class(filter, "teal_slices")
+
+  modules <- append_reporter_module(modules)
+
   moduleServer(id, function(input, output, session) {
-    logger::log_trace("srv_teal initializing the module.")
+    logger::log_debug("srv_teal initializing.")
 
-    output$identifier <- renderText(
-      paste0("Pid:", Sys.getpid(), " Token:", substr(session$token, 25, 32))
-    )
-
-    teal.widgets::verbatim_popup_srv(
-      "sessionInfo",
-      verbatim_content = utils::capture.output(utils::sessionInfo()),
-      title = "SessionInfo"
-    )
+    if (getOption("teal.show_js_log", default = FALSE)) {
+      shinyjs::showLog()
+    }
 
     # `JavaScript` code
     run_js_files(files = "init.js")
@@ -148,63 +136,107 @@ srv_teal <- function(id, modules, teal_data_rv, filter = teal_slices()) {
       once = TRUE,
       handlerExpr = {
         session$userData$timezone <- input$timezone
-        logger::log_trace("srv_teal@1 Timezone set to client's timezone: { input$timezone }.")
+        logger::log_debug("srv_teal@1 Timezone set to client's timezone: { input$timezone }.")
       }
     )
 
-    reporter <- teal.reporter::Reporter$new()
-    if (is_arg_used(modules, "reporter") && length(extract_module(modules, "teal_module_previewer")) == 0) {
-      modules <- append_module(modules, reporter_previewer_module())
+    data_handled <- srv_init_data("data", data = data)
+
+    validate_ui <- tags$div(
+      id = session$ns("validate_messages"),
+      class = "teal_validated",
+      ui_check_class_teal_data(session$ns("class_teal_data")),
+      ui_validate_error(session$ns("silent_error")),
+      ui_check_module_datanames(session$ns("datanames_warning"))
+    )
+    srv_check_class_teal_data("class_teal_data", data_handled)
+    srv_validate_error("silent_error", data_handled, validate_shiny_silent_error = FALSE)
+    srv_check_module_datanames("datanames_warning", data_handled, modules)
+
+    data_validated <- .trigger_on_success(data_handled)
+
+    data_signatured <- reactive({
+      req(inherits(data_validated(), "teal_data"))
+      is_filter_ok <- check_filter_datanames(filter, names(data_validated()))
+      if (!isTRUE(is_filter_ok)) {
+        showNotification(
+          "Some filters were not applied because of incompatibility with data. Contact app developer.",
+          type = "warning",
+          duration = 10
+        )
+        warning(is_filter_ok)
+      }
+      .add_signature_to_data(data_validated())
+    })
+
+    data_load_status <- reactive({
+      if (inherits(data_handled(), "teal_data")) {
+        "ok"
+      } else if (inherits(data, "teal_data_module")) {
+        "teal_data_module failed"
+      } else {
+        "external failed"
+      }
+    })
+
+    datasets_rv <- if (!isTRUE(attr(filter, "module_specific"))) {
+      eventReactive(data_signatured(), {
+        req(inherits(data_signatured(), "teal_data"))
+        logger::log_debug("srv_teal@1 initializing FilteredData")
+        teal_data_to_filtered_data(data_signatured())
+      })
     }
 
-    env <- environment()
-    datasets_reactive <- eventReactive(teal_data_rv(), {
-      env$progress <- shiny::Progress$new(session)
-      env$progress$set(0.25, message = "Setting data")
 
-      # Create list of `FilteredData` objects that reflects structure of `modules`.
-      modules_datasets(teal_data_rv(), modules, filter, teal_data_to_filtered_data(teal_data_rv()))
-    })
 
-    # Replace splash / welcome screen once data is loaded ----
-    # ignoreNULL to not trigger at the beginning when data is NULL
-    # just handle it once because data obtained through delayed loading should
-    # usually not change afterwards
-    # if restored from bookmarked state, `filter` is ignored
+    if (inherits(data, "teal_data_module")) {
+      setBookmarkExclude(c("teal_modules-active_tab"))
+      shiny::insertTab(
+        inputId = "teal_modules-active_tab",
+        position = "before",
+        select = TRUE,
+        tabPanel(
+          title = icon("fas fa-database"),
+          value = "teal_data_module",
+          tags$div(
+            ui_init_data(session$ns("data")),
+            validate_ui
+          )
+        )
+      )
 
-    observeEvent(datasets_reactive(), once = TRUE, {
-      logger::log_trace("srv_teal@5 setting main ui after data was pulled")
-      on.exit(env$progress$close())
-      env$progress$set(0.5, message = "Setting up main UI")
-      datasets <- datasets_reactive()
-
-      # main_ui_container contains splash screen first and we remove it and replace it by the real UI
-      removeUI(sprintf("#%s > div:nth-child(1)", session$ns("main_ui_container")))
+      if (attr(data, "once")) {
+        observeEvent(data_signatured(), once = TRUE, {
+          logger::log_debug("srv_teal@2 removing data tab.")
+          # when once = TRUE we pull data once and then remove data tab
+          removeTab("teal_modules-active_tab", target = "teal_data_module")
+        })
+      }
+    } else {
+      # when no teal_data_module then we want to display messages above tabsetPanel (because there is no data-tab)
       insertUI(
-        selector = paste0("#", session$ns("main_ui_container")),
-        where = "beforeEnd",
-        # we put it into a div, so it can easily be removed as a whole, also when it is a tagList (and not
-        # just the first item of the tagList)
-        ui = div(ui_tabs_with_filters(
-          session$ns("main_ui"),
-          modules = modules,
-          datasets = datasets,
-          filter = filter
-        )),
-        # needed so that the UI inputs are available and can be immediately updated, otherwise, updating may not
-        # have any effect as they are ignored when not present
-        immediate = TRUE
+        selector = sprintf("#%s", session$ns("tabpanel_wrapper")),
+        where = "beforeBegin",
+        ui = tags$div(validate_ui, tags$br())
       )
+    }
 
-      # must make sure that this is only executed once as modules assume their observers are only
-      # registered once (calling server functions twice would trigger observers twice each time)
-      srv_tabs_with_filters(
-        id = "main_ui",
-        datasets = datasets,
-        modules = modules,
-        reporter = reporter,
-        filter = filter
-      )
-    })
+    reporter <- teal.reporter::Reporter$new()$set_id(attr(filter, "app_id"))
+    module_labels <- unlist(module_labels(modules), use.names = FALSE)
+    slices_global <- methods::new(".slicesGlobal", filter, module_labels)
+    modules_output <- srv_teal_module(
+      id = "teal_modules",
+      data = data_signatured,
+      datasets = datasets_rv,
+      modules = modules,
+      slices_global = slices_global,
+      data_load_status = data_load_status,
+      reporter = reporter
+    )
+    mapping_table <- srv_filter_manager_panel("filter_manager_panel", slices_global = slices_global)
+    snapshots <- srv_snapshot_manager_panel("snapshot_manager_panel", slices_global = slices_global)
+    srv_bookmark_panel("bookmark_manager", modules)
   })
+
+  invisible(NULL)
 }

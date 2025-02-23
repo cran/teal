@@ -8,42 +8,46 @@ init(
   data,
   modules,
   filter = teal_slices(),
-  title = build_app_title(),
-  header = tags$p(),
-  footer = tags$p(),
-  id = character(0)
+  title = lifecycle::deprecated(),
+  header = lifecycle::deprecated(),
+  footer = lifecycle::deprecated(),
+  id = lifecycle::deprecated()
 )
 }
 \arguments{
 \item{data}{(\code{teal_data} or \code{teal_data_module})
-For constructing the data object, refer to \code{\link[=teal_data]{teal_data()}} and \code{\link[=teal_data_module]{teal_data_module()}}.}
+For constructing the data object, refer to \code{\link[teal.data:teal_data]{teal.data::teal_data()}} and \code{\link[=teal_data_module]{teal_data_module()}}.}
 
 \item{modules}{(\code{list} or \code{teal_modules} or \code{teal_module})
-nested list of \code{teal_modules} or \code{teal_module} objects or a single
+Nested list of \code{teal_modules} or \code{teal_module} objects or a single
 \code{teal_modules} or \code{teal_module} object. These are the specific output modules which
 will be displayed in the \code{teal} application. See \code{\link[=modules]{modules()}} and \code{\link[=module]{module()}} for
 more details.}
 
-\item{filter}{(\code{teal_slices})
-Specifies the initial filter using \code{\link[=teal_slices]{teal_slices()}}.}
+\item{filter}{(\code{teal_slices}) Optionally,
+specifies the initial filter using \code{\link[=teal_slices]{teal_slices()}}.}
 
-\item{title}{(\code{shiny.tag} or \code{character(1)})
-The browser window title. Defaults to a title "teal app" with the icon of NEST.
+\item{title}{(\code{shiny.tag} or \code{character(1)}) \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Optionally,
+the browser window title. Defaults to a title "teal app" with the icon of NEST.
 Can be created using the \code{build_app_title()} or
-by passing a valid \code{shiny.tag} which is a head tag with title and link tag.}
+by passing a valid \code{shiny.tag} which is a head tag with title and link tag.
+This parameter is no longer supported. Use \code{modify_title()} on the teal app object instead.}
 
-\item{header}{(\code{shiny.tag} or \code{character(1)})
-The header of the app.}
+\item{header}{(\code{shiny.tag} or \code{character(1)}) \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Optionally,
+the header of the app.
+This parameter is no longer supported. Use \code{modify_header()} on the teal app object instead.}
 
-\item{footer}{(\code{shiny.tag} or \code{character(1)})
-The footer of the app.}
+\item{footer}{(\code{shiny.tag} or \code{character(1)}) \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Optionally,
+the footer of the app.
+This parameter is no longer supported. Use \code{modify_footer()} on the teal app object instead.}
 
-\item{id}{(\code{character})
-Optional string specifying the \code{shiny} module id in cases it is used as a \code{shiny} module
-rather than a standalone \code{shiny} app. This is a legacy feature.}
+\item{id}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} (\code{character}) Optionally,
+a string specifying the \code{shiny} module id in cases it is used as a \code{shiny} module
+rather than a standalone \code{shiny} app.
+This parameter is no longer supported. Use \code{\link[=ui_teal]{ui_teal()}} and \code{\link[=srv_teal]{srv_teal()}} instead.}
 }
 \value{
-Named list with server and UI functions.
+Named list containing server and UI functions.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
@@ -51,25 +55,20 @@ Named list with server and UI functions.
 End-users: This is the most important function for you to start a
 \code{teal} app that is composed of \code{teal} modules.
 }
-\details{
-When initializing the \code{teal} app, if \code{datanames} are not set for the \code{teal_data} object,
-defaults from the \code{teal_data} environment will be used.
-}
 \examples{
 app <- init(
-  data = teal_data(
-    new_iris = transform(iris, id = seq_len(nrow(iris))),
-    new_mtcars = transform(mtcars, id = seq_len(nrow(mtcars))),
-    code = "
+  data = within(
+    teal_data(),
+    {
       new_iris <- transform(iris, id = seq_len(nrow(iris)))
       new_mtcars <- transform(mtcars, id = seq_len(nrow(mtcars)))
-    "
+    }
   ),
   modules = modules(
     module(
       label = "data source",
       server = function(input, output, session, data) {},
-      ui = function(id, ...) div(p("information about data source")),
+      ui = function(id, ...) tags$div(p("information about data source")),
       datanames = "all"
     ),
     example_module(label = "example teal module"),
@@ -98,13 +97,20 @@ app <- init(
       `Iris Sepal.Length histogram` = "new_iris Species",
       global_filters = "new_mtcars cyl"
     )
-  ),
-  title = "App title",
-  header = tags$h1("Sample App"),
-  footer = tags$p("Copyright 2017 - 2023")
+  )
 )
 if (interactive()) {
   shinyApp(app$ui, app$server)
 }
 
 }
+\section{Examples in Shinylive}{
+\describe{
+  \item{example-1}{
+    \href{https://shinylive.io/r/app/#code=NobwRAdghgtgpmAXGKAHVA6ASmANGAYwHsIAXOMpMAGwEsAjAJykYE8AKcqagSgB0ItMnGYFStAG5wABAB4AtNIBmAVwhjaJdj2kAVLAFUAogIFpUcxUNql2A6dIAmUUlGkBeaQHcbACyF2EA4OXNQA+s6u2rj2wSCxwdIQcF5htIy0AM6W0qTMEJlKRIww7OlZuNK0jh7SmXAAjmHUFOwQjEReZRmZPH0JwcmpMKQELNkKufmFxaUjY4yZldW19U0tEG0dXfPjffxBwQC+sTwxhzBEjiot2Z6X17eBiQ83cM+J0tRQ9HDUtXwwJE3JkiCpGAQ4IDzp86iIpIxaqp1OItEJUCpSJUwaQMVi4ZlMpoIJVgToQEcYZ8VLQkWoNGjHJUMCydK4AOaZAAkjkk7FQdjAQiKJRcxOkPxxThcILBEKhYD6VMSwOg8Du0kB3GogIGZwGcAAHrBUC0wq8Wuxvr9-p5AUaTS1cnBuNILQr9YcHO6PolAQBJHrSADKcFQ3AwABkKOzSL5pP5MqQiOzmDBoQMHPVGAi6SjiWUIHjsZjiwSiSRSTLyZngji8VzE6QcowKI4RAAFahEWy1xJN9jA7TAYCAoZpHqAgC6U65ofD1CjMbjB1hDlXn0ptZpeYZm2qzNZ0niXs+BRyADlg2VHBvYaaewB5UuYtqZQVNwH9U8OLc-6WuGqcAamOKQTlkuqnhunoOEotDUOQiKeKEYSZHQkLvgMKFobQkKDjKQEApAYHlJk0LSBILCEXaYDBqgcAELQwFfsqzrcKh6HvKqsAyDR46keRlGMNRmq0WGEbRhAsa+CxWEuuEOF4dx8BEeOuyLIJVE8URBCsDqiqsUaBDUCo7ZhEJQEanQSZtCRQaeAQgrzhGADq1RxuRgIdnAriLm5jgeYqMHBO6qH0YxcEELU+jGKxMDmEI7K1NZvb-gABg6MCmjIoRulcbxpapdlZCG4VMWReC1mlgYlc5i6SdJCZZMmqawIVfHFdkdEMeVGb-uy3b0OxcEISIIHEcMozjNIun6XqpwCActBKNIhaIVAGhSNoNaHJk-gQKwACC6DsOYXI0pUZ3ZgiBwnBAYBHFOQA}{Open in Shinylive}
+    \if{html}{\out{<iframe class="iframe_shinylive" src="https://shinylive.io/r/app/#code=NobwRAdghgtgpmAXGKAHVA6ASmANGAYwHsIAXOMpMAGwEsAjAJykYE8AKcqagSgB0ItMnGYFStAG5wABAB4AtNIBmAVwhjaJdj2kAVLAFUAogIFpUcxUNql2A6dIAmUUlGkBeaQHcbACyF2EA4OXNQA+s6u2rj2wSCxwdIQcF5htIy0AM6W0qTMEJlKRIww7OlZuNK0jh7SmXAAjmHUFOwQjEReZRmZPH0JwcmpMKQELNkKufmFxaUjY4yZldW19U0tEG0dXfPjffxBwQC+sTwxhzBEjiot2Z6X17eBiQ83cM+J0tRQ9HDUtXwwJE3JkiCpGAQ4IDzp86iIpIxaqp1OItEJUCpSJUwaQMVi4ZlMpoIJVgToQEcYZ8VLQkWoNGjHJUMCydK4AOaZAAkjkk7FQdjAQiKJRcxOkPxxThcILBEKhYD6VMSwOg8Du0kB3GogIGZwGcAAHrBUC0wq8Wuxvr9-p5AUaTS1cnBuNILQr9YcHO6PolAQBJHrSADKcFQ3AwABkKOzSL5pP5MqQiOzmDBoQMHPVGAi6SjiWUIHjsZjiwSiSRSTLyZngji8VzE6QcowKI4RAAFahEWy1xJN9jA7TAYCAoZpHqAgC6U65ofD1CjMbjB1hDlXn0ptZpeYZm2qzNZ0niXs+BRyADlg2VHBvYaaewB5UuYtqZQVNwH9U8OLc-6WuGqcAamOKQTlkuqnhunoOEotDUOQiKeKEYSZHQkLvgMKFobQkKDjKQEApAYHlJk0LSBILCEXaYDBqgcAELQwFfsqzrcKh6HvKqsAyDR46keRlGMNRmq0WGEbRhAsa+CxWEuuEOF4dx8BEeOuyLIJVE8URBCsDqiqsUaBDUCo7ZhEJQEanQSZtCRQaeAQgrzhGADq1RxuRgIdnAriLm5jgeYqMHBO6qH0YxcEELU+jGKxMDmEI7K1NZvb-gABg6MCmjIoRulcbxpapdlZCG4VMWReC1mlgYlc5i6SdJCZZMmqawIVfHFdkdEMeVGb-uy3b0OxcEISIIHEcMozjNIun6XqpwCActBKNIhaIVAGhSNoNaHJk-gQKwACC6DsOYXI0pUZ3ZgiBwnBAYBHFOQA" style="height: 800px; width: 100vw; max-width: 1400px; border: 1px solid rgba(0,0,0,0.175); border-radius: .375rem; position: absolute; left: 50\%; margin-top: 30px; transform: translateX(-50\%); z-index: 1"></iframe>}}
+    \if{html}{\out{<a style='height: 800px; display: block;'></a>}}
+  }
+}
+}
+

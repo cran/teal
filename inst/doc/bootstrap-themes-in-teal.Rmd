@@ -44,7 +44,7 @@ Available Bootstrap versions could be checked with `bslib::versions()` and Boots
 ```
 # bslib::versions()
 # bslib::bootswatch_themes(version = "5")
-options("teal.bs_theme" = bslib::bs_theme(version = "5", bootswatch = "lux")
+options("teal.bs_theme" = bslib::bs_theme(version = "5", bootswatch = "lux"))
 # or
 options("teal.bs_theme" = bslib::bs_theme_update(bslib::bs_theme(version = "5"), bootswatch = "lux"))
 ```
@@ -75,20 +75,17 @@ The most important HTML tags in `teal` have a specific id or class, so they can 
 
 ```
 library(magrittr)
-options("teal.bs_theme" = bslib::bs_theme(version = "5") %>% bslib::bs_add_rules("Anything understood by sass::as_sass()"))
+options("teal.bs_theme" = bslib::bs_add_rules(
+  bslib::bs_theme(version = "5"),
+  "Anything understood by sass::as_sass()"
+))
 ```
 
 Other `bslib::bs_add_*` family functions could be used to specify low-level Bootstrap elements.
 
 ### Bootstrap NULL vs Bootstrap 3
 
-It is important to note that the statements `options("teal.bs_theme" = NULL)` and `options("teal.bs_theme" = bslib::bs_theme(version = "3")` are not equivalent as the `bslib` approximation of the default `shiny` theme for Bootstrap version 3 can introduce some discrepancies. One important difference is that when using `bslib::bs_theme(version = "3", bootswatch = "THEME NAME")` one can apply the custom Bootstrap theme. Another one is that the usage of `bslib::bs_theme(version = "3")` requires the installation of the latest `shinyWidgets` package from the main branch, see below.
-
-```
-# Downloading the newest shinyWidgets
-# needed only when bslib::bs_theme(version = "3", ...) is used
-remotes::install_github("https://github.com/dreamRs/shinyWidgets@main")
-```
+It is important to note that the statements `options("teal.bs_theme" = NULL)` and `options("teal.bs_theme" = bslib::bs_theme(version = "3")` are not equivalent as the `bslib` approximation of the default `shiny` theme for Bootstrap version 3 can introduce some discrepancies. One important difference is that when using `bslib::bs_theme(version = "3", bootswatch = "THEME NAME")` one can apply the custom Bootstrap theme. Another one is that the usage of `bslib::bs_theme(version = "3")` requires the installation of the `shinyWidgets` package of minimum version 0.7.4.
 
 ### Regular `shiny::fluidPage`
 
@@ -108,13 +105,12 @@ app <- init(
   data = teal_data(IRIS = iris), # nolint: line_length.
   filter = teal_slices(teal_slice("IRIS", "Sepal.Length", selected = c(5, 7))),
   modules = modules(example_module(), example_module()),
-  header = "My first teal application"
 )
 
 bslib::run_with_themer(shinyApp(app$ui, app$server))
 ```
 
-This gives us the following.
+This gives us a `Theme Customizer` similar to what is shown below.
 
 <img src="images/bs-launch.png" style="width: 100%;"/>
 
@@ -151,7 +147,10 @@ As expected, our corners are no longer rounded. If we look at our `R` console, w
 
 Once our customization is complete, we will apply the changes to our application. To do this, we use the option `teal.bs_theme` like before but this time we will expand on our `bslib::bs_theme` call to include our changes. Luckily, the arguments that were printed to the `R` console when running our app in the themer can be plugged right in.
 
-```{r eval = FALSE}
+```{r setup, include=FALSE}
+library(teal)
+```
+```{r app}
 options(
   "teal.bs_theme" = bslib::bs_theme(
     version = "5",
@@ -169,12 +168,24 @@ app <- init(
   modules = modules(example_module(), example_module())
 )
 
-shinyApp(app$ui, app$server)
+if (interactive()) {
+  shinyApp(app$ui, app$server)
+}
 ```
 
 Now the application has our custom theme applied.
 
-<img src="images/bs-final.png" style="width: 100%;"/>
+### Try the above app in `shinylive`
+
+```{r shinylive_iframe, echo = FALSE, out.width = '150%', out.extra = 'style = "position: relative; z-index:1"', eval = requireNamespace("roxy.shinylive", quietly = TRUE) && knitr::is_html_output() && identical(Sys.getenv("IN_PKGDOWN"), "true")}
+code <- paste0(c(
+  "interactive <- function() TRUE",
+  knitr::knit_code$get("app")
+), collapse = "\n")
+
+url <- roxy.shinylive::create_shinylive_url(code)
+knitr::include_url(url, height = "800px")
+```
 
 Please note the interactive themer only contains the most commonly applied options.
 For more customization options, review the `bslib` documentation.

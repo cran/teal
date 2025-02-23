@@ -1,18 +1,19 @@
 testthat::test_that("get_teal_bs_theme", {
+  testthat::skip_if_not_installed("bslib")
   testthat::expect_true(is.null(get_teal_bs_theme()))
   withr::with_options(list("teal.bs_theme" = bslib::bs_theme(version = "5")), {
     testthat::expect_s3_class(get_teal_bs_theme(), "bs_theme")
   })
   withr::with_options(list("teal.bs_theme" = 1), {
-    testthat::expect_warning(get_teal_bs_theme(), "the default shiny bootstrap is used")
+    testthat::expect_warning(get_teal_bs_theme(), ".*The default Shiny Bootstrap theme will be used.")
   })
   withr::with_options(list("teal.bs_theme" = "bs_theme"), {
-    testthat::expect_warning(get_teal_bs_theme(), "the default shiny bootstrap is used")
+    testthat::expect_warning(get_teal_bs_theme(), ".*The default Shiny Bootstrap theme will be used.")
   })
 })
 
 testthat::test_that("report_card_template function returns TealReportCard object with appropriate content and labels", {
-  fd <- teal.slice::init_filtered_data(list(iris = list(dataset = iris)))
+  fd <- teal.slice::init_filtered_data(list(iris = iris))
   filter_panel_api <- teal.slice::FilterPanelAPI$new(fd)
 
   card <- shiny::isolate(report_card_template(
@@ -40,85 +41,8 @@ testthat::test_that("report_card_template function returns TealReportCard object
 test_that("teal_data_to_filtered_data return FilteredData class", {
   teal_data <- teal.data::teal_data()
   teal_data <- within(teal_data, iris <- head(iris))
-  datanames(teal_data) <- "iris"
 
   testthat::expect_s3_class(teal_data_to_filtered_data(teal_data), "FilteredData")
-})
-
-test_that("teal_data_datanames returns names of the @env's objects when datanames not set", {
-  teal_data <- teal.data::teal_data()
-  teal_data <- within(teal_data, {
-    iris <- head(iris)
-    mtcars <- head(mtcars)
-  })
-  testthat::expect_setequal(teal_data_datanames(teal_data), c("mtcars", "iris"))
-})
-
-test_that("teal_data_datanames returns datanames which are set by teal.data::datanames", {
-  teal_data <- teal.data::teal_data()
-  teal_data <- within(teal_data, {
-    iris <- head(iris)
-    mtcars <- head(mtcars)
-  })
-  datanames(teal_data) <- "iris"
-  testthat::expect_equal(teal_data_datanames(teal_data), "iris")
-})
-
-test_that("modules_datasets returns correct structure", {
-  data <- teal_data() %>%
-    within({
-      iris <- iris
-      mtcars <- mtcars
-      x <- 5
-    })
-
-  modules <- modules(
-    label = "one",
-    modules(
-      label = "two",
-      example_module("example two", "all"),
-      modules(
-        label = "three",
-        example_module("example three", "iris"),
-        example_module("example four", "mtcars")
-      )
-    ),
-    example_module("example one", "iris")
-  )
-
-  filters <- teal_slices(
-    teal_slice("iris", "Species"),
-    teal_slice("iris", "Sepal.Length"),
-    teal_slice("mtcars", "mpg"),
-    teal_slice("mtcars", "cyl"),
-    teal_slice("mtcars", "gear"),
-    module_specific = TRUE,
-    mapping = list(
-      "example one" = "iris Species",
-      "example four" = "mtcars mpg",
-      global_filters = "mtcars cyl"
-    )
-  )
-
-  modules_structure <- rapply(
-    modules_datasets(data, modules, filters),
-    function(x) {
-      isolate(sapply(x$get_filter_state(), `[[`, "id"))
-    },
-    how = "replace"
-  )
-  expected_structure <- list(
-    two = list(
-      `example two` = "mtcars cyl",
-      three = list(
-        `example three` = list(),
-        `example four` = c("mtcars mpg", "mtcars cyl")
-      )
-    ),
-    `example one` = "iris Species"
-  )
-
-  testthat::expect_identical(modules_structure, expected_structure)
 })
 
 test_that("validate_app_title_tag works on validating the title tag", {
@@ -164,7 +88,7 @@ testthat::test_that("create_app_id: 'data' accepts teal_data or teal_data_module
   testthat::expect_no_error(create_app_id(teal.data::teal_data(), modules(example_module())))
 
   tdm <- teal_data_module(
-    ui = function(id) div(),
+    ui = function(id) tags$div(),
     server = function(id) NULL
   )
   testthat::expect_no_error(create_app_id(tdm, modules(example_module())))

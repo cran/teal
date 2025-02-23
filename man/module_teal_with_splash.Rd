@@ -4,11 +4,12 @@
 \alias{module_teal_with_splash}
 \alias{ui_teal_with_splash}
 \alias{srv_teal_with_splash}
-\title{Add splash screen to \code{teal} application}
+\title{UI and server modules of \code{teal}}
 \usage{
 ui_teal_with_splash(
   id,
   data,
+  modules,
   title = build_app_title(),
   header = tags$p(),
   footer = tags$p()
@@ -17,69 +18,37 @@ ui_teal_with_splash(
 srv_teal_with_splash(id, data, modules, filter = teal_slices())
 }
 \arguments{
-\item{id}{(\code{character(1)})
-module id}
+\item{id}{(\code{character(1)}) \code{shiny} module instance id.}
 
-\item{data}{(\code{teal_data} or \code{teal_data_module})
-For constructing the data object, refer to \code{\link[=teal_data]{teal_data()}} and \code{\link[=teal_data_module]{teal_data_module()}}.}
+\item{data}{(\code{teal_data}, \code{teal_data_module}, or \code{reactive} returning \code{teal_data})
+The data which application will depend on.}
 
-\item{title}{(\code{shiny.tag} or \code{character(1)})
-The browser window title. Defaults to a title "teal app" with the icon of NEST.
-Can be created using the \code{build_app_title()} or
-by passing a valid \code{shiny.tag} which is a head tag with title and link tag.}
-
-\item{header}{(\code{shiny.tag} or \code{character(1)})
-The header of the app.}
-
-\item{footer}{(\code{shiny.tag} or \code{character(1)})
-The footer of the app.}
-
-\item{modules}{(\code{teal_modules}) object containing the output modules which
+\item{modules}{(\code{teal_modules})
+\code{teal_modules} object. These are the specific output modules which
 will be displayed in the \code{teal} application. See \code{\link[=modules]{modules()}} and \code{\link[=module]{module()}} for
 more details.}
 
-\item{filter}{(\code{teal_slices})
-Specifies the initial filter using \code{\link[=teal_slices]{teal_slices()}}.}
+\item{title}{(\code{shiny.tag} or \code{character(1)}) \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Optionally,
+the browser window title. Defaults to a title "teal app" with the icon of NEST.
+Can be created using the \code{build_app_title()} or
+by passing a valid \code{shiny.tag} which is a head tag with title and link tag.
+This parameter is no longer supported. Use \code{modify_title()} on the teal app object instead.}
+
+\item{header}{(\code{shiny.tag} or \code{character(1)}) \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Optionally,
+the header of the app.
+This parameter is no longer supported. Use \code{modify_header()} on the teal app object instead.}
+
+\item{footer}{(\code{shiny.tag} or \code{character(1)}) \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Optionally,
+the footer of the app.
+This parameter is no longer supported. Use \code{modify_footer()} on the teal app object instead.}
+
+\item{filter}{(\code{teal_slices}) Optionally,
+specifies the initial filter using \code{\link[=teal_slices]{teal_slices()}}.}
 }
 \value{
 Returns a \code{reactive} expression containing a \code{teal_data} object when data is loaded or \code{NULL} when it is not.
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
-
-Displays custom splash screen during initial delayed data loading.
-}
-\details{
-This module pauses app initialization pending delayed data loading.
-This is necessary because the filter panel and modules depend on the data to initialize.
-
-\code{teal_with_splash} follows the \code{shiny} module convention.
-\code{\link[=init]{init()}} is a wrapper around this that assumes that \code{teal} it is
-the top-level module and cannot be embedded.
-
-Note: It is no longer recommended to embed \code{teal} in \code{shiny} apps as a module.
-but rather use \code{init} to create a standalone application.
-}
-\examples{
-teal_modules <- modules(example_module())
-# Shiny app with modular integration of teal
-ui <- fluidPage(
-  ui_teal_with_splash(id = "app1", data = teal_data())
-)
-
-server <- function(input, output, session) {
-  srv_teal_with_splash(
-    id = "app1",
-    data = teal_data(iris = iris),
-    modules = teal_modules
-  )
-}
-
-if (interactive()) {
-  shinyApp(ui, server)
-}
-
-}
-\seealso{
-\code{\link[=init]{init()}}
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+Please use \code{\link{module_teal}} instead.
 }

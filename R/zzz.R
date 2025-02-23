@@ -1,15 +1,19 @@
 .onLoad <- function(libname, pkgname) {
   # adapted from https://github.com/r-lib/devtools/blob/master/R/zzz.R
-  teal_default_options <- list(teal.show_js_log = FALSE)
+
+  teal_default_options <- list(
+    teal.show_js_log = FALSE,
+    teal.lockfile.mode = "auto",
+    shiny.sanitize.errors = FALSE
+  )
 
   op <- options()
   toset <- !(names(teal_default_options) %in% names(op))
   if (any(toset)) options(teal_default_options[toset])
 
-  options("shiny.sanitize.errors" = FALSE)
-
   # Set up the teal logger instance
   teal.logger::register_logger("teal")
+  teal.logger::register_handlers("teal")
 
   invisible()
 }
@@ -33,3 +37,4 @@ RcodeBlock <- getFromNamespace("RcodeBlock", "teal.reporter") # nolint: object_n
 # Use non-exported function(s) from teal.code
 # This one is here because lang2calls should not be exported from teal.code
 lang2calls <- getFromNamespace("lang2calls", "teal.code")
+code2list <- getFromNamespace("code2list", "teal.data")

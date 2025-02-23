@@ -4,73 +4,58 @@
 \alias{module_teal}
 \alias{ui_teal}
 \alias{srv_teal}
-\title{\code{teal} main app module}
+\title{\code{teal} main module}
 \usage{
-ui_teal(
-  id,
-  splash_ui = tags$h2("Starting the Teal App"),
-  title = build_app_title(),
-  header = tags$p(),
-  footer = tags$p()
-)
+ui_teal(id, modules)
 
-srv_teal(id, modules, teal_data_rv, filter = teal_slices())
+srv_teal(id, data, modules, filter = teal_slices())
 }
 \arguments{
-\item{id}{(\code{character(1)})
-module id}
+\item{id}{(\code{character(1)}) \code{shiny} module instance id.}
 
-\item{splash_ui}{(\code{shiny.tag}) UI to display initially,
-can be a splash screen or a \code{shiny} module UI. For the latter, see
-\code{\link[=init]{init()}} about how to call the corresponding server function.}
-
-\item{title}{(\code{shiny.tag} or \code{character(1)})
-The browser window title. Defaults to a title "teal app" with the icon of NEST.
-Can be created using the \code{build_app_title()} or
-by passing a valid \code{shiny.tag} which is a head tag with title and link tag.}
-
-\item{header}{(\code{shiny.tag} or \code{character(1)})
-The header of the app.}
-
-\item{footer}{(\code{shiny.tag} or \code{character(1)})
-The footer of the app.}
-
-\item{modules}{(\code{teal_modules}) object containing the output modules which
+\item{modules}{(\code{teal_modules})
+\code{teal_modules} object. These are the specific output modules which
 will be displayed in the \code{teal} application. See \code{\link[=modules]{modules()}} and \code{\link[=module]{module()}} for
 more details.}
 
-\item{teal_data_rv}{(\code{reactive})
-returns the \code{teal_data}, only evaluated once, \code{NULL} value is ignored}
+\item{data}{(\code{teal_data}, \code{teal_data_module}, or \code{reactive} returning \code{teal_data})
+The data which application will depend on.}
 
-\item{filter}{(\code{teal_slices})
-Specifies the initial filter using \code{\link[=teal_slices]{teal_slices()}}.}
+\item{filter}{(\code{teal_slices}) Optionally,
+specifies the initial filter using \code{\link[=teal_slices]{teal_slices()}}.}
 }
 \value{
-Returns a \code{reactive} expression which returns the currently active module.
+\code{NULL} invisibly
 }
 \description{
-This is the main \code{teal} app that puts everything together.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
+Module to create a \code{teal} app as a Shiny Module.
 }
 \details{
-It displays the splash UI which is used to fetch the data, possibly
-prompting for a password input to fetch the data. Once the data is ready,
-the splash screen is replaced by the actual \code{teal} UI that is tabsetted and
-has a filter panel with \code{datanames} that are relevant for the current tab.
-Nested tabs are possible, but we limit it to two nesting levels for reasons
-of clarity of the UI.
+This module can be used instead of \code{\link[=init]{init()}} in custom Shiny applications. Unlike \code{\link[=init]{init()}}, it doesn't
+automatically include \code{\link{module_session_info}}.
 
-The splash screen functionality can also be used
-for non-delayed data which takes time to load into memory, avoiding
-\code{shiny} session timeouts.
+Module is responsible for creating the main \code{shiny} app layout and initializing all the necessary
+components. This module establishes reactive connection between the input \code{data} and every other
+component in the app. Reactive change of the \code{data} passed as an argument, reloads the app and
+possibly keeps all input settings the same so the user can continue where one left off.
+\subsection{data flow in \code{teal} application}{
 
-Server evaluates the \code{teal_data_rv} (delayed data mechanism) and creates the
-\code{datasets} object that is shared across modules.
-Once it is ready and non-\code{NULL}, the splash screen is replaced by the
-main \code{teal} UI that depends on the data.
-The currently active tab is tracked and the right filter panel
-updates the displayed datasets to filter for according to the active \code{datanames}
-of the tab.
-
-It is written as a \code{shiny} module so it can be added into other apps as well.
+This module supports multiple data inputs but eventually, they are all converted to \code{reactive}
+returning \code{teal_data} in this module. On this \verb{reactive teal_data} object several actions are
+performed:
+\itemize{
+\item data loading in \code{\link{module_init_data}}
+\item data filtering in \code{\link{module_filter_data}}
+\item data transformation in \code{\link{module_transform_data}}
 }
-\keyword{internal}
+}
+
+\subsection{Fallback on failure}{
+
+\code{teal} is designed in such way that app will never crash if the error is introduced in any
+custom \code{shiny} module provided by app developer (e.g. \code{\link[=teal_data_module]{teal_data_module()}}, \code{\link[=teal_transform_module]{teal_transform_module()}}).
+If any module returns a failing object, the app will halt the evaluation and display a warning message.
+App user should always have a chance to fix the improper input and continue without restarting the session.
+}
+}

@@ -51,7 +51,7 @@ include_js_files <- function(pattern = NULL, except = NULL) {
 #'
 #' @param files (`character`) vector of filenames.
 #'
-#' @return returns `NULL`, invisibly.
+#' @return `NULL`, invisibly.
 #' @keywords internal
 run_js_files <- function(files) {
   checkmate::assert_character(files, min.len = 1, any.missing = FALSE)
@@ -78,6 +78,6 @@ include_teal_css_js <- function() {
     include_css_files(),
     # init.js is executed from the server
     include_js_files(except = "init.js"),
-    shinyjs::hidden(icon("gear")), # add hidden icon to load font-awesome css for icons
+    shinyjs::hidden(icon("fas fa-gear")), # add hidden icon to load font-awesome css for icons
   )
 }

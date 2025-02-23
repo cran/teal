@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="NEST CoreDev" />
+
+
+<title>Transform Input Data</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Transform Input Data</h1>
+<h4 class="author">NEST CoreDev</h4>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#introduction" id="toc-introduction">Introduction</a></li>
+<li><a href="#creating-a-data-transformation-module" id="toc-creating-a-data-transformation-module">Creating a data
+transformation module</a>
+<ul>
+<li><a href="#single-transformator" id="toc-single-transformator">Single
+transformator</a></li>
+<li><a href="#multiple-transformators" id="toc-multiple-transformators">Multiple transformators</a></li>
+</ul></li>
+</ul>
+</div>
+
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p><code>teal</code> version <code>0.16</code> introduced a new,
+optional argument in <code>teal::module</code>,
+<code>transformators</code>. This argument accepts a <code>list</code>
+of <code>teal_transform_module</code> objects, which are created using
+the <code>teal_transform_module()</code> function.
+<code>teal_transform_module()</code> takes <code>ui</code> and
+<code>server</code> arguments to create a <code>shiny</code> module that
+encodes data transformations.</p>
+<p>When transformators are passed to a module, <code>teal</code> will
+execute data transformations when that module is loaded as well as
+whenever the original data changes. The transformations are applied to
+the data <em>before</em> it reaches the module.</p>
+<p>The <code>ui</code> elements of the transform module will be added to
+the filter panel, while the server function provides the data
+manipulation logic.</p>
+<p>This vignette describes how to manage custom data transformations in
+<code>teal</code> apps.</p>
+<p><img role="img" aria-label="Transforming teal_data" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIHdpZHRoPSI1OTJweCIgaGVpZ2h0PSI3MTJweCIgdmlld0JveD0iLTAuNSAtMC41IDU5MiA3MTIiIGNvbnRlbnQ9IiZsdDtteGZpbGUmZ3Q7Jmx0O2RpYWdyYW0gbmFtZT0mcXVvdDtQYWdlLTEmcXVvdDsgaWQ9JnF1b3Q7QWYyQ29BYlNaY2NrQ3VUY09ubVEmcXVvdDsmZ3Q7NVZ0YmI2TkdGUDQxbHJZUGkyYTREZk9ZeXlhdHRGVWpaYVZ1bjFZRXhqWXFabHdZSjA1L2ZRY1lNRENIRFk0Qlc2bnpZSHdZYnQvNXpwMHNySnZOL2o3MXQrdmZlY2ppaFluQy9jSzZYWmdtSnJZbnYzTEpheW1oTmlvRnF6UUsxYUtENERINmx5bGh0V3dYaFN4ckxSU2N4eUxhdG9VQlR4SVdpSmJNVDFQKzBsNjI1SEg3cWx0L3hUVEJZK0RIdXZUUEtCVHJVdXFaNUNEL2xVV3JkWFZsN05KeXo4YXZGcXNueWRaK3lGOGFJdXZMd3JwSk9SZmwxbVovdytJY3ZBcVg4cmk3bnIzMWphVXNFVU1PSUVvVHozNjhVdyszTU4xWUhudWRiZjBrdjBQeHFoN2IvV2VYMzliMWtpZmk4NHQ2dml1NWhDQWt4UVdRY2s5V3FDdVh5eHZaRnp1cUkrWFdLdi8rTGRudWhGeHc2d3RmZm4xTC9TUmI4bFNpRS9Fa3EyNUEzblY1RCtWQkNyRDZkc3lVNzVLUTVRK1NYLzVsSFFuMnVQV0RmTytMNUoyVXJjVW1scit3M0h4bXFZaWtCcS9pYUpWSW1lQmI5U2lLWGlhcXI5R0VUeUdhSDg3MkRaR0M4NTd4RFJQcHExeWk5anJJS1E5UjNQYUlVdlhMZ1NrbVVXdldEWlpZRmJ0OXhjNVZmZTZEQXVXRzBtR1BQdDF6NkZOYStFNmUxRVIvN0lUU0xBdDRXcWp6WTJrVFd4UlFwNGQwZFdMSE9WMmQyRUdBUGp2SVNSK3l6VGVYTWR0ZjVkNU5QanBMUXJWNUc4Uitsa1ZCRzhCTXBQeHZkc05qbmhZbnNVSkNud3ExZDBGY1JuSGNXTGRjTWpjSWlpdklaL21lcTh0QUdGZUN2d29CZGR4S2NMdFhHaTEvdlRaL1BiQTBrcEN3VkFsNzljWENqajhXZnJwaTFaclNtSFFWTmpUa0FBcXFaQ21MSlZHZjJ4ZUFsS2F1OE1DalJCd1lRbXhpRUt0TkV0c2hodVcyejVUeFhSb3dkWERUSTNmTzV6bW00U0N6U3p1UEdwUzZXSnBtOGVuY1pvbUhkdktDWGpVaXd4d0lPWWNEK2NiOC9DWnFQL0tWcnlSalA1Ym5xTE9YTnoySE8wWWdvRzg3anJlY1JDOEtKWmNWWDIzZEpEMEh0TnZwVFhRb090NEF0em9PT2c2QWpudnA2T0M1MERrWEVyRHJkYXN5cERKWjVFbGZQSlduOWN3SlVXNEhTRGlNWGd6TUdKTXV6RDNSOGowd1czT1JtZXJRMDNNaFA5alViUTBkSVdQeGo3Q296SG9ETFFZU1F5Zi9nMUpMdC9qSVBiSWNGMzZVMVBsZUhuVWI2OHFQbFB0cG9JTHhXTEhZcXdsV2RSeE1QUmhqQkZSbDVnaFpmQlVFR2lEZlJYR2U5NXJvd1UveTVzZ3hTSWMrODVZQmlIVGdzYWNsZ1BRcVo3WGFQcURyakFadjI2QXBVUEppRTZDMU5RYTRlc1ZiZ2l2aGs4YjRFY2xzZHNpTWtWV0xtcERqcWZpc040MjZtZnZJZko2ZXM5aDA3QmxKcTJmbjkweHl5UmNGYTNuUlJzbmsxcWR0elBPTk8rRS94U3o3cGJnL3NZN3lhbWhSdEl5czYrazRQaCtuTFkzVEZsUXVRWXkyUjZpVzZHejFnS2NuQ1JVWkxqWkpvSG85VUxkc28yUWw5MndxODI4d055eGJnRHpOV1hzVU1hc1dVMytUYWd6S21ScmxiRXQzb3JXNWorMENxSjcrcTZacHh3VjhTSHQzZGZBcEVNR2NxZXg5cnFLQUF2VllwZm1MdGZlNllJUU0vb0xUS28xL2dIcjZLVWtjdyszMGNiRkZnSnpBTTZEeHpSaUpGU1lBRFNWTEh0WFBoQ2NNSXFIV0gzK0RsYldDVzJISWcvR1pnRjREb3UxUlRkME96ZTZLajVSemVVUWtYdHRwNDBrc3Nhc0FYazMzSEQxTGNTaGdyR1NNNlI0bUEveldtY2RCbjVHQmtOT2VCMkhUZnY4OGFBaTVMMmtlMUIzZFlOVFIvT0JKa0N6ME1HMmZESmt6ellFdzBUdERkUXhZMUgwTDlFa2NodmVUcEhwZzZYZWFwN2U3NWJNSGxzK1FHWStSK1dHaTk0TTYrZlI3NCtzeGNPTCtjZGdJSUJkanpBN00wT2djMVoyNVZqQWxvM2hMOThob3FzRldHbG5IRFhvbnhGMEMrQ3V2QjhrSkFxOCszQzJZVnR2d2o2cVFHN2wvYzNRLzhqVHVlZGpRdkRDQnlvdkpMTnk3T09ZQjB3bkZoMW1ZcHplOHpsOURqRUExaXB5NkdxaXBaZ0pVUXhEVnhuQnlWUjl6TU5VYUwrNjAwN1EzVXJUSktlcEJ5Vnc1b0pxRG9zRFUrLy9pSEUySXNaTTVSMkR3ZlduZGhURndwa2pEMmNJQXpwWTlsV2V3TGkwSVFlOEtLVHJNWXVGNlNXTVloZ2FTMUxuNEdUQUt1Q2I3bE1oWFdYUWdVY2c1cHFYWFQxd0l2dWxwYUxSYkhqRGtwd1VyaytpbVQ2RGF4d1ZzZjVRR0Z6QUsvNG1SRDJuOWRHQUsvV3hkTzRneE1MUGFnRUd2YzljQnYvMys3eWcyckUrM3A1bXd6aHVFcUt1OWtBRTAwcVpqWVU4ZDlMRTYybFFic2xCZ3Brb21BMWwvUzZEWlFIb0hqYy9TTGFLMlJsVnZZSDQvRG94NjVmU1ZyVmdTemhtM05sRVk1cGM1TW02TnBvSUJQaGg2ZWVzZGFaVDhlZmp2cTdKdmV2Z2ZOdXZMZnc9PSZsdDsvZGlhZ3JhbSZndDsmbHQ7L214ZmlsZSZndDsiPjxkZWZzLz48Zz48cmVjdCB4PSIxNyIgeT0iMjAiIHdpZHRoPSIyNzUiIGhlaWdodD0iMzEwIiBmaWxsPSJyZ2IoMjU1LCAyNTUsIDI1NSkiIHN0cm9rZT0icmdiKDAsIDAsIDApIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTAuNSAtMC41KSI+PHN3aXRjaD48Zm9yZWlnbk9iamVjdCBwb2ludGVyLWV2ZW50cz0ibm9uZSIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgcmVxdWlyZWRGZWF0dXJlcz0iaHR0cDovL3d3dy53My5vcmcvVFIvU1ZHMTEvZmVhdHVyZSNFeHRlbnNpYmlsaXR5IiBzdHlsZT0ib3ZlcmZsb3c6IHZpc2libGU7IHRleHQtYWxpZ246IGxlZnQ7Ij48ZGl2IHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hodG1sIiBzdHlsZT0iZGlzcGxheTogZmxleDsgYWxpZ24taXRlbXM6IHVuc2FmZSBmbGV4LXN0YXJ0OyBqdXN0aWZ5LWNvbnRlbnQ6IHVuc2FmZSBjZW50ZXI7IHdpZHRoOiAyNzNweDsgaGVpZ2h0OiAxcHg7IHBhZGRpbmctdG9wOiAyN3B4OyBtYXJnaW4tbGVmdDogMThweDsiPjxkaXYgZGF0YS1kcmF3aW8tY29sb3JzPSJjb2xvcjogcmdiKDAsIDAsIDApOyAiIHN0eWxlPSJib3gtc2l6aW5nOiBib3JkZXItYm94OyBmb250LXNpemU6IDBweDsgdGV4dC1hbGlnbjogY2VudGVyOyI+PGRpdiBzdHlsZT0iZGlzcGxheTogaW5saW5lLWJsb2NrOyBmb250LXNpemU6IDIwcHg7IGZvbnQtZmFtaWx5OiBIZWx2ZXRpY2E7IGNvbG9yOiByZ2IoMCwgMCwgMCk7IGxpbmUtaGVpZ2h0OiAxLjI7IHBvaW50ZXItZXZlbnRzOiBhbGw7IHdoaXRlLXNwYWNlOiBub3JtYWw7IG92ZXJmbG93LXdyYXA6IG5vcm1hbDsiPjxzcGFuIHN0eWxlPSJmb250LXdlaWdodDogNzAwOyBmb250LXNpemU6IDIwcHg7Ij5JbnB1dCBEYXRhIFRyYW5zZm9ybWF0aW9uczwvc3Bhbj48L2Rpdj48L2Rpdj48L2Rpdj48L2ZvcmVpZ25PYmplY3Q+PHRleHQgeD0iMTU1IiB5PSI0NyIgZmlsbD0icmdiKDAsIDAsIDApIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjIwcHgiIHRleHQtYW5jaG9yPSJtaWRkbGUiPklucHV0IERhdGEgVHJhbnNmb3JtYXRpb25zPC90ZXh0Pjwvc3dpdGNoPjwvZz48cmVjdCB4PSIxNyIgeT0iNTQwIiB3aWR0aD0iMjgwIiBoZWlnaHQ9IjE1NSIgZmlsbD0icmdiKDI1NSwgMjU1LCAyNTUpIiBzdHJva2U9InJnYigwLCAwLCAwKSIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0wLjUgLTAuNSkiPjxzd2l0Y2g+PGZvcmVpZ25PYmplY3QgcG9pbnRlci1ldmVudHM9Im5vbmUiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIHJlcXVpcmVkRmVhdHVyZXM9Imh0dHA6Ly93d3cudzMub3JnL1RSL1NWRzExL2ZlYXR1cmUjRXh0ZW5zaWJpbGl0eSIgc3R5bGU9Im92ZXJmbG93OiB2aXNpYmxlOyB0ZXh0LWFsaWduOiBsZWZ0OyI+PGRpdiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94aHRtbCIgc3R5bGU9ImRpc3BsYXk6IGZsZXg7IGFsaWduLWl0ZW1zOiB1bnNhZmUgZmxleC1zdGFydDsganVzdGlmeS1jb250ZW50OiB1bnNhZmUgY2VudGVyOyB3aWR0aDogMjc4cHg7IGhlaWdodDogMXB4OyBwYWRkaW5nLXRvcDogNTQ3cHg7IG1hcmdpbi1sZWZ0OiAxOHB4OyI+PGRpdiBkYXRhLWRyYXdpby1jb2xvcnM9ImNvbG9yOiByZ2IoMCwgMCwgMCk7ICIgc3R5bGU9ImJveC1zaXppbmc6IGJvcmRlci1ib3g7IGZvbnQtc2l6ZTogMHB4OyB0ZXh0LWFsaWduOiBjZW50ZXI7Ij48ZGl2IHN0eWxlPSJkaXNwbGF5OiBpbmxpbmUtYmxvY2s7IGZvbnQtc2l6ZTogMjBweDsgZm9udC1mYW1pbHk6IEhlbHZldGljYTsgY29sb3I6IHJnYigwLCAwLCAwKTsgbGluZS1oZWlnaHQ6IDEuMjsgcG9pbnRlci1ldmVudHM6IGFsbDsgd2hpdGUtc3BhY2U6IG5vcm1hbDsgb3ZlcmZsb3ctd3JhcDogbm9ybWFsOyI+PHNwYW4gc3R5bGU9ImZvbnQtd2VpZ2h0OiA3MDA7IGZvbnQtc2l6ZTogMjBweDsiPk1vZHVsZSBPdXRwdXQgRGVjb3JhdGlvbjwvc3Bhbj48L2Rpdj48L2Rpdj48L2Rpdj48L2ZvcmVpZ25PYmplY3Q+PHRleHQgeD0iMTU3IiB5PSI1NjciIGZpbGw9InJnYigwLCAwLCAwKSIgZm9udC1mYW1pbHk9IkhlbHZldGljYSIgZm9udC1zaXplPSIyMHB4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Nb2R1bGUgT3V0cHV0IERlY29yYXRpb248L3RleHQ+PC9zd2l0Y2g+PC9nPjxwYXRoIGQ9Ik0gMjYzLjY1IDYxMC41IEwgMjU2LjUxIDYwMy41IEwgMzQ5LjU2IDUwOC41NSBMIDM0Mi4wNiA1MDEuMiBMIDM2Ni40MyA0OTguNDggTCAzNjQuMiA1MjIuOSBMIDM1Ni43MSA1MTUuNTUgWiIgZmlsbD0iI2ZmZTZjYyIgc3Ryb2tlPSIjZDc5YjAwIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48cmVjdCB4PSIxNyIgeT0iMzYwIiB3aWR0aD0iMjgwIiBoZWlnaHQ9IjE2MCIgZmlsbD0icmdiKDI1NSwgMjU1LCAyNTUpIiBzdHJva2U9InJnYigwLCAwLCAwKSIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0wLjUgLTAuNSkiPjxzd2l0Y2g+PGZvcmVpZ25PYmplY3QgcG9pbnRlci1ldmVudHM9Im5vbmUiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIHJlcXVpcmVkRmVhdHVyZXM9Imh0dHA6Ly93d3cudzMub3JnL1RSL1NWRzExL2ZlYXR1cmUjRXh0ZW5zaWJpbGl0eSIgc3R5bGU9Im92ZXJmbG93OiB2aXNpYmxlOyB0ZXh0LWFsaWduOiBsZWZ0OyI+PGRpdiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94aHRtbCIgc3R5bGU9ImRpc3BsYXk6IGZsZXg7IGFsaWduLWl0ZW1zOiB1bnNhZmUgZmxleC1zdGFydDsganVzdGlmeS1jb250ZW50OiB1bnNhZmUgY2VudGVyOyB3aWR0aDogMjc4cHg7IGhlaWdodDogMXB4OyBwYWRkaW5nLXRvcDogMzY3cHg7IG1hcmdpbi1sZWZ0OiAxOHB4OyI+PGRpdiBkYXRhLWRyYXdpby1jb2xvcnM9ImNvbG9yOiByZ2IoMCwgMCwgMCk7ICIgc3R5bGU9ImJveC1zaXppbmc6IGJvcmRlci1ib3g7IGZvbnQtc2l6ZTogMHB4OyB0ZXh0LWFsaWduOiBjZW50ZXI7Ij48ZGl2IHN0eWxlPSJkaXNwbGF5OiBpbmxpbmUtYmxvY2s7IGZvbnQtc2l6ZTogMjBweDsgZm9udC1mYW1pbHk6IEhlbHZldGljYTsgY29sb3I6IHJnYigwLCAwLCAwKTsgbGluZS1oZWlnaHQ6IDEuMjsgcG9pbnRlci1ldmVudHM6IGFsbDsgd2hpdGUtc3BhY2U6IG5vcm1hbDsgb3ZlcmZsb3ctd3JhcDogbm9ybWFsOyI+PHNwYW4gc3R5bGU9ImZvbnQtd2VpZ2h0OiA3MDA7IGZvbnQtc2l6ZTogMjBweDsiPlRlYWwgTW9kdWxlIExvZ2ljPC9zcGFuPjwvZGl2PjwvZGl2PjwvZGl2PjwvZm9yZWlnbk9iamVjdD48dGV4dCB4PSIxNTciIHk9IjM4NyIgZmlsbD0icmdiKDAsIDAsIDApIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjIwcHgiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlRlYWwgTW9kdWxlIExvZ2ljPC90ZXh0Pjwvc3dpdGNoPjwvZz48cGF0aCBkPSJNIDE1MiA5NSBMIDE1MiAxMTMuNjMiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiKDAsIDAsIDApIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJzdHJva2UiLz48cGF0aCBkPSJNIDE1MiAxMTguODggTCAxNDguNSAxMTEuODggTCAxNTIgMTEzLjYzIEwgMTU1LjUgMTExLjg4IFoiIGZpbGw9InJnYigwLCAwLCAwKSIgc3Ryb2tlPSJyZ2IoMCwgMCwgMCkiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxwYXRoIGQ9Ik0gMTUyIDE1NSBMIDE1MiAxNzYuMTMiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiKDAsIDAsIDApIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJzdHJva2UiLz48cGF0aCBkPSJNIDE1MiAxODEuMzggTCAxNDguNSAxNzQuMzggTCAxNTIgMTc2LjEzIEwgMTU1LjUgMTc0LjM4IFoiIGZpbGw9InJnYigwLCAwLCAwKSIgc3Ryb2tlPSJyZ2IoMCwgMCwgMCkiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxwYXRoIGQ9Ik0gMTUyIDIwNy41IEwgMTUyIDIyNi4xMyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2IoMCwgMCwgMCkiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9InN0cm9rZSIvPjxwYXRoIGQ9Ik0gMTUyIDIzMS4zOCBMIDE0OC41IDIyNC4zOCBMIDE1MiAyMjYuMTMgTCAxNTUuNSAyMjQuMzggWiIgZmlsbD0icmdiKDAsIDAsIDApIiBzdHJva2U9InJnYigwLCAwLCAwKSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PHBhdGggZD0iTSAxNTIgMjY3LjUgTCAxNTIgMjgwLjYzIiBmaWxsPSJub25lIiBzdHJva2U9InJnYigwLCAwLCAwKSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ic3Ryb2tlIi8+PHBhdGggZD0iTSAxNTIgMjg1Ljg4IEwgMTQ4LjUgMjc4Ljg4IEwgMTUyIDI4MC42MyBMIDE1NS41IDI3OC44OCBaIiBmaWxsPSJyZ2IoMCwgMCwgMCkiIHN0cm9rZT0icmdiKDAsIDAsIDApIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48cGF0aCBkPSJNIDE1MiA1MDAgTCAxNTIgNTc4LjYzIiBmaWxsPSJub25lIiBzdHJva2U9InJnYigwLCAwLCAwKSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ic3Ryb2tlIi8+PHBhdGggZD0iTSAxNTIgNTgzLjg4IEwgMTQ4LjUgNTc2Ljg4IEwgMTUyIDU3OC42MyBMIDE1NS41IDU3Ni44OCBaIiBmaWxsPSJyZ2IoMCwgMCwgMCkiIHN0cm9rZT0icmdiKDAsIDAsIDApIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48cmVjdCB4PSI5OS41IiB5PSI3MCIgd2lkdGg9IjEwNSIgaGVpZ2h0PSIyNSIgZmlsbD0iI2Y1ZjVmNSIgc3Ryb2tlPSIjNjY2NjY2IiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PGcgZmlsbD0iIzMzMzMzMyIgZm9udC1mYW1pbHk9IkhlbHZldGljYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMnB4Ij48dGV4dCB4PSIxNTEuNSIgeT0iODciPnRlYWxfZGF0YTwvdGV4dD48L2c+PHJlY3QgeD0iOTIiIHk9IjEyMCIgd2lkdGg9IjEyMCIgaGVpZ2h0PSIzNSIgcng9IjE3LjUiIHJ5PSIxNy41IiBmaWxsPSIjZGFlOGZjIiBzdHJva2U9IiM2YzhlYmYiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48ZyBmaWxsPSJyZ2IoMCwgMCwgMCkiIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTJweCI+PHRleHQgeD0iMTUxLjUiIHk9IjE0MiI+RmlsdGVyIFBhbmVsPC90ZXh0PjwvZz48cmVjdCB4PSI5NC41IiB5PSIxODIuNSIgd2lkdGg9IjExNSIgaGVpZ2h0PSIyNSIgZmlsbD0iI2Y1ZjVmNSIgc3Ryb2tlPSIjNjY2NjY2IiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PGcgZmlsbD0iIzMzMzMzMyIgZm9udC1mYW1pbHk9IkhlbHZldGljYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMnB4Ij48dGV4dCB4PSIxNTEuNSIgeT0iMTk5LjUiPkZpbHRlcmVkIHRlYWxfZGF0YTwvdGV4dD48L2c+PHJlY3QgeD0iOTIiIHk9IjQwNCIgd2lkdGg9IjEyMCIgaGVpZ2h0PSIzNSIgcng9IjE3LjUiIHJ5PSIxNy41IiBmaWxsPSIjZGFlOGZjIiBzdHJva2U9IiM2YzhlYmYiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48ZyBmaWxsPSJyZ2IoMCwgMCwgMCkiIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTJweCI+PHRleHQgeD0iMTUxLjUiIHk9IjQyNiI+TW9kdWxlIExvZ2ljPC90ZXh0PjwvZz48cmVjdCB4PSI0NC41IiB5PSI0NjAiIHdpZHRoPSIyMTUiIGhlaWdodD0iNDAiIGZpbGw9IiNmNWY1ZjUiIHN0cm9rZT0iIzY2NjY2NiIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxnIGZpbGw9IiMzMzMzMzMiIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTJweCI+PHRleHQgeD0iMTUxLjUiIHk9IjQ3Ny41Ij5HZW5lcmF0ZWQgb3V0cHV0cyAocGxvdHMvdGFibGVzKSB3aXRoaW48L3RleHQ+PHRleHQgeD0iMTUxLjUiIHk9IjQ5MS41Ij50ZWFsX2RhdGE8L3RleHQ+PC9nPjxwYXRoIGQ9Ik0gMTUyIDQzOSBMIDE1MiA0NTMuNjMiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiKDAsIDAsIDApIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJzdHJva2UiLz48cGF0aCBkPSJNIDE1MiA0NTguODggTCAxNDguNSA0NTEuODggTCAxNTIgNDUzLjYzIEwgMTU1LjUgNDUxLjg4IFoiIGZpbGw9InJnYigwLCAwLCAwKSIgc3Ryb2tlPSJyZ2IoMCwgMCwgMCkiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxyZWN0IHg9IjM0LjUiIHk9IjU4NSIgd2lkdGg9IjIzNSIgaGVpZ2h0PSIzNSIgcng9IjUuMjUiIHJ5PSI1LjI1IiBmaWxsPSIjZmZlNmNjIiBzdHJva2U9IiNkNzliMDAiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48ZyBmaWxsPSJyZ2IoMCwgMCwgMCkiIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTJweCI+PHRleHQgeD0iMTUxLjUiIHk9IjYwNyI+VHJhbnNmb3JtaW5nIG1vZHVsZSBvdXRwdXRzIChkZWNvcmF0b3JzKTwvdGV4dD48L2c+PHJlY3QgeD0iNzQuNSIgeT0iNjQ1IiB3aWR0aD0iMTU1IiBoZWlnaHQ9IjQwIiBmaWxsPSIjZjVmNWY1IiBzdHJva2U9IiM2NjY2NjYiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48ZyBmaWxsPSIjMzMzMzMzIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjEycHgiPjx0ZXh0IHg9IjE1MS41IiB5PSI2NjIuNSI+RGVjb3JhdGVkIG91dHB1dHMgd2l0aGluPC90ZXh0Pjx0ZXh0IHg9IjE1MS41IiB5PSI2NzYuNSI+dGVhbF9kYXRhPC90ZXh0PjwvZz48cGF0aCBkPSJNIDE1MiA2MjAgTCAxNTIgNjM4LjYzIiBmaWxsPSJub25lIiBzdHJva2U9InJnYigwLCAwLCAwKSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ic3Ryb2tlIi8+PHBhdGggZD0iTSAxNTIgNjQzLjg4IEwgMTQ4LjUgNjM2Ljg4IEwgMTUyIDYzOC42MyBMIDE1NS41IDYzNi44OCBaIiBmaWxsPSJyZ2IoMCwgMCwgMCkiIHN0cm9rZT0icmdiKDAsIDAsIDApIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48cmVjdCB4PSI4Ny42MyIgeT0iMjg3IiB3aWR0aD0iMTI4Ljc1IiBoZWlnaHQ9IjI1IiBmaWxsPSIjZjVmNWY1IiBzdHJva2U9IiM2NjY2NjYiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48ZyBmaWxsPSIjMzMzMzMzIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjEycHgiPjx0ZXh0IHg9IjE1MS41MSIgeT0iMzA0Ij5UcmFuc2Zvcm1lZCB0ZWFsX2RhdGE8L3RleHQ+PC9nPjxwYXRoIGQ9Ik0gMTUyIDMxMiBMIDE1MiAzOTcuNjMiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiKDAsIDAsIDApIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJzdHJva2UiLz48cGF0aCBkPSJNIDE1MiA0MDIuODggTCAxNDguNSAzOTUuODggTCAxNTIgMzk3LjYzIEwgMTU1LjUgMzk1Ljg4IFoiIGZpbGw9InJnYigwLCAwLCAwKSIgc3Ryb2tlPSJyZ2IoMCwgMCwgMCkiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSI1OTAiIGhlaWdodD0iNzEwIiBmaWxsLW9wYWNpdHk9IjAuNSIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSJyZ2IoMCwgMCwgMCkiIHN0cm9rZS1vcGFjaXR5PSIwLjUiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48cGF0aCBkPSJNIDIzNi41OCAyNTUuMDEgTCAyMzguNCAyNDUuMTggTCAzNDUuMiAyNjUgTCAzNDcuMTIgMjU0LjY4IEwgMzYyLjk3IDI3My4zOSBMIDM0MS40NiAyODUuMTYgTCAzNDMuMzggMjc0Ljg0IFoiIGZpbGw9IiNmZmU2Y2MiIHN0cm9rZT0iI2Q3OWIwMCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PHJlY3QgeD0iNTciIHk9IjIzMi41IiB3aWR0aD0iMTkwIiBoZWlnaHQ9IjM1IiByeD0iMTcuNSIgcnk9IjE3LjUiIGZpbGw9IiNmZmU2Y2MiIHN0cm9rZT0iI2Q3OWIwMCIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxnIGZpbGw9InJnYigwLCAwLCAwKSIgZm9udC1mYW1pbHk9IkhlbHZldGljYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMnB4Ij48dGV4dCB4PSIxNTEuNSIgeT0iMjU0LjUiPlRyYW5zZm9ybSBQYW5lbCAodHJhbnNmb3JtYXRvcnMpPC90ZXh0PjwvZz48cmVjdCB4PSIzNjQuNSIgeT0iMjQwIiB3aWR0aD0iMjA3LjUiIGhlaWdodD0iMjcwIiByeD0iMjIuODIiIHJ5PSIyMi44MiIgZmlsbD0iI2ZmZTZjYyIgc3Ryb2tlPSIjZDc5YjAwIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PGcgZmlsbD0icmdiKDAsIDAsIDApIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjEycHgiPjx0ZXh0IHg9IjQ2Ny43NSIgeT0iMjU3LjUiPlRyYW5zZm9ybWluZyB0ZWFsX2RhdGE8L3RleHQ+PC9nPjxwYXRoIGQ9Ik0gNDY4LjI1IDM2MCBMIDQ2OC4yNSAzNjguNjMiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ic3Ryb2tlIi8+PHBhdGggZD0iTSA0NjguMjUgMzczLjg4IEwgNDY0Ljc1IDM2Ni44OCBMIDQ2OC4yNSAzNjguNjMgTCA0NzEuNzUgMzY2Ljg4IFoiIGZpbGw9IiMwMDAwMDAiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PHJlY3QgeD0iMzkzLjI1IiB5PSIzMjUiIHdpZHRoPSIxNTAiIGhlaWdodD0iMzUiIHJ4PSIxNy41IiByeT0iMTcuNSIgZmlsbD0iI2RhZThmYyIgc3Ryb2tlPSIjNmM4ZWJmIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PGcgZmlsbD0icmdiKDAsIDAsIDApIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjEycHgiPjx0ZXh0IHg9IjQ2Ny43NSIgeT0iMzQ3Ij50ZWFsX3RyYW5zZm9ybV9tb2R1bGU8L3RleHQ+PC9nPjxwYXRoIGQ9Ik0gNDY3Ljg5IDMwNSBMIDQ2OC4wMiAzMTguNjMiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ic3Ryb2tlIi8+PHBhdGggZD0iTSA0NjguMDcgMzIzLjg4IEwgNDY0LjUxIDMxNi45MiBMIDQ2OC4wMiAzMTguNjMgTCA0NzEuNTEgMzE2Ljg1IFoiIGZpbGw9IiMwMDAwMDAiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PHJlY3QgeD0iNDE3Ljc1IiB5PSIyNzUiIHdpZHRoPSIxMDAiIGhlaWdodD0iMzAiIHJ4PSI0LjUiIHJ5PSI0LjUiIGZpbGw9IiNmNWY1ZjUiIHN0cm9rZT0iIzY2NjY2NiIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxnIGZpbGw9IiMzMzMzMzMiIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTJweCI+PHRleHQgeD0iNDY3LjI1IiB5PSIyOTQuNSI+dGVhbF9kYXRhPC90ZXh0PjwvZz48cGF0aCBkPSJNIDQ2OC44MyA0MTAgTCA0NjkuMDQgNDE2LjE0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAwMDAiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9InN0cm9rZSIvPjxwYXRoIGQ9Ik0gNDY5LjIxIDQyMS4zOCBMIDQ2NS40OCA0MTQuNSBMIDQ2OS4wNCA0MTYuMTQgTCA0NzIuNDggNDE0LjI3IFoiIGZpbGw9IiMwMDAwMDAiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PHJlY3QgeD0iMzkzLjI1IiB5PSIzNzUiIHdpZHRoPSIxNTAiIGhlaWdodD0iMzUiIHJ4PSIxNy41IiByeT0iMTcuNSIgZmlsbD0iI2RhZThmYyIgc3Ryb2tlPSIjNmM4ZWJmIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PGcgZmlsbD0icmdiKDAsIDAsIDApIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjEycHgiPjx0ZXh0IHg9IjQ2Ny43NSIgeT0iMzk3Ij50ZWFsX3RyYW5zZm9ybV9tb2R1bGU8L3RleHQ+PC9nPjxyZWN0IHg9IjQwMi4yNSIgeT0iNDY1IiB3aWR0aD0iMTM0IiBoZWlnaHQ9IjMwIiByeD0iNC41IiByeT0iNC41IiBmaWxsPSIjZjVmNWY1IiBzdHJva2U9IiM2NjY2NjYiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48ZyBmaWxsPSIjMzMzMzMzIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjEycHgiPjx0ZXh0IHg9IjQ2OC43NSIgeT0iNDg0LjUiPlRyYW5zZm9ybWVkIHRlYWxfZGF0YTwvdGV4dD48L2c+PHBhdGggZD0iTSA0NjkuMjUgNDQ3LjUgTCA0NjkuMjUgNDU4LjYzIiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAwMDAiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9InN0cm9rZSIvPjxwYXRoIGQ9Ik0gNDY5LjI1IDQ2My44OCBMIDQ2NS43NSA0NTYuODggTCA0NjkuMjUgNDU4LjYzIEwgNDcyLjc1IDQ1Ni44OCBaIiBmaWxsPSIjMDAwMDAwIiBzdHJva2U9IiMwMDAwMDAiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxyZWN0IHg9IjQzOS4yNSIgeT0iNDIyLjUiIHdpZHRoPSI2MCIgaGVpZ2h0PSIyNSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJub25lIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTAuNSAtMC41KSI+PHN3aXRjaD48Zm9yZWlnbk9iamVjdCBwb2ludGVyLWV2ZW50cz0ibm9uZSIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgcmVxdWlyZWRGZWF0dXJlcz0iaHR0cDovL3d3dy53My5vcmcvVFIvU1ZHMTEvZmVhdHVyZSNFeHRlbnNpYmlsaXR5IiBzdHlsZT0ib3ZlcmZsb3c6IHZpc2libGU7IHRleHQtYWxpZ246IGxlZnQ7Ij48ZGl2IHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hodG1sIiBzdHlsZT0iZGlzcGxheTogZmxleDsgYWxpZ24taXRlbXM6IHVuc2FmZSBmbGV4LWVuZDsganVzdGlmeS1jb250ZW50OiB1bnNhZmUgY2VudGVyOyB3aWR0aDogNThweDsgaGVpZ2h0OiAxcHg7IHBhZGRpbmctdG9wOiA0NDVweDsgbWFyZ2luLWxlZnQ6IDQ0MHB4OyI+PGRpdiBkYXRhLWRyYXdpby1jb2xvcnM9ImNvbG9yOiByZ2IoMCwgMCwgMCk7ICIgc3R5bGU9ImJveC1zaXppbmc6IGJvcmRlci1ib3g7IGZvbnQtc2l6ZTogMHB4OyB0ZXh0LWFsaWduOiBjZW50ZXI7Ij48ZGl2IHN0eWxlPSJkaXNwbGF5OiBpbmxpbmUtYmxvY2s7IGZvbnQtc2l6ZTogMjhweDsgZm9udC1mYW1pbHk6IEhlbHZldGljYTsgY29sb3I6IHJnYigwLCAwLCAwKTsgbGluZS1oZWlnaHQ6IDEuMjsgcG9pbnRlci1ldmVudHM6IGFsbDsgd2hpdGUtc3BhY2U6IG5vcm1hbDsgb3ZlcmZsb3ctd3JhcDogbm9ybWFsOyI+Li4uPC9kaXY+PC9kaXY+PC9kaXY+PC9mb3JlaWduT2JqZWN0Pjx0ZXh0IHg9IjQ2OSIgeT0iNDQ1IiBmaWxsPSJyZ2IoMCwgMCwgMCkiIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EiIGZvbnQtc2l6ZT0iMjhweCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Li4uPC90ZXh0Pjwvc3dpdGNoPjwvZz48cmVjdCB4PSI0NDciIHk9IjIwIiB3aWR0aD0iMTI1IiBoZWlnaHQ9IjE1MCIgZmlsbD0icmdiKDI1NSwgMjU1LCAyNTUpIiBzdHJva2U9InJnYigwLCAwLCAwKSIgc3Ryb2tlLWRhc2hhcnJheT0iMyAzIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PHJlY3QgeD0iNDc5LjUiIHk9IjEwMCIgd2lkdGg9IjYwIiBoZWlnaHQ9IjI1IiByeD0iMTIuNSIgcnk9IjEyLjUiIGZpbGw9IiNkYWU4ZmMiIHN0cm9rZT0iIzZjOGViZiIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxnIGZpbGw9InJnYigwLCAwLCAwKSIgZm9udC1mYW1pbHk9IkhlbHZldGljYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMnB4Ij48dGV4dCB4PSI1MDkiIHk9IjExNyI+TG9naWM8L3RleHQ+PC9nPjxyZWN0IHg9IjQ3NC41IiB5PSI2MCIgd2lkdGg9IjcwIiBoZWlnaHQ9IjI1IiBmaWxsPSIjZjVmNWY1IiBzdHJva2U9IiM2NjY2NjYiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48ZyBmaWxsPSIjMzMzMzMzIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjEycHgiPjx0ZXh0IHg9IjUwOSIgeT0iNzciPnRlYWxfZGF0YTwvdGV4dD48L2c+PHJlY3QgeD0iNDU5LjUiIHk9IjEzNSIgd2lkdGg9IjEwMCIgaGVpZ2h0PSIyNSIgcng9IjEyLjUiIHJ5PSIxMi41IiBmaWxsPSIjZmZlNmNjIiBzdHJva2U9IiNkNzliMDAiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48ZyBmaWxsPSJyZ2IoMCwgMCwgMCkiIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTJweCI+PHRleHQgeD0iNTA5IiB5PSIxNTIiPlRyYW5zZm9ybSBMb2dpYzwvdGV4dD48L2c+PHJlY3QgeD0iNDU3IiB5PSIyMCIgd2lkdGg9IjEwNSIgaGVpZ2h0PSIzMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJub25lIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTAuNSAtMC41KSI+PHN3aXRjaD48Zm9yZWlnbk9iamVjdCBwb2ludGVyLWV2ZW50cz0ibm9uZSIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgcmVxdWlyZWRGZWF0dXJlcz0iaHR0cDovL3d3dy53My5vcmcvVFIvU1ZHMTEvZmVhdHVyZSNFeHRlbnNpYmlsaXR5IiBzdHlsZT0ib3ZlcmZsb3c6IHZpc2libGU7IHRleHQtYWxpZ246IGxlZnQ7Ij48ZGl2IHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hodG1sIiBzdHlsZT0iZGlzcGxheTogZmxleDsgYWxpZ24taXRlbXM6IHVuc2FmZSBjZW50ZXI7IGp1c3RpZnktY29udGVudDogdW5zYWZlIGNlbnRlcjsgd2lkdGg6IDEwM3B4OyBoZWlnaHQ6IDFweDsgcGFkZGluZy10b3A6IDM1cHg7IG1hcmdpbi1sZWZ0OiA0NThweDsiPjxkaXYgZGF0YS1kcmF3aW8tY29sb3JzPSJjb2xvcjogcmdiKDAsIDAsIDApOyAiIHN0eWxlPSJib3gtc2l6aW5nOiBib3JkZXItYm94OyBmb250LXNpemU6IDBweDsgdGV4dC1hbGlnbjogY2VudGVyOyI+PGRpdiBzdHlsZT0iZGlzcGxheTogaW5saW5lLWJsb2NrOyBmb250LXNpemU6IDIwcHg7IGZvbnQtZmFtaWx5OiBIZWx2ZXRpY2E7IGNvbG9yOiByZ2IoMCwgMCwgMCk7IGxpbmUtaGVpZ2h0OiAxLjI7IHBvaW50ZXItZXZlbnRzOiBhbGw7IHdoaXRlLXNwYWNlOiBub3JtYWw7IG92ZXJmbG93LXdyYXA6IG5vcm1hbDsiPkxlZ2VuZDwvZGl2PjwvZGl2PjwvZGl2PjwvZm9yZWlnbk9iamVjdD48dGV4dCB4PSI1MTAiIHk9IjQxIiBmaWxsPSJyZ2IoMCwgMCwgMCkiIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EiIGZvbnQtc2l6ZT0iMjBweCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+TGVnZW5kPC90ZXh0Pjwvc3dpdGNoPjwvZz48L2c+PHN3aXRjaD48ZyByZXF1aXJlZEZlYXR1cmVzPSJodHRwOi8vd3d3LnczLm9yZy9UUi9TVkcxMS9mZWF0dXJlI0V4dGVuc2liaWxpdHkiLz48YSB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwLC01KSIgeGxpbms6aHJlZj0iaHR0cHM6Ly93d3cuZGlhZ3JhbXMubmV0L2RvYy9mYXEvc3ZnLWV4cG9ydC10ZXh0LXByb2JsZW1zIiB0YXJnZXQ9Il9ibGFuayI+PHRleHQgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMHB4IiB4PSI1MCUiIHk9IjEwMCUiPlRleHQgaXMgbm90IFNWRyAtIGNhbm5vdCBkaXNwbGF5PC90ZXh0PjwvYT48L3N3aXRjaD48L3N2Zz4=" alt="Transforming teal_data" style="width: 100%;" /></p>
+<p>In this vignette we will focus on using the
+<code>teal_transform_module</code> for transforming the input data using
+the <code>transformators</code> argument in <code>teal::module</code>
+function.</p>
+</div>
+<div id="creating-a-data-transformation-module" class="section level2">
+<h2>Creating a data transformation module</h2>
+<p>Let us initialize a simple <code>teal</code> app by providing
+<code>iris</code> and <code>mtcars</code> as input datasets.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(teal)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">within</span>(<span class="fu">teal_data</span>(), {</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>  iris <span class="ot">&lt;-</span> iris</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  mtcars <span class="ot">&lt;-</span> mtcars</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>})</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>app <span class="ot">&lt;-</span> <span class="fu">init</span>(</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>  <span class="at">data =</span> data,</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>  <span class="at">modules =</span> <span class="fu">example_module</span>()</span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>)</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">interactive</span>()) {</span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>  <span class="fu">shinyApp</span>(app<span class="sc">$</span>ui, app<span class="sc">$</span>server)</span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>}</span></code></pre></div>
+<div id="single-transformator" class="section level3">
+<h3>Single transformator</h3>
+<p>Now let us create a simple <code>teal_transform_module</code> that
+returns the first <code>n</code> number of rows of <code>iris</code>
+based on user input.</p>
+<p>We will achieve this by creating a UI function with a
+<code>numericInput</code> for the user to specify the number of rows to
+be displayed. The server function will take a reactive expression
+holding <code>data</code> as argument and return a reactive expression
+holding transformed <code>data</code>.</p>
+<p><em>Note</em>: It is recommended to return <code>reactive()</code>
+with <code>teal_data()</code> in <code>server</code> code of a
+<code>teal_transform_module</code> as this is more robust for
+maintaining the reactivity of Shiny. If you are planning on using
+<code>eventReactive()</code> in the server, the event should include
+<code>data()</code> <em>(example
+<code>eventReactive(list(input$a, data()), {...})</code>)</em>. More in
+<a href="https://github.com/insightsengineering/teal/issues/1303#issuecomment-2286239832">this
+discussion</a>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">within</span>(<span class="fu">teal_data</span>(), {</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  iris <span class="ot">&lt;-</span> iris</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  mtcars <span class="ot">&lt;-</span> mtcars</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>})</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>transformator_iris <span class="ot">&lt;-</span> <span class="fu">teal_transform_module</span>(</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  <span class="at">label =</span> <span class="st">&quot;Custom transformator for iris&quot;</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  <span class="at">ui =</span> <span class="cf">function</span>(id) {</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>    ns <span class="ot">&lt;-</span> <span class="fu">NS</span>(id)</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>    tags<span class="sc">$</span><span class="fu">div</span>(</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>      <span class="fu">numericInput</span>(<span class="fu">ns</span>(<span class="st">&quot;n_rows&quot;</span>), <span class="st">&quot;Number of rows to display&quot;</span>, <span class="at">value =</span> <span class="dv">6</span>, <span class="at">min =</span> <span class="dv">1</span>, <span class="at">max =</span> <span class="dv">150</span>, <span class="at">step =</span> <span class="dv">1</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>    )</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>  },</span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>  <span class="at">server =</span> <span class="cf">function</span>(id, data) {</span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>    <span class="fu">moduleServer</span>(id, <span class="cf">function</span>(input, output, session) {</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>      <span class="fu">reactive</span>({</span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>        <span class="fu">within</span>(</span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>          <span class="fu">data</span>(),</span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>          iris <span class="ot">&lt;-</span> <span class="fu">head</span>(iris, num_rows),</span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>          <span class="at">num_rows =</span> input<span class="sc">$</span>n_rows</span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>        )</span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>      })</span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>    })</span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a>  }</span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a>)</span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a>app <span class="ot">&lt;-</span> <span class="fu">init</span>(</span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a>  <span class="at">data =</span> data,</span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a>  <span class="at">modules =</span> <span class="fu">example_module</span>(<span class="at">transformators =</span> <span class="fu">list</span>(transformator_iris))</span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a>)</span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a></span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">interactive</span>()) {</span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a>  <span class="fu">shinyApp</span>(app<span class="sc">$</span>ui, app<span class="sc">$</span>server)</span>
+<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a>}</span></code></pre></div>
+<p><em>Note</em>: The <code>server</code> function of a
+<code>teal_transform_module</code> must return a reactive expression
+with a <code>teal_data</code> object. In order to maintain full
+reactivity, we recommended using <code>reactive()</code> over
+<code>eventReactive()</code>. If you do use <code>eventReactive()</code>
+or <code>bindEvent()</code>, the trigger event should include
+<code>data()</code> (<em>e.g.</em>
+<code>eventReactive(list(input$a, data()), {...})</code>). See <a href="https://github.com/insightsengineering/teal/issues/1303#issuecomment-2286239832">this
+discussion</a> for a detailed explanation.</p>
+</div>
+<div id="multiple-transformators" class="section level3">
+<h3>Multiple transformators</h3>
+<p><code>module(transformators)</code> accepts a list, so we can use
+multiple <code>teal_transform_module</code>s at the same time.</p>
+<div id="targeting-multiple-datasets" class="section level4">
+<h4>Targeting multiple datasets</h4>
+<p>Let us add another transformation that creates a column with
+<code>rownames</code> in <code>mtcars</code>. Note that this module does
+not have interactive UI elements.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">within</span>(<span class="fu">teal_data</span>(), {</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  iris <span class="ot">&lt;-</span> iris</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  mtcars <span class="ot">&lt;-</span> mtcars</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>})</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>transformator_iris <span class="ot">&lt;-</span> <span class="fu">teal_transform_module</span>(</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>  <span class="at">label =</span> <span class="st">&quot;Custom transformator for iris&quot;</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>  <span class="at">ui =</span> <span class="cf">function</span>(id) {</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>    ns <span class="ot">&lt;-</span> <span class="fu">NS</span>(id)</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>    tags<span class="sc">$</span><span class="fu">div</span>(</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>      <span class="fu">numericInput</span>(<span class="fu">ns</span>(<span class="st">&quot;n_rows&quot;</span>), <span class="st">&quot;Number of rows to subset&quot;</span>, <span class="at">value =</span> <span class="dv">6</span>, <span class="at">min =</span> <span class="dv">1</span>, <span class="at">max =</span> <span class="dv">150</span>, <span class="at">step =</span> <span class="dv">1</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>    )</span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>  },</span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>  <span class="at">server =</span> <span class="cf">function</span>(id, data) {</span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>    <span class="fu">moduleServer</span>(id, <span class="cf">function</span>(input, output, session) {</span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>      <span class="fu">reactive</span>({</span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>        <span class="fu">within</span>(</span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a>          <span class="fu">data</span>(),</span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a>          iris <span class="ot">&lt;-</span> <span class="fu">head</span>(iris, num_rows),</span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a>          <span class="at">num_rows =</span> input<span class="sc">$</span>n_rows</span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a>        )</span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a>      })</span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a>    })</span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a>  }</span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a>)</span>
+<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a></span>
+<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a>transformator_mtcars <span class="ot">&lt;-</span> <span class="fu">teal_transform_module</span>(</span>
+<span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a>  <span class="at">label =</span> <span class="st">&quot;Custom transformator for mtcars&quot;</span>,</span>
+<span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a>  <span class="at">ui =</span> <span class="cf">function</span>(id) {</span>
+<span id="cb3-30"><a href="#cb3-30" tabindex="-1"></a>    ns <span class="ot">&lt;-</span> <span class="fu">NS</span>(id)</span>
+<span id="cb3-31"><a href="#cb3-31" tabindex="-1"></a>    tags<span class="sc">$</span><span class="fu">div</span>(</span>
+<span id="cb3-32"><a href="#cb3-32" tabindex="-1"></a>      <span class="st">&quot;Adding rownames column to mtcars&quot;</span></span>
+<span id="cb3-33"><a href="#cb3-33" tabindex="-1"></a>    )</span>
+<span id="cb3-34"><a href="#cb3-34" tabindex="-1"></a>  },</span>
+<span id="cb3-35"><a href="#cb3-35" tabindex="-1"></a>  <span class="at">server =</span> <span class="cf">function</span>(id, data) {</span>
+<span id="cb3-36"><a href="#cb3-36" tabindex="-1"></a>    <span class="fu">moduleServer</span>(id, <span class="cf">function</span>(input, output, session) {</span>
+<span id="cb3-37"><a href="#cb3-37" tabindex="-1"></a>      <span class="fu">reactive</span>({</span>
+<span id="cb3-38"><a href="#cb3-38" tabindex="-1"></a>        <span class="fu">within</span>(<span class="fu">data</span>(), {</span>
+<span id="cb3-39"><a href="#cb3-39" tabindex="-1"></a>          mtcars<span class="sc">$</span>rownames <span class="ot">&lt;-</span> <span class="fu">rownames</span>(mtcars)</span>
+<span id="cb3-40"><a href="#cb3-40" tabindex="-1"></a>          <span class="fu">rownames</span>(mtcars) <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb3-41"><a href="#cb3-41" tabindex="-1"></a>        })</span>
+<span id="cb3-42"><a href="#cb3-42" tabindex="-1"></a>      })</span>
+<span id="cb3-43"><a href="#cb3-43" tabindex="-1"></a>    })</span>
+<span id="cb3-44"><a href="#cb3-44" tabindex="-1"></a>  }</span>
+<span id="cb3-45"><a href="#cb3-45" tabindex="-1"></a>)</span>
+<span id="cb3-46"><a href="#cb3-46" tabindex="-1"></a></span>
+<span id="cb3-47"><a href="#cb3-47" tabindex="-1"></a>my_transformators <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb3-48"><a href="#cb3-48" tabindex="-1"></a>  transformator_iris,</span>
+<span id="cb3-49"><a href="#cb3-49" tabindex="-1"></a>  transformator_mtcars</span>
+<span id="cb3-50"><a href="#cb3-50" tabindex="-1"></a>)</span>
+<span id="cb3-51"><a href="#cb3-51" tabindex="-1"></a></span>
+<span id="cb3-52"><a href="#cb3-52" tabindex="-1"></a>app <span class="ot">&lt;-</span> <span class="fu">init</span>(</span>
+<span id="cb3-53"><a href="#cb3-53" tabindex="-1"></a>  <span class="at">data =</span> data,</span>
+<span id="cb3-54"><a href="#cb3-54" tabindex="-1"></a>  <span class="at">modules =</span> <span class="fu">example_module</span>(<span class="at">transformators =</span> my_transformators)</span>
+<span id="cb3-55"><a href="#cb3-55" tabindex="-1"></a>)</span>
+<span id="cb3-56"><a href="#cb3-56" tabindex="-1"></a></span>
+<span id="cb3-57"><a href="#cb3-57" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">interactive</span>()) {</span>
+<span id="cb3-58"><a href="#cb3-58" tabindex="-1"></a>  <span class="fu">shinyApp</span>(app<span class="sc">$</span>ui, app<span class="sc">$</span>server)</span>
+<span id="cb3-59"><a href="#cb3-59" tabindex="-1"></a>}</span></code></pre></div>
+</div>
+<div id="targeting-one-dataset" class="section level4">
+<h4>Targeting one dataset</h4>
+<p>It is also possible to have multiple transformator modules act on one
+dataset. In such cases, transformations will be executed in the same
+order in which the transformator modules are passed to the module.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">within</span>(<span class="fu">teal_data</span>(), {</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  iris <span class="ot">&lt;-</span> iris</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  mtcars <span class="ot">&lt;-</span> mtcars</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>})</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>transformator_iris_scale <span class="ot">&lt;-</span> <span class="fu">teal_transform_module</span>(</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  <span class="at">label =</span> <span class="st">&quot;Scaling transformator for iris&quot;</span>,</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>  <span class="at">ui =</span> <span class="cf">function</span>(id) {</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>    ns <span class="ot">&lt;-</span> <span class="fu">NS</span>(id)</span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>    <span class="fu">uiOutput</span>(<span class="fu">ns</span>(<span class="st">&quot;scaled_columns_container&quot;</span>))</span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>  },</span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>  <span class="at">server =</span> <span class="cf">function</span>(id, data) {</span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>    <span class="fu">moduleServer</span>(id, <span class="cf">function</span>(input, output, session) {</span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>      ns <span class="ot">&lt;-</span> session<span class="sc">$</span>ns</span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a>      scalable_columns <span class="ot">&lt;-</span> <span class="fu">names</span>(<span class="fu">Filter</span>(is.numeric, <span class="fu">data</span>()[[<span class="st">&quot;iris&quot;</span>]])) <span class="sc">|&gt;</span> <span class="fu">isolate</span>()</span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a>      output<span class="sc">$</span>scaled_columns_container <span class="ot">&lt;-</span> <span class="fu">renderUI</span>({</span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a>        <span class="fu">selectInput</span>(</span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a>          <span class="at">inputId =</span> <span class="fu">ns</span>(<span class="st">&quot;scaled_columns&quot;</span>),</span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a>          <span class="at">label =</span> <span class="st">&quot;Columns to scale&quot;</span>,</span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a>          <span class="at">choices =</span> scalable_columns,</span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a>          <span class="at">selected =</span> input<span class="sc">$</span>scaled_columns,</span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a>          <span class="at">multiple =</span> <span class="cn">TRUE</span></span>
+<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a>        )</span>
+<span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a>      })</span>
+<span id="cb4-27"><a href="#cb4-27" tabindex="-1"></a></span>
+<span id="cb4-28"><a href="#cb4-28" tabindex="-1"></a>      <span class="fu">reactive</span>({</span>
+<span id="cb4-29"><a href="#cb4-29" tabindex="-1"></a>        <span class="fu">within</span>(</span>
+<span id="cb4-30"><a href="#cb4-30" tabindex="-1"></a>          <span class="fu">data</span>(),</span>
+<span id="cb4-31"><a href="#cb4-31" tabindex="-1"></a>          {</span>
+<span id="cb4-32"><a href="#cb4-32" tabindex="-1"></a>            iris[scaled_columns] <span class="ot">&lt;-</span> <span class="fu">scale</span>(iris[scaled_columns])</span>
+<span id="cb4-33"><a href="#cb4-33" tabindex="-1"></a>          },</span>
+<span id="cb4-34"><a href="#cb4-34" tabindex="-1"></a>          <span class="at">scaled_columns =</span> input<span class="sc">$</span>scaled_columns</span>
+<span id="cb4-35"><a href="#cb4-35" tabindex="-1"></a>        )</span>
+<span id="cb4-36"><a href="#cb4-36" tabindex="-1"></a>      })</span>
+<span id="cb4-37"><a href="#cb4-37" tabindex="-1"></a>    })</span>
+<span id="cb4-38"><a href="#cb4-38" tabindex="-1"></a>  }</span>
+<span id="cb4-39"><a href="#cb4-39" tabindex="-1"></a>)</span>
+<span id="cb4-40"><a href="#cb4-40" tabindex="-1"></a></span>
+<span id="cb4-41"><a href="#cb4-41" tabindex="-1"></a>transformator_iris <span class="ot">&lt;-</span> <span class="fu">teal_transform_module</span>(</span>
+<span id="cb4-42"><a href="#cb4-42" tabindex="-1"></a>  <span class="at">label =</span> <span class="st">&quot;Custom transformator for iris&quot;</span>,</span>
+<span id="cb4-43"><a href="#cb4-43" tabindex="-1"></a>  <span class="at">ui =</span> <span class="cf">function</span>(id) {</span>
+<span id="cb4-44"><a href="#cb4-44" tabindex="-1"></a>    ns <span class="ot">&lt;-</span> <span class="fu">NS</span>(id)</span>
+<span id="cb4-45"><a href="#cb4-45" tabindex="-1"></a>    tags<span class="sc">$</span><span class="fu">div</span>(</span>
+<span id="cb4-46"><a href="#cb4-46" tabindex="-1"></a>      <span class="fu">numericInput</span>(<span class="fu">ns</span>(<span class="st">&quot;n_rows&quot;</span>), <span class="st">&quot;Number of rows to subset&quot;</span>, <span class="at">value =</span> <span class="dv">6</span>, <span class="at">min =</span> <span class="dv">1</span>, <span class="at">max =</span> <span class="dv">150</span>, <span class="at">step =</span> <span class="dv">1</span>)</span>
+<span id="cb4-47"><a href="#cb4-47" tabindex="-1"></a>    )</span>
+<span id="cb4-48"><a href="#cb4-48" tabindex="-1"></a>  },</span>
+<span id="cb4-49"><a href="#cb4-49" tabindex="-1"></a>  <span class="at">server =</span> <span class="cf">function</span>(id, data) {</span>
+<span id="cb4-50"><a href="#cb4-50" tabindex="-1"></a>    <span class="fu">moduleServer</span>(id, <span class="cf">function</span>(input, output, session) {</span>
+<span id="cb4-51"><a href="#cb4-51" tabindex="-1"></a>      <span class="fu">reactive</span>({</span>
+<span id="cb4-52"><a href="#cb4-52" tabindex="-1"></a>        <span class="fu">within</span>(</span>
+<span id="cb4-53"><a href="#cb4-53" tabindex="-1"></a>          <span class="fu">data</span>(),</span>
+<span id="cb4-54"><a href="#cb4-54" tabindex="-1"></a>          iris <span class="ot">&lt;-</span> <span class="fu">head</span>(iris, num_rows),</span>
+<span id="cb4-55"><a href="#cb4-55" tabindex="-1"></a>          <span class="at">num_rows =</span> input<span class="sc">$</span>n_rows</span>
+<span id="cb4-56"><a href="#cb4-56" tabindex="-1"></a>        )</span>
+<span id="cb4-57"><a href="#cb4-57" tabindex="-1"></a>      })</span>
+<span id="cb4-58"><a href="#cb4-58" tabindex="-1"></a>    })</span>
+<span id="cb4-59"><a href="#cb4-59" tabindex="-1"></a>  }</span>
+<span id="cb4-60"><a href="#cb4-60" tabindex="-1"></a>)</span>
+<span id="cb4-61"><a href="#cb4-61" tabindex="-1"></a></span>
+<span id="cb4-62"><a href="#cb4-62" tabindex="-1"></a>transformator_mtcars <span class="ot">&lt;-</span> <span class="fu">teal_transform_module</span>(</span>
+<span id="cb4-63"><a href="#cb4-63" tabindex="-1"></a>  <span class="at">label =</span> <span class="st">&quot;Custom transformator for mtcars&quot;</span>,</span>
+<span id="cb4-64"><a href="#cb4-64" tabindex="-1"></a>  <span class="at">ui =</span> <span class="cf">function</span>(id) {</span>
+<span id="cb4-65"><a href="#cb4-65" tabindex="-1"></a>    ns <span class="ot">&lt;-</span> <span class="fu">NS</span>(id)</span>
+<span id="cb4-66"><a href="#cb4-66" tabindex="-1"></a>    tags<span class="sc">$</span><span class="fu">div</span>(</span>
+<span id="cb4-67"><a href="#cb4-67" tabindex="-1"></a>      <span class="st">&quot;Adding rownames column to mtcars&quot;</span></span>
+<span id="cb4-68"><a href="#cb4-68" tabindex="-1"></a>    )</span>
+<span id="cb4-69"><a href="#cb4-69" tabindex="-1"></a>  },</span>
+<span id="cb4-70"><a href="#cb4-70" tabindex="-1"></a>  <span class="at">server =</span> <span class="cf">function</span>(id, data) {</span>
+<span id="cb4-71"><a href="#cb4-71" tabindex="-1"></a>    <span class="fu">moduleServer</span>(id, <span class="cf">function</span>(input, output, session) {</span>
+<span id="cb4-72"><a href="#cb4-72" tabindex="-1"></a>      <span class="fu">reactive</span>({</span>
+<span id="cb4-73"><a href="#cb4-73" tabindex="-1"></a>        <span class="fu">within</span>(<span class="fu">data</span>(), {</span>
+<span id="cb4-74"><a href="#cb4-74" tabindex="-1"></a>          mtcars<span class="sc">$</span>rownames <span class="ot">&lt;-</span> <span class="fu">rownames</span>(mtcars)</span>
+<span id="cb4-75"><a href="#cb4-75" tabindex="-1"></a>          <span class="fu">rownames</span>(mtcars) <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb4-76"><a href="#cb4-76" tabindex="-1"></a>        })</span>
+<span id="cb4-77"><a href="#cb4-77" tabindex="-1"></a>      })</span>
+<span id="cb4-78"><a href="#cb4-78" tabindex="-1"></a>    })</span>
+<span id="cb4-79"><a href="#cb4-79" tabindex="-1"></a>  }</span>
+<span id="cb4-80"><a href="#cb4-80" tabindex="-1"></a>)</span>
+<span id="cb4-81"><a href="#cb4-81" tabindex="-1"></a></span>
+<span id="cb4-82"><a href="#cb4-82" tabindex="-1"></a>my_transformators <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb4-83"><a href="#cb4-83" tabindex="-1"></a>  transformator_iris,</span>
+<span id="cb4-84"><a href="#cb4-84" tabindex="-1"></a>  transformator_iris_scale,</span>
+<span id="cb4-85"><a href="#cb4-85" tabindex="-1"></a>  transformator_mtcars</span>
+<span id="cb4-86"><a href="#cb4-86" tabindex="-1"></a>)</span>
+<span id="cb4-87"><a href="#cb4-87" tabindex="-1"></a></span>
+<span id="cb4-88"><a href="#cb4-88" tabindex="-1"></a>app <span class="ot">&lt;-</span> <span class="fu">init</span>(</span>
+<span id="cb4-89"><a href="#cb4-89" tabindex="-1"></a>  <span class="at">data =</span> data,</span>
+<span id="cb4-90"><a href="#cb4-90" tabindex="-1"></a>  <span class="at">modules =</span> <span class="fu">example_module</span>(<span class="at">transformators =</span> my_transformators)</span>
+<span id="cb4-91"><a href="#cb4-91" tabindex="-1"></a>)</span>
+<span id="cb4-92"><a href="#cb4-92" tabindex="-1"></a></span>
+<span id="cb4-93"><a href="#cb4-93" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">interactive</span>()) {</span>
+<span id="cb4-94"><a href="#cb4-94" tabindex="-1"></a>  <span class="fu">shinyApp</span>(app<span class="sc">$</span>ui, app<span class="sc">$</span>server)</span>
+<span id="cb4-95"><a href="#cb4-95" tabindex="-1"></a>}</span></code></pre></div>
+<p>This approach provides greater flexibility in data preprocessing,
+allowing transformations to be tailored to specific datasets for a
+specific module.</p>
+</div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

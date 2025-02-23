@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="NEST CoreDev" />
+
+
+<title>Transform Module Output</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Transform Module Output</h1>
+<h4 class="author">NEST CoreDev</h4>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#introduction" id="toc-introduction">Introduction</a></li>
+<li><a href="#how-to-transform-outputs" id="toc-how-to-transform-outputs">How to Transform outputs?</a>
+<ul>
+<li><a href="#requirements-and-limitations" id="toc-requirements-and-limitations">Requirements and
+Limitations</a></li>
+</ul></li>
+<li><a href="#building-output-transformations-decorators" id="toc-building-output-transformations-decorators">Building Output
+Transformations (Decorators)</a>
+<ul>
+<li><a href="#server" id="toc-server">Server</a></li>
+<li><a href="#ui" id="toc-ui">UI</a></li>
+<li><a href="#variable-names-as-arguments" id="toc-variable-names-as-arguments">Variable Names as
+Arguments</a></li>
+</ul></li>
+<li><a href="#using-output-transformations-decorators" id="toc-using-output-transformations-decorators">Using Output
+Transformations (Decorators)</a>
+<ul>
+<li><a href="#single-transformation-decoration" id="toc-single-transformation-decoration">Single Transformation
+(Decoration)</a></li>
+<li><a href="#module" id="toc-module">Module</a></li>
+<li><a href="#transforming-multiple-outputs-decorators" id="toc-transforming-multiple-outputs-decorators">Transforming Multiple
+Outputs (Decorators)</a></li>
+</ul></li>
+<li><a href="#convenience" id="toc-convenience">Convenience</a>
+<ul>
+<li><a href="#reducing-boilerplate" id="toc-reducing-boilerplate">Reducing Boilerplate</a></li>
+<li><a href="#multiple-transformations" id="toc-multiple-transformations">Multiple Transformations</a></li>
+</ul></li>
+</ul>
+</div>
+
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>The outputs produced by <code>teal</code> modules, like graphs or
+tables, are created by the module developer and look a certain way. It
+is hard to design an output that will satisfy every possible user, so
+the form of the output should be considered a default value that can be
+customized. In <a href="transform-input-data.html">Transform Input
+Data</a> we described how <code>teal_module</code>’s input data can be
+modified using <code>teal_transform_module</code>. Here we present how
+to utilize <code>teal_transform_module</code> to modify an output
+created by a <code>teal_module</code>, enabling you to tailor outputs to
+your specific requirements without rewriting the original module
+code.</p>
+<p><img role="img" aria-label="Transforming teal_data" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIHdpZHRoPSI1OTFweCIgaGVpZ2h0PSI3MTJweCIgdmlld0JveD0iLTAuNSAtMC41IDU5MSA3MTIiIGNvbnRlbnQ9IiZsdDtteGZpbGUmZ3Q7Jmx0O2RpYWdyYW0gbmFtZT0mcXVvdDtQYWdlLTEmcXVvdDsgaWQ9JnF1b3Q7QWYyQ29BYlNaY2NrQ3VUY09ubVEmcXVvdDsmZ3Q7NVZ0YmM2TTJGUDQxbm1rZjFpT0orK051c2trN3M1M3VUSGFtMjZjZEJXU2JLVVl1eUluVFg5OGpFQmdrT2ZFRmJEY2xENGFEQVBHZDcxeEZKczdOY25OZjBOWGlONTZ3YkVKUXNwazR0eE5DY09DRzhDTWxMN1VrY2xFdG1CZHBvZ1p0QlEvcFAwd0ptMkhyTkdGbGI2RGdQQlBwcWkrTWVaNnpXUFJrdENqNGMzL1lqR2Y5cDY3b25CbUNoNWhtcHZTUE5CR0xXaHFTWUN2L2hhWHpSZk5rN0VmMW1TVnRCcXMzS1JjMDRjOGRrZk41NHR3VW5JdDZiN201WVprRXI4R2x2dTV1eDlsMllnWEx4VDRYQkVvVFR6UmJxNWViRUQrRGF6K1ZLNXJMR1lvWDlkciszMnM1clU4em5vc1B6K3I5UHNLUUFDRVFWMERDbWJKU2w1VERSRGJWaWVaSzJKdkwzMS96MVZyQWdGc3FLUHg4SzJoZXpuZ0I2S1E4TDVzSndLenJPZFFYS2NEYTZaQ0NyL09FeVJlUmozOWVwSUk5ckdnc3p6NEQ3MEMyRU1zTWpqRHNQckZDcEtEQmoxazZ6MEVtK0VxOWlxSVhRZTB6dXZBcFJPWGxiTk1SS1RqdkdWOHlVYnpBRUhYV1ExNTlpZUoyR0NoVlAyK1pRZ0kxWnRGaGlkT3dteXAyenR0N2J4VUlPMHFIT3dqZ1lZdENOZUNBZEN1NU84dlk1cU0wQjNoemxpZHE5emJPYUZtbWNSKy9VaFQ4TDNiRE0xNVVOM0dTSUhxczlLNWpPRXV6ckROdU5tTitIRmRQZ0hmNURzSVBhSW9BSkNYNVUrcHZpb25iQ0c0M1NxUDEwVXYzNkNzclVzQ0VGVXE0VTE4czZWbXdxYTJPTmp4a0txT1JGU3dEVWo3MTdkNm1JUFdFcnp6TnhaWU1BZW1UQVdPa0tibms2eUptNnJLdW9XcDNDajA4ZFh6amRzU2RodUEvU2YrbWdoWnpKb3liVnVScE1kaUxUNEYvQ2Y4QUVXTU5OeVhvOTdWUW5vTEZ2S2pjdy92eUR0Z0pMZTRodERBU2U5N3A3aUVJTHFIT2I0ektTYlJhL2NMbjRGN2VseDRKMmxlUC9nQnVQb2plOXZKdmVmU2RLTlF1U2JrZFY2VlhsVWRwWE5HRmZPeSs2RFN3ajQrT1owSEh2M1owOXNnUWhrSEh0NkFUWERzNnpyblFpUzZFaEQyLzhKc1NySEZvTHRIaXpYQkpSZU5VT2hnTENCRS9rcW9jMk9uL3NTVzU5T1NmTFQzMXF3M09RQTBvYUpxM0thTU1CcDF4OVFaeVdzUXFSZ3dWSXNKZzJnOFNFVEZqQkVhV1VrQ0gvaWdpZXdiSWQya21VMmVDdnRKY1Z1U0hJSjFRRnM1aUs5Snh5QjVuRnFUbjBqYlUvaFpkYnpCNCs0U05MSFVXSmhhRGNZWUExMHlMYTNBQlBuQjQ3NUhNUkNNelJrNHI2a0tPeCtLem1icTJmWU10cGRGUFl0dE00RVg1ODRFcWFJclYzZVh1Q0V4MmRXUkRLN0xSV0dRMmUwQjZxajZ3cHhqZkcwQmg3SjdSSFpqcCtEMERLNldpOGdlOHFtSkx5YzVWeHVYT25hQ1BHWlBzaFBtSlJTckxuMG5WQVhJK2plYzl6dWN0SE1OYk9MYjZ5T1lyM0FIS28raHNCWUF5blY2S2U2bkVibTkwaUlHT2FxOW9iSDJYMVBRTmFycWh4ZGw2WTFGenpQcWlTOE5HeTFkYlgraDlrQjJkMENQcUN4eUZKcVlBdzRNNnpIbk9iSWhxVUwxcC9UaXlWYmloSGViQnpiaDl1aTBqdXVJODFMQlZDODY3elRmd3AwWVQzTVdXVU44V1gwTW5vaml5TlZHUE11RjlDTmZsbGxMNTFkZ3d4aTNLaDY1bkdQZHFFN2JoK3cwNDJxTmRlbENmV2JPWXUyb0RPWWNyVXZIU1QyeFBJcndiOVhFS1BUT1A4bXlWUVRERWNtTGIxYjdpNVVRMFJaajBWeE1qNzRUVnhFT05raUJ5U2FNTXZFQUxyTjUrZ2RWY1lpVGFuWnhBdTlOd0prbVEyWVZ1ZzFlYXorSE1zcWxCTytWVFV1ZXBveFQyUTBRbloxY1R0VnYxT0xiRi93RUNreUxpYTVnZW14RWMwaGJCdXhmaUJvQTQ5RWdmWWhSWkNrc1VXbUsvenViak1IYk1XUDlxYW1sQWhxcE44M1RoMFVrb1FaWWxPZ1hBR2JMUTl2RjZNNy90dy8xb0RQa1F4bzNSYmo2TmQ4MnlXWnY3QkxhcWNhUUdFMmxXQ2E2SWRwYmFSNUhoTExRemk1L0xsenNEOEN4Q250NmZ3SllnMG41SDFHUGFJQTR1T0pCcG5VU3MvMUhYR3luWStBeTFOT2NBemJNeDFHeXIveThjSTdIUmRUekhhSloyMTlZRUdRSmtyUXJFRHJhQTdMZ2orWVNtbEx5ZTZJT3RoVmgwTHR2R1p2VXluVTROa0VEaDRqVmdGSEJkNmlrUlZYbHpEQ2hJZ2hrSjlTTVhnaTkzZENyNnZRdzc1S2RGS2IxVUpJRnR5ZEszV1AwUUxUaDRub0gvSythOVQwTkh3eWloNWFKMURVTUE1dlNEdXUycjhEYk85ei83SE1TQXpWV0hjVloyenh0N0l0LzR4TWJTSGh1UGhmK1Y3NWhPQkZsZk1ZdXdDWEl3R3NqbWQwemQ3ejZPb1BHeEgzbWNocUpyVU5XMjdHaEw2NGVCMGF5WHZyQTV5NU56QnExbG1pVHlNUWNHcmZaWVRSSU5vbzg5SExMdDI3d2pFaW80M1A1SFY5MHMzZjVmblBQNVh3PT0mbHQ7L2RpYWdyYW0mZ3Q7Jmx0Oy9teGZpbGUmZ3Q7Ij48ZGVmcy8+PGc+PHJlY3QgeD0iMTUiIHk9IjIwIiB3aWR0aD0iMjc1IiBoZWlnaHQ9IjMxMCIgZmlsbD0icmdiKDI1NSwgMjU1LCAyNTUpIiBzdHJva2U9InJnYigwLCAwLCAwKSIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0wLjUgLTAuNSkiPjxzd2l0Y2g+PGZvcmVpZ25PYmplY3QgcG9pbnRlci1ldmVudHM9Im5vbmUiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIHJlcXVpcmVkRmVhdHVyZXM9Imh0dHA6Ly93d3cudzMub3JnL1RSL1NWRzExL2ZlYXR1cmUjRXh0ZW5zaWJpbGl0eSIgc3R5bGU9Im92ZXJmbG93OiB2aXNpYmxlOyB0ZXh0LWFsaWduOiBsZWZ0OyI+PGRpdiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94aHRtbCIgc3R5bGU9ImRpc3BsYXk6IGZsZXg7IGFsaWduLWl0ZW1zOiB1bnNhZmUgZmxleC1zdGFydDsganVzdGlmeS1jb250ZW50OiB1bnNhZmUgY2VudGVyOyB3aWR0aDogMjczcHg7IGhlaWdodDogMXB4OyBwYWRkaW5nLXRvcDogMjdweDsgbWFyZ2luLWxlZnQ6IDE2cHg7Ij48ZGl2IGRhdGEtZHJhd2lvLWNvbG9ycz0iY29sb3I6IHJnYigwLCAwLCAwKTsgIiBzdHlsZT0iYm94LXNpemluZzogYm9yZGVyLWJveDsgZm9udC1zaXplOiAwcHg7IHRleHQtYWxpZ246IGNlbnRlcjsiPjxkaXYgc3R5bGU9ImRpc3BsYXk6IGlubGluZS1ibG9jazsgZm9udC1zaXplOiAyMHB4OyBmb250LWZhbWlseTogSGVsdmV0aWNhOyBjb2xvcjogcmdiKDAsIDAsIDApOyBsaW5lLWhlaWdodDogMS4yOyBwb2ludGVyLWV2ZW50czogYWxsOyB3aGl0ZS1zcGFjZTogbm9ybWFsOyBvdmVyZmxvdy13cmFwOiBub3JtYWw7Ij48c3BhbiBzdHlsZT0iZm9udC13ZWlnaHQ6IDcwMDsgZm9udC1zaXplOiAyMHB4OyI+SW5wdXQgRGF0YSBUcmFuc2Zvcm1hdGlvbnM8L3NwYW4+PC9kaXY+PC9kaXY+PC9kaXY+PC9mb3JlaWduT2JqZWN0Pjx0ZXh0IHg9IjE1MyIgeT0iNDciIGZpbGw9InJnYigwLCAwLCAwKSIgZm9udC1mYW1pbHk9IkhlbHZldGljYSIgZm9udC1zaXplPSIyMHB4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5JbnB1dCBEYXRhIFRyYW5zZm9ybWF0aW9uczwvdGV4dD48L3N3aXRjaD48L2c+PHBhdGggZD0iTSAyMzQuNTMgMjU1IEwgMjM2LjQ1IDI0NS4xOSBMIDM0My4xOSAyNjYuMTYgTCAzNDUuMjIgMjU1Ljg1IEwgMzYwLjg3IDI3NC43MyBMIDMzOS4yNCAyODYuMjcgTCAzNDEuMjYgMjc1Ljk3IFoiIGZpbGw9IiNmZmU2Y2MiIHN0cm9rZT0iI2Q3OWIwMCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PHJlY3QgeD0iMTUiIHk9IjUzMCIgd2lkdGg9IjI4MCIgaGVpZ2h0PSIxNTUiIGZpbGw9InJnYigyNTUsIDI1NSwgMjU1KSIgc3Ryb2tlPSJyZ2IoMCwgMCwgMCkiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtMC41IC0wLjUpIj48c3dpdGNoPjxmb3JlaWduT2JqZWN0IHBvaW50ZXItZXZlbnRzPSJub25lIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiByZXF1aXJlZEZlYXR1cmVzPSJodHRwOi8vd3d3LnczLm9yZy9UUi9TVkcxMS9mZWF0dXJlI0V4dGVuc2liaWxpdHkiIHN0eWxlPSJvdmVyZmxvdzogdmlzaWJsZTsgdGV4dC1hbGlnbjogbGVmdDsiPjxkaXYgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGh0bWwiIHN0eWxlPSJkaXNwbGF5OiBmbGV4OyBhbGlnbi1pdGVtczogdW5zYWZlIGZsZXgtc3RhcnQ7IGp1c3RpZnktY29udGVudDogdW5zYWZlIGNlbnRlcjsgd2lkdGg6IDI3OHB4OyBoZWlnaHQ6IDFweDsgcGFkZGluZy10b3A6IDUzN3B4OyBtYXJnaW4tbGVmdDogMTZweDsiPjxkaXYgZGF0YS1kcmF3aW8tY29sb3JzPSJjb2xvcjogcmdiKDAsIDAsIDApOyAiIHN0eWxlPSJib3gtc2l6aW5nOiBib3JkZXItYm94OyBmb250LXNpemU6IDBweDsgdGV4dC1hbGlnbjogY2VudGVyOyI+PGRpdiBzdHlsZT0iZGlzcGxheTogaW5saW5lLWJsb2NrOyBmb250LXNpemU6IDIwcHg7IGZvbnQtZmFtaWx5OiBIZWx2ZXRpY2E7IGNvbG9yOiByZ2IoMCwgMCwgMCk7IGxpbmUtaGVpZ2h0OiAxLjI7IHBvaW50ZXItZXZlbnRzOiBhbGw7IHdoaXRlLXNwYWNlOiBub3JtYWw7IG92ZXJmbG93LXdyYXA6IG5vcm1hbDsiPjxzcGFuIHN0eWxlPSJmb250LXdlaWdodDogNzAwOyBmb250LXNpemU6IDIwcHg7Ij5Nb2R1bGUgT3V0cHV0IERlY29yYXRpb248L3NwYW4+PC9kaXY+PC9kaXY+PC9kaXY+PC9mb3JlaWduT2JqZWN0Pjx0ZXh0IHg9IjE1NSIgeT0iNTU3IiBmaWxsPSJyZ2IoMCwgMCwgMCkiIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EiIGZvbnQtc2l6ZT0iMjBweCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+TW9kdWxlIE91dHB1dCBEZWNvcmF0aW9uPC90ZXh0Pjwvc3dpdGNoPjwvZz48cmVjdCB4PSIxNSIgeT0iMzUwIiB3aWR0aD0iMjgwIiBoZWlnaHQ9IjE2MCIgZmlsbD0icmdiKDI1NSwgMjU1LCAyNTUpIiBzdHJva2U9InJnYigwLCAwLCAwKSIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0wLjUgLTAuNSkiPjxzd2l0Y2g+PGZvcmVpZ25PYmplY3QgcG9pbnRlci1ldmVudHM9Im5vbmUiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIHJlcXVpcmVkRmVhdHVyZXM9Imh0dHA6Ly93d3cudzMub3JnL1RSL1NWRzExL2ZlYXR1cmUjRXh0ZW5zaWJpbGl0eSIgc3R5bGU9Im92ZXJmbG93OiB2aXNpYmxlOyB0ZXh0LWFsaWduOiBsZWZ0OyI+PGRpdiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94aHRtbCIgc3R5bGU9ImRpc3BsYXk6IGZsZXg7IGFsaWduLWl0ZW1zOiB1bnNhZmUgZmxleC1zdGFydDsganVzdGlmeS1jb250ZW50OiB1bnNhZmUgY2VudGVyOyB3aWR0aDogMjc4cHg7IGhlaWdodDogMXB4OyBwYWRkaW5nLXRvcDogMzU3cHg7IG1hcmdpbi1sZWZ0OiAxNnB4OyI+PGRpdiBkYXRhLWRyYXdpby1jb2xvcnM9ImNvbG9yOiByZ2IoMCwgMCwgMCk7ICIgc3R5bGU9ImJveC1zaXppbmc6IGJvcmRlci1ib3g7IGZvbnQtc2l6ZTogMHB4OyB0ZXh0LWFsaWduOiBjZW50ZXI7Ij48ZGl2IHN0eWxlPSJkaXNwbGF5OiBpbmxpbmUtYmxvY2s7IGZvbnQtc2l6ZTogMjBweDsgZm9udC1mYW1pbHk6IEhlbHZldGljYTsgY29sb3I6IHJnYigwLCAwLCAwKTsgbGluZS1oZWlnaHQ6IDEuMjsgcG9pbnRlci1ldmVudHM6IGFsbDsgd2hpdGUtc3BhY2U6IG5vcm1hbDsgb3ZlcmZsb3ctd3JhcDogbm9ybWFsOyI+PHNwYW4gc3R5bGU9ImZvbnQtd2VpZ2h0OiA3MDA7IGZvbnQtc2l6ZTogMjBweDsiPlRlYWwgTW9kdWxlIExvZ2ljPC9zcGFuPjwvZGl2PjwvZGl2PjwvZGl2PjwvZm9yZWlnbk9iamVjdD48dGV4dCB4PSIxNTUiIHk9IjM3NyIgZmlsbD0icmdiKDAsIDAsIDApIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjIwcHgiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlRlYWwgTW9kdWxlIExvZ2ljPC90ZXh0Pjwvc3dpdGNoPjwvZz48cGF0aCBkPSJNIDE1MCA5NSBMIDE1MCAxMTMuNjMiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiKDAsIDAsIDApIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJzdHJva2UiLz48cGF0aCBkPSJNIDE1MCAxMTguODggTCAxNDYuNSAxMTEuODggTCAxNTAgMTEzLjYzIEwgMTUzLjUgMTExLjg4IFoiIGZpbGw9InJnYigwLCAwLCAwKSIgc3Ryb2tlPSJyZ2IoMCwgMCwgMCkiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxwYXRoIGQ9Ik0gMTUwIDE1NSBMIDE1MCAxNzYuMTMiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiKDAsIDAsIDApIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJzdHJva2UiLz48cGF0aCBkPSJNIDE1MCAxODEuMzggTCAxNDYuNSAxNzQuMzggTCAxNTAgMTc2LjEzIEwgMTUzLjUgMTc0LjM4IFoiIGZpbGw9InJnYigwLCAwLCAwKSIgc3Ryb2tlPSJyZ2IoMCwgMCwgMCkiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxwYXRoIGQ9Ik0gMTUwIDIwNy41IEwgMTUwIDIyNi4xMyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2IoMCwgMCwgMCkiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9InN0cm9rZSIvPjxwYXRoIGQ9Ik0gMTUwIDIzMS4zOCBMIDE0Ni41IDIyNC4zOCBMIDE1MCAyMjYuMTMgTCAxNTMuNSAyMjQuMzggWiIgZmlsbD0icmdiKDAsIDAsIDApIiBzdHJva2U9InJnYigwLCAwLCAwKSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PHBhdGggZD0iTSAxNTAgNDkwIEwgMTUwIDU2OC42MyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2IoMCwgMCwgMCkiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9InN0cm9rZSIvPjxwYXRoIGQ9Ik0gMTUwIDU3My44OCBMIDE0Ni41IDU2Ni44OCBMIDE1MCA1NjguNjMgTCAxNTMuNSA1NjYuODggWiIgZmlsbD0icmdiKDAsIDAsIDApIiBzdHJva2U9InJnYigwLCAwLCAwKSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PHJlY3QgeD0iOTcuNSIgeT0iNzAiIHdpZHRoPSIxMDUiIGhlaWdodD0iMjUiIGZpbGw9IiNmNWY1ZjUiIHN0cm9rZT0iIzY2NjY2NiIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxnIGZpbGw9IiMzMzMzMzMiIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTJweCI+PHRleHQgeD0iMTQ5LjUiIHk9Ijg3Ij50ZWFsX2RhdGE8L3RleHQ+PC9nPjxyZWN0IHg9IjkwIiB5PSIxMjAiIHdpZHRoPSIxMjAiIGhlaWdodD0iMzUiIHJ4PSIxNy41IiByeT0iMTcuNSIgZmlsbD0iI2RhZThmYyIgc3Ryb2tlPSIjNmM4ZWJmIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PGcgZmlsbD0icmdiKDAsIDAsIDApIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjEycHgiPjx0ZXh0IHg9IjE0OS41IiB5PSIxNDIiPkZpbHRlciBQYW5lbDwvdGV4dD48L2c+PHJlY3QgeD0iOTIuNSIgeT0iMTgyLjUiIHdpZHRoPSIxMTUiIGhlaWdodD0iMjUiIGZpbGw9IiNmNWY1ZjUiIHN0cm9rZT0iIzY2NjY2NiIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxnIGZpbGw9IiMzMzMzMzMiIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTJweCI+PHRleHQgeD0iMTQ5LjUiIHk9IjE5OS41Ij5GaWx0ZXJlZCB0ZWFsX2RhdGE8L3RleHQ+PC9nPjxyZWN0IHg9IjU1IiB5PSIyMzIuNSIgd2lkdGg9IjE5MCIgaGVpZ2h0PSIzNSIgcng9IjE3LjUiIHJ5PSIxNy41IiBmaWxsPSIjZmZlNmNjIiBzdHJva2U9IiNkNzliMDAiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48ZyBmaWxsPSJyZ2IoMCwgMCwgMCkiIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTJweCI+PHRleHQgeD0iMTQ5LjUiIHk9IjI1NC41Ij5UcmFuc2Zvcm0gUGFuZWwgKHRyYW5zZm9ybWF0b3JzKTwvdGV4dD48L2c+PHJlY3QgeD0iOTAiIHk9IjM5NCIgd2lkdGg9IjEyMCIgaGVpZ2h0PSIzNSIgcng9IjE3LjUiIHJ5PSIxNy41IiBmaWxsPSIjZGFlOGZjIiBzdHJva2U9IiM2YzhlYmYiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48ZyBmaWxsPSJyZ2IoMCwgMCwgMCkiIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTJweCI+PHRleHQgeD0iMTQ5LjUiIHk9IjQxNiI+TW9kdWxlIExvZ2ljPC90ZXh0PjwvZz48cmVjdCB4PSI0Mi41IiB5PSI0NTAiIHdpZHRoPSIyMTUiIGhlaWdodD0iNDAiIGZpbGw9IiNmNWY1ZjUiIHN0cm9rZT0iIzY2NjY2NiIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxnIGZpbGw9IiMzMzMzMzMiIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTJweCI+PHRleHQgeD0iMTQ5LjUiIHk9IjQ2Ny41Ij5HZW5lcmF0ZWQgb3V0cHV0cyAocGxvdHMvdGFibGVzKSB3aXRoaW48L3RleHQ+PHRleHQgeD0iMTQ5LjUiIHk9IjQ4MS41Ij50ZWFsX2RhdGE8L3RleHQ+PC9nPjxwYXRoIGQ9Ik0gMTUwIDQyOSBMIDE1MCA0NDMuNjMiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiKDAsIDAsIDApIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJzdHJva2UiLz48cGF0aCBkPSJNIDE1MCA0NDguODggTCAxNDYuNSA0NDEuODggTCAxNTAgNDQzLjYzIEwgMTUzLjUgNDQxLjg4IFoiIGZpbGw9InJnYigwLCAwLCAwKSIgc3Ryb2tlPSJyZ2IoMCwgMCwgMCkiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxyZWN0IHg9IjcyLjUiIHk9IjYzNSIgd2lkdGg9IjE1NSIgaGVpZ2h0PSI0MCIgZmlsbD0iI2Y1ZjVmNSIgc3Ryb2tlPSIjNjY2NjY2IiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PGcgZmlsbD0iIzMzMzMzMyIgZm9udC1mYW1pbHk9IkhlbHZldGljYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMnB4Ij48dGV4dCB4PSIxNDkuNSIgeT0iNjUyLjUiPkRlY29yYXRlZCBvdXRwdXRzIHdpdGhpbjwvdGV4dD48dGV4dCB4PSIxNDkuNSIgeT0iNjY2LjUiPnRlYWxfZGF0YTwvdGV4dD48L2c+PHBhdGggZD0iTSAxNTAgNjEwIEwgMTUwIDYyOC42MyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2IoMCwgMCwgMCkiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9InN0cm9rZSIvPjxwYXRoIGQ9Ik0gMTUwIDYzMy44OCBMIDE0Ni41IDYyNi44OCBMIDE1MCA2MjguNjMgTCAxNTMuNSA2MjYuODggWiIgZmlsbD0icmdiKDAsIDAsIDApIiBzdHJva2U9InJnYigwLCAwLCAwKSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PHBhdGggZD0iTSAxNTAgMzE2IEwgMTUwIDM4Ny42MyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2IoMCwgMCwgMCkiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9InN0cm9rZSIvPjxwYXRoIGQ9Ik0gMTUwIDM5Mi44OCBMIDE0Ni41IDM4NS44OCBMIDE1MCAzODcuNjMgTCAxNTMuNSAzODUuODggWiIgZmlsbD0icmdiKDAsIDAsIDApIiBzdHJva2U9InJnYigwLCAwLCAwKSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PHJlY3QgeD0iODYuMjUiIHk9IjI5MSIgd2lkdGg9IjEyNy41IiBoZWlnaHQ9IjI1IiBmaWxsPSIjZjVmNWY1IiBzdHJva2U9IiM2NjY2NjYiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48ZyBmaWxsPSIjMzMzMzMzIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjEycHgiPjx0ZXh0IHg9IjE0OS41IiB5PSIzMDgiPlRyYW5zZm9ybWVkIHRlYWxfZGF0YTwvdGV4dD48L2c+PHBhdGggZD0iTSAxNTAgMjY3LjUgTCAxNTAgMjg0LjYzIiBmaWxsPSJub25lIiBzdHJva2U9InJnYigwLCAwLCAwKSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ic3Ryb2tlIi8+PHBhdGggZD0iTSAxNTAgMjg5Ljg4IEwgMTQ2LjUgMjgyLjg4IEwgMTUwIDI4NC42MyBMIDE1My41IDI4Mi44OCBaIiBmaWxsPSJyZ2IoMCwgMCwgMCkiIHN0cm9rZT0icmdiKDAsIDAsIDApIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iNTkwIiBoZWlnaHQ9IjcxMCIgZmlsbC1vcGFjaXR5PSIwLjUiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0icmdiKDAsIDAsIDApIiBzdHJva2Utb3BhY2l0eT0iMC41IiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PHBhdGggZD0iTSAyNzAuOTcgNjAzLjA5IEwgMjYzLjcyIDU5Ni4xOSBMIDM0Ny40MyA1MDguMjYgTCAzMzkuODIgNTAxLjAyIEwgMzY0LjE1IDQ5Ny45NCBMIDM2Mi4yOCA1MjIuMzkgTCAzNTQuNjcgNTE1LjE1IFoiIGZpbGw9IiNmZmU2Y2MiIHN0cm9rZT0iI2Q3OWIwMCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PHJlY3QgeD0iNDAiIHk9IjU3NSIgd2lkdGg9IjIzNSIgaGVpZ2h0PSIzNSIgcng9IjUuMjUiIHJ5PSI1LjI1IiBmaWxsPSIjZmZlNmNjIiBzdHJva2U9IiNkNzliMDAiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48ZyBmaWxsPSJyZ2IoMCwgMCwgMCkiIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTJweCI+PHRleHQgeD0iMTU3IiB5PSI1OTciPlRyYW5zZm9ybWluZyBtb2R1bGUgb3V0cHV0cyAoZGVjb3JhdG9ycyk8L3RleHQ+PC9nPjxyZWN0IHg9IjM2MiIgeT0iMjQwIiB3aWR0aD0iMjA4IiBoZWlnaHQ9IjI3MCIgcng9IjIyLjg4IiByeT0iMjIuODgiIGZpbGw9IiNmZmU2Y2MiIHN0cm9rZT0iI2Q3OWIwMCIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxnIGZpbGw9InJnYigwLCAwLCAwKSIgZm9udC1mYW1pbHk9IkhlbHZldGljYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMnB4Ij48dGV4dCB4PSI0NjUuNSIgeT0iMjU3LjUiPlRyYW5zZm9ybWluZyB0ZWFsX2RhdGE8L3RleHQ+PC9nPjxwYXRoIGQ9Ik0gNDY2IDM2MCBMIDQ2NiAzNjguNjMiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ic3Ryb2tlIi8+PHBhdGggZD0iTSA0NjYgMzczLjg4IEwgNDYyLjUgMzY2Ljg4IEwgNDY2IDM2OC42MyBMIDQ2OS41IDM2Ni44OCBaIiBmaWxsPSIjMDAwMDAwIiBzdHJva2U9IiMwMDAwMDAiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxyZWN0IHg9IjM5MSIgeT0iMzI1IiB3aWR0aD0iMTUwIiBoZWlnaHQ9IjM1IiByeD0iMTcuNSIgcnk9IjE3LjUiIGZpbGw9IiNkYWU4ZmMiIHN0cm9rZT0iIzZjOGViZiIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxnIGZpbGw9InJnYigwLCAwLCAwKSIgZm9udC1mYW1pbHk9IkhlbHZldGljYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMnB4Ij48dGV4dCB4PSI0NjUuNSIgeT0iMzQ3Ij50ZWFsX3RyYW5zZm9ybV9tb2R1bGU8L3RleHQ+PC9nPjxwYXRoIGQ9Ik0gNDY1LjY0IDMwNSBMIDQ2NS43NyAzMTguNjMiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ic3Ryb2tlIi8+PHBhdGggZD0iTSA0NjUuODIgMzIzLjg4IEwgNDYyLjI2IDMxNi45MiBMIDQ2NS43NyAzMTguNjMgTCA0NjkuMjYgMzE2Ljg1IFoiIGZpbGw9IiMwMDAwMDAiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PHJlY3QgeD0iNDE1LjUiIHk9IjI3NSIgd2lkdGg9IjEwMCIgaGVpZ2h0PSIzMCIgcng9IjQuNSIgcnk9IjQuNSIgZmlsbD0iI2Y1ZjVmNSIgc3Ryb2tlPSIjNjY2NjY2IiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PGcgZmlsbD0iIzMzMzMzMyIgZm9udC1mYW1pbHk9IkhlbHZldGljYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMnB4Ij48dGV4dCB4PSI0NjUiIHk9IjI5NC41Ij50ZWFsX2RhdGE8L3RleHQ+PC9nPjxwYXRoIGQ9Ik0gNDY2LjU4IDQxMCBMIDQ2Ni43OSA0MTYuMTQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ic3Ryb2tlIi8+PHBhdGggZD0iTSA0NjYuOTYgNDIxLjM4IEwgNDYzLjIzIDQxNC41IEwgNDY2Ljc5IDQxNi4xNCBMIDQ3MC4yMyA0MTQuMjcgWiIgZmlsbD0iIzAwMDAwMCIgc3Ryb2tlPSIjMDAwMDAwIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48cmVjdCB4PSIzOTEiIHk9IjM3NSIgd2lkdGg9IjE1MCIgaGVpZ2h0PSIzNSIgcng9IjE3LjUiIHJ5PSIxNy41IiBmaWxsPSIjZGFlOGZjIiBzdHJva2U9IiM2YzhlYmYiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48ZyBmaWxsPSJyZ2IoMCwgMCwgMCkiIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTJweCI+PHRleHQgeD0iNDY1LjUiIHk9IjM5NyI+dGVhbF90cmFuc2Zvcm1fbW9kdWxlPC90ZXh0PjwvZz48cmVjdCB4PSI0MDAiIHk9IjQ2NSIgd2lkdGg9IjEzNCIgaGVpZ2h0PSIzMCIgcng9IjQuNSIgcnk9IjQuNSIgZmlsbD0iI2Y1ZjVmNSIgc3Ryb2tlPSIjNjY2NjY2IiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PGcgZmlsbD0iIzMzMzMzMyIgZm9udC1mYW1pbHk9IkhlbHZldGljYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMnB4Ij48dGV4dCB4PSI0NjYuNSIgeT0iNDg0LjUiPlRyYW5zZm9ybWVkIHRlYWxfZGF0YTwvdGV4dD48L2c+PHBhdGggZD0iTSA0NjcgNDQ3LjUgTCA0NjcgNDU4LjYzIiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAwMDAiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9InN0cm9rZSIvPjxwYXRoIGQ9Ik0gNDY3IDQ2My44OCBMIDQ2My41IDQ1Ni44OCBMIDQ2NyA0NTguNjMgTCA0NzAuNSA0NTYuODggWiIgZmlsbD0iIzAwMDAwMCIgc3Ryb2tlPSIjMDAwMDAwIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48cmVjdCB4PSI0MzciIHk9IjQyMi41IiB3aWR0aD0iNjAiIGhlaWdodD0iMjUiIGZpbGw9Im5vbmUiIHN0cm9rZT0ibm9uZSIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0wLjUgLTAuNSkiPjxzd2l0Y2g+PGZvcmVpZ25PYmplY3QgcG9pbnRlci1ldmVudHM9Im5vbmUiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIHJlcXVpcmVkRmVhdHVyZXM9Imh0dHA6Ly93d3cudzMub3JnL1RSL1NWRzExL2ZlYXR1cmUjRXh0ZW5zaWJpbGl0eSIgc3R5bGU9Im92ZXJmbG93OiB2aXNpYmxlOyB0ZXh0LWFsaWduOiBsZWZ0OyI+PGRpdiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94aHRtbCIgc3R5bGU9ImRpc3BsYXk6IGZsZXg7IGFsaWduLWl0ZW1zOiB1bnNhZmUgZmxleC1lbmQ7IGp1c3RpZnktY29udGVudDogdW5zYWZlIGNlbnRlcjsgd2lkdGg6IDU4cHg7IGhlaWdodDogMXB4OyBwYWRkaW5nLXRvcDogNDQ1cHg7IG1hcmdpbi1sZWZ0OiA0MzhweDsiPjxkaXYgZGF0YS1kcmF3aW8tY29sb3JzPSJjb2xvcjogcmdiKDAsIDAsIDApOyAiIHN0eWxlPSJib3gtc2l6aW5nOiBib3JkZXItYm94OyBmb250LXNpemU6IDBweDsgdGV4dC1hbGlnbjogY2VudGVyOyI+PGRpdiBzdHlsZT0iZGlzcGxheTogaW5saW5lLWJsb2NrOyBmb250LXNpemU6IDI4cHg7IGZvbnQtZmFtaWx5OiBIZWx2ZXRpY2E7IGNvbG9yOiByZ2IoMCwgMCwgMCk7IGxpbmUtaGVpZ2h0OiAxLjI7IHBvaW50ZXItZXZlbnRzOiBhbGw7IHdoaXRlLXNwYWNlOiBub3JtYWw7IG92ZXJmbG93LXdyYXA6IG5vcm1hbDsiPi4uLjwvZGl2PjwvZGl2PjwvZGl2PjwvZm9yZWlnbk9iamVjdD48dGV4dCB4PSI0NjciIHk9IjQ0NSIgZmlsbD0icmdiKDAsIDAsIDApIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjI4cHgiIHRleHQtYW5jaG9yPSJtaWRkbGUiPi4uLjwvdGV4dD48L3N3aXRjaD48L2c+PHJlY3QgeD0iNDQ1IiB5PSIyMCIgd2lkdGg9IjEyNSIgaGVpZ2h0PSIxNTAiIGZpbGw9InJnYigyNTUsIDI1NSwgMjU1KSIgc3Ryb2tlPSJyZ2IoMCwgMCwgMCkiIHN0cm9rZS1kYXNoYXJyYXk9IjMgMyIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxyZWN0IHg9IjQ3Ny41IiB5PSIxMDAiIHdpZHRoPSI2MCIgaGVpZ2h0PSIyNSIgcng9IjEyLjUiIHJ5PSIxMi41IiBmaWxsPSIjZGFlOGZjIiBzdHJva2U9IiM2YzhlYmYiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48ZyBmaWxsPSJyZ2IoMCwgMCwgMCkiIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTJweCI+PHRleHQgeD0iNTA3IiB5PSIxMTciPkxvZ2ljPC90ZXh0PjwvZz48cmVjdCB4PSI0NzIuNSIgeT0iNjAiIHdpZHRoPSI3MCIgaGVpZ2h0PSIyNSIgZmlsbD0iI2Y1ZjVmNSIgc3Ryb2tlPSIjNjY2NjY2IiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PGcgZmlsbD0iIzMzMzMzMyIgZm9udC1mYW1pbHk9IkhlbHZldGljYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMnB4Ij48dGV4dCB4PSI1MDciIHk9Ijc3Ij50ZWFsX2RhdGE8L3RleHQ+PC9nPjxyZWN0IHg9IjQ1Ny41IiB5PSIxMzUiIHdpZHRoPSIxMDAiIGhlaWdodD0iMjUiIHJ4PSIxMi41IiByeT0iMTIuNSIgZmlsbD0iI2ZmZTZjYyIgc3Ryb2tlPSIjZDc5YjAwIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PGcgZmlsbD0icmdiKDAsIDAsIDApIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjEycHgiPjx0ZXh0IHg9IjUwNyIgeT0iMTUyIj5UcmFuc2Zvcm0gTG9naWM8L3RleHQ+PC9nPjxyZWN0IHg9IjQ1NSIgeT0iMjAiIHdpZHRoPSIxMDUiIGhlaWdodD0iMzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0ibm9uZSIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0wLjUgLTAuNSkiPjxzd2l0Y2g+PGZvcmVpZ25PYmplY3QgcG9pbnRlci1ldmVudHM9Im5vbmUiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIHJlcXVpcmVkRmVhdHVyZXM9Imh0dHA6Ly93d3cudzMub3JnL1RSL1NWRzExL2ZlYXR1cmUjRXh0ZW5zaWJpbGl0eSIgc3R5bGU9Im92ZXJmbG93OiB2aXNpYmxlOyB0ZXh0LWFsaWduOiBsZWZ0OyI+PGRpdiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94aHRtbCIgc3R5bGU9ImRpc3BsYXk6IGZsZXg7IGFsaWduLWl0ZW1zOiB1bnNhZmUgY2VudGVyOyBqdXN0aWZ5LWNvbnRlbnQ6IHVuc2FmZSBjZW50ZXI7IHdpZHRoOiAxMDNweDsgaGVpZ2h0OiAxcHg7IHBhZGRpbmctdG9wOiAzNXB4OyBtYXJnaW4tbGVmdDogNDU2cHg7Ij48ZGl2IGRhdGEtZHJhd2lvLWNvbG9ycz0iY29sb3I6IHJnYigwLCAwLCAwKTsgIiBzdHlsZT0iYm94LXNpemluZzogYm9yZGVyLWJveDsgZm9udC1zaXplOiAwcHg7IHRleHQtYWxpZ246IGNlbnRlcjsiPjxkaXYgc3R5bGU9ImRpc3BsYXk6IGlubGluZS1ibG9jazsgZm9udC1zaXplOiAyMHB4OyBmb250LWZhbWlseTogSGVsdmV0aWNhOyBjb2xvcjogcmdiKDAsIDAsIDApOyBsaW5lLWhlaWdodDogMS4yOyBwb2ludGVyLWV2ZW50czogYWxsOyB3aGl0ZS1zcGFjZTogbm9ybWFsOyBvdmVyZmxvdy13cmFwOiBub3JtYWw7Ij5MZWdlbmQ8L2Rpdj48L2Rpdj48L2Rpdj48L2ZvcmVpZ25PYmplY3Q+PHRleHQgeD0iNTA4IiB5PSI0MSIgZmlsbD0icmdiKDAsIDAsIDApIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjIwcHgiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkxlZ2VuZDwvdGV4dD48L3N3aXRjaD48L2c+PC9nPjxzd2l0Y2g+PGcgcmVxdWlyZWRGZWF0dXJlcz0iaHR0cDovL3d3dy53My5vcmcvVFIvU1ZHMTEvZmVhdHVyZSNFeHRlbnNpYmlsaXR5Ii8+PGEgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCwtNSkiIHhsaW5rOmhyZWY9Imh0dHBzOi8vd3d3LmRpYWdyYW1zLm5ldC9kb2MvZmFxL3N2Zy1leHBvcnQtdGV4dC1wcm9ibGVtcyIgdGFyZ2V0PSJfYmxhbmsiPjx0ZXh0IHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTBweCIgeD0iNTAlIiB5PSIxMDAlIj5UZXh0IGlzIG5vdCBTVkcgLSBjYW5ub3QgZGlzcGxheTwvdGV4dD48L2E+PC9zd2l0Y2g+PC9zdmc+" alt="Transforming teal_data" style="width: 100%;" /></p>
+</div>
+<div id="how-to-transform-outputs" class="section level2">
+<h2>How to Transform outputs?</h2>
+<p>Custom transformations for the output objects can be created with
+<code>teal_transform_module()</code> and thus they are
+<code>shiny</code> modules. They are passed to <code>teal_module</code>
+constructors as arguments (see below). Their server logic will be used
+to modify objects such as plots or tables that exist in the server
+function of a <code>teal_module</code>. A <code>ui</code> function can
+provide interactivity but that is optional, an app developer is free to
+transform outputs objects of a <code>teal</code> module that do not
+require user input.</p>
+<div id="requirements-and-limitations" class="section level3">
+<h3>Requirements and Limitations</h3>
+<p>Transforming <code>teal</code> module output requires the
+following:</p>
+<ol style="list-style-type: decimal">
+<li><strong>Module Support</strong>:<br> <code>teal</code> will apply
+transformations to <code>teal_module</code> outputs, but the module in
+question must explicitly support this functionality. It is the
+responsibility of to the module developer to accept and consume the list
+of <code>teal_transform_module</code>.</li>
+<li><strong>Matching Object Names</strong>:<br> Transformations have to
+reference variables that already exist in the <code>teal_module</code>
+server function and therefore must use the appropriate variable names.
+Think of it as extending the plot/table code that already exists in the
+module. Module developers are encouraged to provide the relevant names
+in the module’s documentation, otherwise the person writing the output
+transformation must follow the source code.</li>
+<li><strong>Maintaining Object Classes</strong>:<br> A transformation
+must not alter the class of the object that it modifies. This is because
+a different class may require a different rendering function and that is
+part of the module structure, which beyond the control of decorators. If
+change of this magnitude is required, it is recommended to create a new
+module.</li>
+</ol>
+</div>
+</div>
+<div id="building-output-transformations-decorators" class="section level2">
+<h2>Building Output Transformations (Decorators)</h2>
+<p>For simplicity, we will refer to the output transformers as
+<strong>decorators</strong> in the code examples below.</p>
+<div id="server" class="section level3">
+<h3>Server</h3>
+<p>Here we create a simple transformator that does not provide any user
+input. Knowing that the module contains an object of class
+<code>ggplot2</code> named <code>plot</code>, we will modify its title
+and x-axis title:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>static_decorator <span class="ot">&lt;-</span> <span class="fu">teal_transform_module</span>(</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>  <span class="at">label =</span> <span class="st">&quot;Static decorator&quot;</span>,</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>  <span class="at">server =</span> <span class="cf">function</span>(id, data) {</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>    <span class="fu">moduleServer</span>(id, <span class="cf">function</span>(input, output, session) {</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>      <span class="fu">reactive</span>({</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>        <span class="fu">req</span>(<span class="fu">data</span>())</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>        <span class="fu">within</span>(<span class="fu">data</span>(), {</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>          plot <span class="ot">&lt;-</span> plot <span class="sc">+</span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>            <span class="fu">ggtitle</span>(<span class="st">&quot;This is a better title&quot;</span>) <span class="sc">+</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>            <span class="fu">xlab</span>(<span class="st">&quot;the real x axis&quot;</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>        })</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>      })</span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>    })</span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>  }</span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<div id="ui" class="section level3">
+<h3>UI</h3>
+<p>If the transformation requires a user input, a <code>ui</code>
+function can be added. Here, the x-axis title is obtained from a
+<code>textInput</code> widget, giving the user some flexibility. Note
+how the input values are passed to the <code>within()</code> function
+using its <code>...</code> argument. See
+<code>?teal.code::within.qenv</code> for more examples.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>interactive_decorator <span class="ot">&lt;-</span> <span class="fu">teal_transform_module</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="at">label =</span> <span class="st">&quot;Interactive decorator&quot;</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="at">ui =</span> <span class="cf">function</span>(id) {</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>    ns <span class="ot">&lt;-</span> <span class="fu">NS</span>(id)</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>    <span class="fu">div</span>(</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>      <span class="fu">textInput</span>(<span class="fu">ns</span>(<span class="st">&quot;x_axis_title&quot;</span>), <span class="st">&quot;X axis title&quot;</span>, <span class="at">value =</span> <span class="st">&quot;the suggested x axis&quot;</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>    )</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  },</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  <span class="at">server =</span> <span class="cf">function</span>(id, data) {</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>    <span class="fu">moduleServer</span>(id, <span class="cf">function</span>(input, output, session) {</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>      <span class="fu">reactive</span>({</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>        <span class="fu">req</span>(<span class="fu">data</span>())</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>        <span class="fu">within</span>(<span class="fu">data</span>(),</span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>          {</span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>            plot <span class="ot">&lt;-</span> plot <span class="sc">+</span></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>              <span class="fu">ggtitle</span>(<span class="st">&quot;This is a better title&quot;</span>) <span class="sc">+</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>              <span class="fu">xlab</span>(my_title)</span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>          },</span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>          <span class="at">my_title =</span> input<span class="sc">$</span>x_axis_title</span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>        )</span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>      })</span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>    })</span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>  }</span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<div id="variable-names-as-arguments" class="section level3">
+<h3>Variable Names as Arguments</h3>
+<p>The server function of a transforming
+<code>teal_transform_module</code> must conform to the names of the
+variables that exist in the server function of the transformed
+<code>teal_module</code>. Writing a universal transformator that applies
+to any module is impossible because different modules may use different
+variable names for their output elements. It is possible, however, to
+create a transformator that will take the relevant variable names as
+arguments. Here, the <code>output_name</code> variable name is passed to
+a transformator, allowing it to work with multiple modules.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>dynamic_decorator <span class="ot">&lt;-</span> <span class="cf">function</span>(output_name) {</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="fu">teal_transform_module</span>(</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>    <span class="at">label =</span> <span class="st">&quot;Dynamic decorator&quot;</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>    <span class="at">ui =</span> <span class="cf">function</span>(id) {</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>      ns <span class="ot">&lt;-</span> <span class="fu">NS</span>(id)</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>      <span class="fu">div</span>(</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>        <span class="fu">textInput</span>(<span class="fu">ns</span>(<span class="st">&quot;x_axis_title&quot;</span>), <span class="st">&quot;X axis title&quot;</span>, <span class="at">value =</span> <span class="st">&quot;the syggested x axis&quot;</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>      )</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>    },</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>    <span class="at">server =</span> <span class="cf">function</span>(id, data) {</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>      <span class="fu">moduleServer</span>(id, <span class="cf">function</span>(input, output, session) {</span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>        <span class="fu">reactive</span>({</span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>          <span class="fu">req</span>(<span class="fu">data</span>())</span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>          <span class="fu">within</span>(<span class="fu">data</span>(),</span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>            {</span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>              output_name <span class="ot">&lt;-</span> output_name <span class="sc">+</span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>                <span class="fu">xlab</span>(x_axis_title)</span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a>            },</span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a>            <span class="at">output_name =</span> <span class="fu">as.name</span>(output_name),</span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a>            <span class="at">x_axis_title =</span> input<span class="sc">$</span>x_axis_title</span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a>          )</span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a>        })</span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a>      })</span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a>    }</span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a>  )</span>
+<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a>}</span></code></pre></div>
+<p>Note that when the function is used, <code>output_name</code> will be
+passed a character string but the expression passed to
+<code>within</code> needs a <code>name</code>/<code>symbol</code>, a
+language object, hence the argument value must be converted to a
+<code>name</code>.</p>
+</div>
+</div>
+<div id="using-output-transformations-decorators" class="section level2">
+<h2>Using Output Transformations (Decorators)</h2>
+<p>Transformations are applied to a <code>teal</code> module as
+follows:</p>
+<ol style="list-style-type: decimal">
+<li>A list of transformations is passed to the module constructor
+function (<em>e.g.</em> <code>tm_my_module</code>).</li>
+<li>The module constructor calls the module generator function
+(<code>teal::module</code>) and passes the transformations to the
+<code>ui_args</code> and <code>server_args</code> arguments.</li>
+<li>The module functions, UI and server, take a list of transformations
+as arguments and resolve them using <code>ui_transform_teal_data</code>
+and <code>srv_transform_teal_data</code>, respectively.</li>
+</ol>
+<p>Here is a minimal illustration:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># styler: off</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>pseudo_decorated_module <span class="ot">&lt;-</span> <span class="cf">function</span>(</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="at">label =</span> <span class="st">&quot;Pseudo Module with Decorator Support&quot;</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="at">decorators =</span> <span class="fu">list</span>()                                                       <span class="co"># &lt;--- added block (1)</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>) {</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="fu">module</span>(</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>    <span class="at">label =</span> label,</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>    <span class="at">ui_args =</span> <span class="fu">list</span>(<span class="at">decorators =</span> decorators),                                  <span class="co"># &lt;--- added block (2)</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>    <span class="at">server_args =</span> <span class="fu">list</span>(<span class="at">decorators =</span> decorators),                              <span class="co"># &lt;--- added block (2)</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>    <span class="at">ui =</span> <span class="cf">function</span>(id, decorators) {</span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>      ns <span class="ot">&lt;-</span> <span class="fu">NS</span>(id)</span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>      <span class="fu">div</span>(</span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>        <span class="co"># &lt;input widgets&gt;,</span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>        <span class="co"># &lt;output widgets&gt;,</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>        <span class="fu">ui_transform_teal_data</span>(<span class="fu">ns</span>(<span class="st">&quot;decorate&quot;</span>), <span class="at">transformators =</span> decorators)   <span class="co"># &lt;--- added block (3)</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a>      )</span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a>    },</span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a>    <span class="at">server =</span> <span class="cf">function</span>(id, data, decorators) {</span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a>      <span class="fu">moduleServer</span>(id, <span class="cf">function</span>(input, output, session) {</span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a>        <span class="co"># &lt;receive inputs&gt;</span></span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a>        <span class="co"># &lt;process data&gt;</span></span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a>        data_with_output <span class="ot">&lt;-</span> <span class="fu">reactive</span>({</span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a>          <span class="fu">within</span>(<span class="fu">data</span>(), output_item <span class="ot">&lt;-</span> <span class="fu">generate_output</span>())</span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a>        })</span>
+<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a>        data_with_output_decorated <span class="ot">&lt;-</span> <span class="fu">srv_transform_teal_data</span>(                <span class="co"># &lt;--- added block (3)</span></span>
+<span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a>          <span class="st">&quot;decorate&quot;</span>,                                                         <span class="co"># &lt;-</span></span>
+<span id="cb4-27"><a href="#cb4-27" tabindex="-1"></a>          <span class="at">data =</span> data_with_output,                                            <span class="co"># &lt;-</span></span>
+<span id="cb4-28"><a href="#cb4-28" tabindex="-1"></a>          <span class="at">transformators =</span> decorators                                         <span class="co"># &lt;-</span></span>
+<span id="cb4-29"><a href="#cb4-29" tabindex="-1"></a>        )                                                                     <span class="co"># &lt;--- added block (3)</span></span>
+<span id="cb4-30"><a href="#cb4-30" tabindex="-1"></a>        <span class="co"># &lt;render output&gt;</span></span>
+<span id="cb4-31"><a href="#cb4-31" tabindex="-1"></a>      })</span>
+<span id="cb4-32"><a href="#cb4-32" tabindex="-1"></a>    }</span>
+<span id="cb4-33"><a href="#cb4-33" tabindex="-1"></a>  )</span>
+<span id="cb4-34"><a href="#cb4-34" tabindex="-1"></a>}</span>
+<span id="cb4-35"><a href="#cb4-35" tabindex="-1"></a><span class="co"># styler: on</span></span></code></pre></div>
+<p>The following examples demonstrate various uses of output
+transformations.</p>
+<div id="single-transformation-decoration" class="section level3">
+<h3>Single Transformation (Decoration)</h3>
+<p>In the first example we will apply one transformation to one
+output.</p>
+</div>
+<div id="module" class="section level3">
+<h3>Module</h3>
+<p>This module has one output, a plot created with <code>ggplot2</code>,
+and it displays the reproducible code used to obtain the plot.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>tm_decorated_plot <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">label =</span> <span class="st">&quot;module&quot;</span>, <span class="at">decorators =</span> <span class="fu">list</span>()) {</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  checkmate<span class="sc">::</span><span class="fu">assert_list</span>(decorators, <span class="st">&quot;teal_transform_module&quot;</span>, <span class="at">null.ok =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  <span class="fu">module</span>(</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>    <span class="at">label =</span> label,</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>    <span class="at">ui_args =</span> <span class="fu">list</span>(<span class="at">decorators =</span> decorators),</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>    <span class="at">server_args =</span> <span class="fu">list</span>(<span class="at">decorators =</span> decorators),</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>    <span class="at">ui =</span> <span class="cf">function</span>(id, decorators) {</span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>      ns <span class="ot">&lt;-</span> <span class="fu">NS</span>(id)</span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>      <span class="fu">div</span>(</span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>        <span class="fu">selectInput</span>(<span class="fu">ns</span>(<span class="st">&quot;dataname&quot;</span>), <span class="at">label =</span> <span class="st">&quot;select dataname&quot;</span>, <span class="at">choices =</span> <span class="cn">NULL</span>),</span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>        <span class="fu">selectInput</span>(<span class="fu">ns</span>(<span class="st">&quot;x&quot;</span>), <span class="at">label =</span> <span class="st">&quot;select x&quot;</span>, <span class="at">choices =</span> <span class="cn">NULL</span>),</span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>        <span class="fu">selectInput</span>(<span class="fu">ns</span>(<span class="st">&quot;y&quot;</span>), <span class="at">label =</span> <span class="st">&quot;select y&quot;</span>, <span class="at">choices =</span> <span class="cn">NULL</span>),</span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>        <span class="fu">ui_transform_teal_data</span>(<span class="fu">ns</span>(<span class="st">&quot;decorate&quot;</span>), <span class="at">transformators =</span> decorators),</span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>        <span class="fu">plotOutput</span>(<span class="fu">ns</span>(<span class="st">&quot;plot&quot;</span>)),</span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>        <span class="fu">verbatimTextOutput</span>(<span class="fu">ns</span>(<span class="st">&quot;text&quot;</span>))</span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>      )</span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>    },</span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a>    <span class="at">server =</span> <span class="cf">function</span>(id, data, decorators) {</span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a>      <span class="fu">moduleServer</span>(id, <span class="cf">function</span>(input, output, session) {</span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a>        <span class="fu">observeEvent</span>(<span class="fu">data</span>(), {</span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a>          <span class="fu">updateSelectInput</span>(<span class="at">inputId =</span> <span class="st">&quot;dataname&quot;</span>, <span class="at">choices =</span> <span class="fu">names</span>(<span class="fu">data</span>()))</span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a>        })</span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a></span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a>        <span class="fu">observeEvent</span>(input<span class="sc">$</span>dataname, {</span>
+<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a>          <span class="fu">req</span>(input<span class="sc">$</span>dataname)</span>
+<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a>          <span class="fu">updateSelectInput</span>(<span class="at">inputId =</span> <span class="st">&quot;x&quot;</span>, <span class="at">choices =</span> <span class="fu">colnames</span>(<span class="fu">data</span>()[[input<span class="sc">$</span>dataname]]))</span>
+<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a>          <span class="fu">updateSelectInput</span>(<span class="at">inputId =</span> <span class="st">&quot;y&quot;</span>, <span class="at">choices =</span> <span class="fu">colnames</span>(<span class="fu">data</span>()[[input<span class="sc">$</span>dataname]]))</span>
+<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a>        })</span>
+<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a></span>
+<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a>        dataname <span class="ot">&lt;-</span> <span class="fu">reactive</span>(<span class="fu">req</span>(input<span class="sc">$</span>dataname))</span>
+<span id="cb5-32"><a href="#cb5-32" tabindex="-1"></a>        x <span class="ot">&lt;-</span> <span class="fu">reactive</span>({</span>
+<span id="cb5-33"><a href="#cb5-33" tabindex="-1"></a>          <span class="fu">req</span>(input<span class="sc">$</span>x, input<span class="sc">$</span>x <span class="sc">%in%</span> <span class="fu">colnames</span>(<span class="fu">data</span>()[[<span class="fu">dataname</span>()]]))</span>
+<span id="cb5-34"><a href="#cb5-34" tabindex="-1"></a>          input<span class="sc">$</span>x</span>
+<span id="cb5-35"><a href="#cb5-35" tabindex="-1"></a>        })</span>
+<span id="cb5-36"><a href="#cb5-36" tabindex="-1"></a>        y <span class="ot">&lt;-</span> <span class="fu">reactive</span>({</span>
+<span id="cb5-37"><a href="#cb5-37" tabindex="-1"></a>          <span class="fu">req</span>(input<span class="sc">$</span>y, input<span class="sc">$</span>y <span class="sc">%in%</span> <span class="fu">colnames</span>(<span class="fu">data</span>()[[<span class="fu">dataname</span>()]]))</span>
+<span id="cb5-38"><a href="#cb5-38" tabindex="-1"></a>          input<span class="sc">$</span>y</span>
+<span id="cb5-39"><a href="#cb5-39" tabindex="-1"></a>        })</span>
+<span id="cb5-40"><a href="#cb5-40" tabindex="-1"></a></span>
+<span id="cb5-41"><a href="#cb5-41" tabindex="-1"></a>        <span class="co"># Plot is created within the teal_data object</span></span>
+<span id="cb5-42"><a href="#cb5-42" tabindex="-1"></a>        data_with_plot <span class="ot">&lt;-</span> <span class="fu">reactive</span>({</span>
+<span id="cb5-43"><a href="#cb5-43" tabindex="-1"></a>          <span class="fu">req</span>(<span class="fu">dataname</span>(), <span class="fu">x</span>(), <span class="fu">y</span>())</span>
+<span id="cb5-44"><a href="#cb5-44" tabindex="-1"></a>          <span class="fu">within</span>(<span class="fu">data</span>(),</span>
+<span id="cb5-45"><a href="#cb5-45" tabindex="-1"></a>            {</span>
+<span id="cb5-46"><a href="#cb5-46" tabindex="-1"></a>              plot <span class="ot">&lt;-</span> ggplot2<span class="sc">::</span><span class="fu">ggplot</span>(dataname, ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y)) <span class="sc">+</span></span>
+<span id="cb5-47"><a href="#cb5-47" tabindex="-1"></a>                ggplot2<span class="sc">::</span><span class="fu">geom_point</span>()</span>
+<span id="cb5-48"><a href="#cb5-48" tabindex="-1"></a>            },</span>
+<span id="cb5-49"><a href="#cb5-49" tabindex="-1"></a>            <span class="at">dataname =</span> <span class="fu">as.name</span>(<span class="fu">dataname</span>()),</span>
+<span id="cb5-50"><a href="#cb5-50" tabindex="-1"></a>            <span class="at">x =</span> <span class="fu">as.name</span>(<span class="fu">x</span>()),</span>
+<span id="cb5-51"><a href="#cb5-51" tabindex="-1"></a>            <span class="at">y =</span> <span class="fu">as.name</span>(<span class="fu">y</span>())</span>
+<span id="cb5-52"><a href="#cb5-52" tabindex="-1"></a>          )</span>
+<span id="cb5-53"><a href="#cb5-53" tabindex="-1"></a>        })</span>
+<span id="cb5-54"><a href="#cb5-54" tabindex="-1"></a></span>
+<span id="cb5-55"><a href="#cb5-55" tabindex="-1"></a>        <span class="co"># Decorators are applied</span></span>
+<span id="cb5-56"><a href="#cb5-56" tabindex="-1"></a>        data_with_plot_decorated <span class="ot">&lt;-</span> <span class="fu">srv_transform_teal_data</span>(</span>
+<span id="cb5-57"><a href="#cb5-57" tabindex="-1"></a>          <span class="st">&quot;decorate&quot;</span>,</span>
+<span id="cb5-58"><a href="#cb5-58" tabindex="-1"></a>          <span class="at">data =</span> data_with_plot,</span>
+<span id="cb5-59"><a href="#cb5-59" tabindex="-1"></a>          <span class="at">transformators =</span> decorators</span>
+<span id="cb5-60"><a href="#cb5-60" tabindex="-1"></a>        )</span>
+<span id="cb5-61"><a href="#cb5-61" tabindex="-1"></a></span>
+<span id="cb5-62"><a href="#cb5-62" tabindex="-1"></a>        <span class="co"># (Decorated) plot object is extracted for rendering</span></span>
+<span id="cb5-63"><a href="#cb5-63" tabindex="-1"></a>        plot_r <span class="ot">&lt;-</span> <span class="fu">reactive</span>({</span>
+<span id="cb5-64"><a href="#cb5-64" tabindex="-1"></a>          <span class="fu">data_with_plot_decorated</span>()[[<span class="st">&quot;plot&quot;</span>]]</span>
+<span id="cb5-65"><a href="#cb5-65" tabindex="-1"></a>        })</span>
+<span id="cb5-66"><a href="#cb5-66" tabindex="-1"></a></span>
+<span id="cb5-67"><a href="#cb5-67" tabindex="-1"></a>        <span class="co"># Add plot printing statement to reproducible code</span></span>
+<span id="cb5-68"><a href="#cb5-68" tabindex="-1"></a>        <span class="do">## This does not affect the analysis but when the code is &quot;replayed&quot;</span></span>
+<span id="cb5-69"><a href="#cb5-69" tabindex="-1"></a>        <span class="do">## in an interactive session it will send the plot to a graphics device.</span></span>
+<span id="cb5-70"><a href="#cb5-70" tabindex="-1"></a>        reproducible_code <span class="ot">&lt;-</span> <span class="fu">reactive</span>({</span>
+<span id="cb5-71"><a href="#cb5-71" tabindex="-1"></a>          <span class="fu">within</span>(<span class="fu">data_with_plot_decorated</span>(), <span class="at">expr =</span> plot) <span class="sc">|&gt;</span></span>
+<span id="cb5-72"><a href="#cb5-72" tabindex="-1"></a>            teal.code<span class="sc">::</span><span class="fu">get_code</span>()</span>
+<span id="cb5-73"><a href="#cb5-73" tabindex="-1"></a>        })</span>
+<span id="cb5-74"><a href="#cb5-74" tabindex="-1"></a></span>
+<span id="cb5-75"><a href="#cb5-75" tabindex="-1"></a>        output<span class="sc">$</span>plot <span class="ot">&lt;-</span> <span class="fu">renderPlot</span>(<span class="fu">plot_r</span>())</span>
+<span id="cb5-76"><a href="#cb5-76" tabindex="-1"></a>        output<span class="sc">$</span>text <span class="ot">&lt;-</span> <span class="fu">renderText</span>(<span class="fu">reproducible_code</span>())</span>
+<span id="cb5-77"><a href="#cb5-77" tabindex="-1"></a>      })</span>
+<span id="cb5-78"><a href="#cb5-78" tabindex="-1"></a>    }</span>
+<span id="cb5-79"><a href="#cb5-79" tabindex="-1"></a>  )</span>
+<span id="cb5-80"><a href="#cb5-80" tabindex="-1"></a>}</span></code></pre></div>
+<div id="application" class="section level4">
+<h4>Application</h4>
+<p>Note that every call to the module constructor
+(<code>tm_decorated_plot</code>) takes a list containing <em>one</em>
+transformator.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>app <span class="ot">&lt;-</span> <span class="fu">init</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  <span class="at">data =</span> <span class="fu">teal_data</span>(<span class="at">iris =</span> iris, <span class="at">mtcars =</span> mtcars),</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="at">modules =</span> <span class="fu">modules</span>(</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>    <span class="fu">tm_decorated_plot</span>(<span class="st">&quot;undecorated&quot;</span>),</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>    <span class="fu">tm_decorated_plot</span>(<span class="st">&quot;static&quot;</span>, <span class="at">decorators =</span> <span class="fu">list</span>(static_decorator)),</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>    <span class="fu">tm_decorated_plot</span>(<span class="st">&quot;interactive&quot;</span>, <span class="at">decorators =</span> <span class="fu">list</span>(interactive_decorator)),</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>    <span class="fu">tm_decorated_plot</span>(<span class="st">&quot;dynamic&quot;</span>, <span class="at">decorators =</span> <span class="fu">list</span>(<span class="fu">dynamic_decorator</span>(<span class="st">&quot;plot&quot;</span>)))</span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>  )</span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>)</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">interactive</span>()) {</span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>  <span class="fu">shinyApp</span>(app<span class="sc">$</span>ui, app<span class="sc">$</span>server)</span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>}</span></code></pre></div>
+</div>
+</div>
+<div id="transforming-multiple-outputs-decorators" class="section level3">
+<h3>Transforming Multiple Outputs (Decorators)</h3>
+<p>Here we will apply transformation to two outputs in one module.</p>
+<div id="transformators" class="section level4">
+<h4>Transformators</h4>
+<p>The plot transformators adds a user-provided title to a
+<code>ggplot2</code> object.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>plot_decorator <span class="ot">&lt;-</span> <span class="fu">teal_transform_module</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="at">label =</span> <span class="st">&quot;Decorate plot&quot;</span>,</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="at">ui =</span> <span class="cf">function</span>(id) {</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>    ns <span class="ot">&lt;-</span> <span class="fu">NS</span>(id)</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>    <span class="fu">textInput</span>(<span class="fu">ns</span>(<span class="st">&quot;plot_title&quot;</span>), <span class="st">&quot;Plot Title&quot;</span>, <span class="at">value =</span> <span class="st">&quot;Title (editable)&quot;</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  },</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  <span class="at">server =</span> <span class="cf">function</span>(id, data) {</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>    <span class="fu">moduleServer</span>(id, <span class="cf">function</span>(input, output, session) {</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>      <span class="fu">reactive</span>({</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>        <span class="fu">req</span>(<span class="fu">data</span>())</span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>        <span class="fu">within</span>(<span class="fu">data</span>(),</span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>          {</span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>            plot <span class="ot">&lt;-</span> plot <span class="sc">+</span> ggplot2<span class="sc">::</span><span class="fu">ggtitle</span>(ptitle) <span class="sc">+</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>              ggplot2<span class="sc">::</span><span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a>              ggplot2<span class="sc">::</span><span class="fu">theme</span>(</span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a>                <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">&quot;bold&quot;</span>, <span class="at">size =</span> <span class="dv">30</span>, <span class="at">color =</span> <span class="st">&quot;blue&quot;</span>)</span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a>              )</span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a>          },</span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a>          <span class="at">ptitle =</span> input<span class="sc">$</span>plot_title</span>
+<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a>        )</span>
+<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a>      })</span>
+<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a>    })</span>
+<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a>  }</span>
+<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a>)</span></code></pre></div>
+<p>The table transformators adds a column to a
+<code>data.frame</code>.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>table_decorator <span class="ot">&lt;-</span> <span class="fu">teal_transform_module</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="at">label =</span> <span class="st">&quot;Decorate table&quot;</span>,</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="at">ui =</span> <span class="cf">function</span>(id) shiny<span class="sc">::</span>tags<span class="sc">$</span><span class="fu">p</span>(<span class="st">&quot;No UI needed for table decorator and could be ommited.&quot;</span>),</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="at">server =</span> <span class="cf">function</span>(id, data) {</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>    <span class="fu">moduleServer</span>(id, <span class="cf">function</span>(input, output, session) {</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>      <span class="fu">reactive</span>({</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>        <span class="fu">req</span>(<span class="fu">data</span>())</span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>        <span class="fu">within</span>(<span class="fu">data</span>(), {</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>          table_data[[<span class="st">&quot;Added by decorator&quot;</span>]] <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;Row &quot;</span>, <span class="fu">seq_len</span>(<span class="fu">nrow</span>(table_data)))</span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>        })</span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>      })</span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>    })</span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>  }</span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<div id="module-1" class="section level4">
+<h4>Module</h4>
+<p>The following module uses <code>ggplot2</code> to generate a scatter
+plot, and presents a simple <code>data.frame</code> as a summary table.
+Code for both outputs is also displayed.</p>
+<p>Note that the module constructor accepts one list of transformations
+and the transformations are then manually separated in the module
+functions.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>tm_decorated_plot_table <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">label =</span> <span class="st">&quot;module with two outputs&quot;</span>, <span class="at">decorators =</span> <span class="fu">list</span>()) {</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  checkmate<span class="sc">::</span><span class="fu">assert_list</span>(decorators, <span class="st">&quot;teal_transform_module&quot;</span>, <span class="at">null.ok =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="fu">module</span>(</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>    <span class="at">label =</span> label,</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>    <span class="at">ui_args =</span> <span class="fu">list</span>(<span class="at">decorators =</span> decorators),</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>    <span class="at">server_args =</span> <span class="fu">list</span>(<span class="at">decorators =</span> decorators),</span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>    <span class="at">ui =</span> <span class="cf">function</span>(id, decorators) {</span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>      ns <span class="ot">&lt;-</span> <span class="fu">NS</span>(id)</span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>      <span class="fu">div</span>(</span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a>        <span class="fu">selectInput</span>(<span class="fu">ns</span>(<span class="st">&quot;dataname&quot;</span>), <span class="at">label =</span> <span class="st">&quot;Select dataset&quot;</span>, <span class="at">choices =</span> <span class="cn">NULL</span>),</span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a>        <span class="fu">selectInput</span>(<span class="fu">ns</span>(<span class="st">&quot;x&quot;</span>), <span class="at">label =</span> <span class="st">&quot;Select x-axis&quot;</span>, <span class="at">choices =</span> <span class="cn">NULL</span>),</span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a>        <span class="fu">selectInput</span>(<span class="fu">ns</span>(<span class="st">&quot;y&quot;</span>), <span class="at">label =</span> <span class="st">&quot;Select y-axis&quot;</span>, <span class="at">choices =</span> <span class="cn">NULL</span>),</span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a></span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a>        <span class="co"># Separately inject UI for plot and table decorators</span></span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a>        <span class="fu">ui_transform_teal_data</span>(<span class="fu">ns</span>(<span class="st">&quot;decorate_plot&quot;</span>), <span class="at">transformators =</span> decorators<span class="sc">$</span>plot),</span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a>        <span class="fu">ui_transform_teal_data</span>(<span class="fu">ns</span>(<span class="st">&quot;decorate_table&quot;</span>), <span class="at">transformators =</span> decorators<span class="sc">$</span>table),</span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a>        <span class="fu">plotOutput</span>(<span class="fu">ns</span>(<span class="st">&quot;plot&quot;</span>)),</span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a>        <span class="fu">tableOutput</span>(<span class="fu">ns</span>(<span class="st">&quot;table&quot;</span>)),</span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a>        <span class="fu">verbatimTextOutput</span>(<span class="fu">ns</span>(<span class="st">&quot;text&quot;</span>))</span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a>      )</span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a>    },</span>
+<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a>    <span class="at">server =</span> <span class="cf">function</span>(id, data, decorators) {</span>
+<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a>      <span class="fu">moduleServer</span>(id, <span class="cf">function</span>(input, output, session) {</span>
+<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a>        <span class="fu">observeEvent</span>(<span class="fu">data</span>(), {</span>
+<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a>          <span class="fu">updateSelectInput</span>(<span class="at">inputId =</span> <span class="st">&quot;dataname&quot;</span>, <span class="at">choices =</span> <span class="fu">names</span>(<span class="fu">data</span>()))</span>
+<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a>        })</span>
+<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a></span>
+<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a>        dataname <span class="ot">&lt;-</span> <span class="fu">reactive</span>(<span class="fu">req</span>(input<span class="sc">$</span>dataname))</span>
+<span id="cb9-30"><a href="#cb9-30" tabindex="-1"></a></span>
+<span id="cb9-31"><a href="#cb9-31" tabindex="-1"></a>        <span class="fu">observeEvent</span>(<span class="fu">dataname</span>(), {</span>
+<span id="cb9-32"><a href="#cb9-32" tabindex="-1"></a>          <span class="fu">updateSelectInput</span>(<span class="at">inputId =</span> <span class="st">&quot;x&quot;</span>, <span class="at">choices =</span> <span class="fu">colnames</span>(<span class="fu">data</span>()[[input<span class="sc">$</span>dataname]]))</span>
+<span id="cb9-33"><a href="#cb9-33" tabindex="-1"></a>          <span class="fu">updateSelectInput</span>(<span class="at">inputId =</span> <span class="st">&quot;y&quot;</span>, <span class="at">choices =</span> <span class="fu">colnames</span>(<span class="fu">data</span>()[[input<span class="sc">$</span>dataname]]))</span>
+<span id="cb9-34"><a href="#cb9-34" tabindex="-1"></a>        })</span>
+<span id="cb9-35"><a href="#cb9-35" tabindex="-1"></a>        x <span class="ot">&lt;-</span> <span class="fu">reactive</span>({</span>
+<span id="cb9-36"><a href="#cb9-36" tabindex="-1"></a>          <span class="fu">req</span>(input<span class="sc">$</span>x, input<span class="sc">$</span>x <span class="sc">%in%</span> <span class="fu">colnames</span>(<span class="fu">data</span>()[[<span class="fu">dataname</span>()]]))</span>
+<span id="cb9-37"><a href="#cb9-37" tabindex="-1"></a>          input<span class="sc">$</span>x</span>
+<span id="cb9-38"><a href="#cb9-38" tabindex="-1"></a>        })</span>
+<span id="cb9-39"><a href="#cb9-39" tabindex="-1"></a>        y <span class="ot">&lt;-</span> <span class="fu">reactive</span>({</span>
+<span id="cb9-40"><a href="#cb9-40" tabindex="-1"></a>          <span class="fu">req</span>(input<span class="sc">$</span>y, input<span class="sc">$</span>y <span class="sc">%in%</span> <span class="fu">colnames</span>(<span class="fu">data</span>()[[<span class="fu">dataname</span>()]]))</span>
+<span id="cb9-41"><a href="#cb9-41" tabindex="-1"></a>          input<span class="sc">$</span>y</span>
+<span id="cb9-42"><a href="#cb9-42" tabindex="-1"></a>        })</span>
+<span id="cb9-43"><a href="#cb9-43" tabindex="-1"></a></span>
+<span id="cb9-44"><a href="#cb9-44" tabindex="-1"></a>        <span class="co"># Separately create outputs within teal_data objects in separate reactive expressions</span></span>
+<span id="cb9-45"><a href="#cb9-45" tabindex="-1"></a>        plot_data <span class="ot">&lt;-</span> <span class="fu">reactive</span>({</span>
+<span id="cb9-46"><a href="#cb9-46" tabindex="-1"></a>          <span class="fu">req</span>(<span class="fu">dataname</span>(), <span class="fu">x</span>(), <span class="fu">y</span>())</span>
+<span id="cb9-47"><a href="#cb9-47" tabindex="-1"></a>          <span class="fu">within</span>(<span class="fu">data</span>(),</span>
+<span id="cb9-48"><a href="#cb9-48" tabindex="-1"></a>            {</span>
+<span id="cb9-49"><a href="#cb9-49" tabindex="-1"></a>              plot <span class="ot">&lt;-</span> ggplot2<span class="sc">::</span><span class="fu">ggplot</span>(dataname, ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x =</span> xvar, <span class="at">y =</span> yvar)) <span class="sc">+</span></span>
+<span id="cb9-50"><a href="#cb9-50" tabindex="-1"></a>                ggplot2<span class="sc">::</span><span class="fu">geom_point</span>()</span>
+<span id="cb9-51"><a href="#cb9-51" tabindex="-1"></a>            },</span>
+<span id="cb9-52"><a href="#cb9-52" tabindex="-1"></a>            <span class="at">dataname =</span> <span class="fu">as.name</span>(<span class="fu">dataname</span>()),</span>
+<span id="cb9-53"><a href="#cb9-53" tabindex="-1"></a>            <span class="at">xvar =</span> <span class="fu">as.name</span>(<span class="fu">x</span>()),</span>
+<span id="cb9-54"><a href="#cb9-54" tabindex="-1"></a>            <span class="at">yvar =</span> <span class="fu">as.name</span>(<span class="fu">y</span>())</span>
+<span id="cb9-55"><a href="#cb9-55" tabindex="-1"></a>          )</span>
+<span id="cb9-56"><a href="#cb9-56" tabindex="-1"></a>        })</span>
+<span id="cb9-57"><a href="#cb9-57" tabindex="-1"></a>        table_data <span class="ot">&lt;-</span> <span class="fu">reactive</span>({</span>
+<span id="cb9-58"><a href="#cb9-58" tabindex="-1"></a>          <span class="fu">req</span>(<span class="fu">dataname</span>())</span>
+<span id="cb9-59"><a href="#cb9-59" tabindex="-1"></a>          <span class="fu">within</span>(<span class="fu">data</span>(),</span>
+<span id="cb9-60"><a href="#cb9-60" tabindex="-1"></a>            {</span>
+<span id="cb9-61"><a href="#cb9-61" tabindex="-1"></a>              table_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">lapply</span>(dataname, mean, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb9-62"><a href="#cb9-62" tabindex="-1"></a>            },</span>
+<span id="cb9-63"><a href="#cb9-63" tabindex="-1"></a>            <span class="at">dataname =</span> <span class="fu">as.name</span>(<span class="fu">dataname</span>())</span>
+<span id="cb9-64"><a href="#cb9-64" tabindex="-1"></a>          )</span>
+<span id="cb9-65"><a href="#cb9-65" tabindex="-1"></a>        })</span>
+<span id="cb9-66"><a href="#cb9-66" tabindex="-1"></a></span>
+<span id="cb9-67"><a href="#cb9-67" tabindex="-1"></a>        <span class="co"># Separately apply decoration to the outputs</span></span>
+<span id="cb9-68"><a href="#cb9-68" tabindex="-1"></a>        decorated_plot <span class="ot">&lt;-</span> <span class="fu">srv_transform_teal_data</span>(</span>
+<span id="cb9-69"><a href="#cb9-69" tabindex="-1"></a>          <span class="st">&quot;decorate_plot&quot;</span>,</span>
+<span id="cb9-70"><a href="#cb9-70" tabindex="-1"></a>          <span class="at">data =</span> plot_data,</span>
+<span id="cb9-71"><a href="#cb9-71" tabindex="-1"></a>          <span class="at">transformators =</span> decorators<span class="sc">$</span>plot</span>
+<span id="cb9-72"><a href="#cb9-72" tabindex="-1"></a>        )</span>
+<span id="cb9-73"><a href="#cb9-73" tabindex="-1"></a>        decorated_table <span class="ot">&lt;-</span> <span class="fu">srv_transform_teal_data</span>(</span>
+<span id="cb9-74"><a href="#cb9-74" tabindex="-1"></a>          <span class="st">&quot;decorate_table&quot;</span>,</span>
+<span id="cb9-75"><a href="#cb9-75" tabindex="-1"></a>          <span class="at">data =</span> table_data,</span>
+<span id="cb9-76"><a href="#cb9-76" tabindex="-1"></a>          <span class="at">transformators =</span> decorators<span class="sc">$</span>table</span>
+<span id="cb9-77"><a href="#cb9-77" tabindex="-1"></a>        )</span>
+<span id="cb9-78"><a href="#cb9-78" tabindex="-1"></a></span>
+<span id="cb9-79"><a href="#cb9-79" tabindex="-1"></a>        output<span class="sc">$</span>plot <span class="ot">&lt;-</span> <span class="fu">renderPlot</span>(<span class="fu">decorated_plot</span>()[[<span class="st">&quot;plot&quot;</span>]])</span>
+<span id="cb9-80"><a href="#cb9-80" tabindex="-1"></a>        output<span class="sc">$</span>table <span class="ot">&lt;-</span> <span class="fu">renderTable</span>(<span class="fu">decorated_table</span>()[[<span class="st">&quot;table_data&quot;</span>]])</span>
+<span id="cb9-81"><a href="#cb9-81" tabindex="-1"></a></span>
+<span id="cb9-82"><a href="#cb9-82" tabindex="-1"></a>        output<span class="sc">$</span>text <span class="ot">&lt;-</span> <span class="fu">renderText</span>({</span>
+<span id="cb9-83"><a href="#cb9-83" tabindex="-1"></a>          plot_code <span class="ot">&lt;-</span> teal.code<span class="sc">::</span><span class="fu">get_code</span>(<span class="fu">req</span>(<span class="fu">decorated_plot</span>()))</span>
+<span id="cb9-84"><a href="#cb9-84" tabindex="-1"></a>          table_code <span class="ot">&lt;-</span> teal.code<span class="sc">::</span><span class="fu">get_code</span>(<span class="fu">req</span>(<span class="fu">decorated_table</span>()))</span>
+<span id="cb9-85"><a href="#cb9-85" tabindex="-1"></a>          <span class="fu">paste</span>(<span class="st">&quot;# Plot Code:&quot;</span>, plot_code, <span class="st">&quot;</span><span class="sc">\n\n</span><span class="st"># Table Code:&quot;</span>, table_code)</span>
+<span id="cb9-86"><a href="#cb9-86" tabindex="-1"></a>        })</span>
+<span id="cb9-87"><a href="#cb9-87" tabindex="-1"></a>      })</span>
+<span id="cb9-88"><a href="#cb9-88" tabindex="-1"></a>    }</span>
+<span id="cb9-89"><a href="#cb9-89" tabindex="-1"></a>  )</span>
+<span id="cb9-90"><a href="#cb9-90" tabindex="-1"></a>}</span></code></pre></div>
+</div>
+<div id="application-1" class="section level4">
+<h4>Application</h4>
+<p>Note that a named list of transformations is passed to the module
+constructor.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>app <span class="ot">&lt;-</span> <span class="fu">init</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>  <span class="at">data =</span> <span class="fu">teal_data</span>(<span class="at">iris =</span> iris, <span class="at">mtcars =</span> mtcars),</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>  <span class="at">modules =</span> <span class="fu">modules</span>(</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>    <span class="fu">tm_decorated_plot_table</span>(</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>      <span class="st">&quot;plot_and_table&quot;</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>      <span class="at">decorators =</span> <span class="fu">list</span>(</span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>        <span class="at">plot =</span> plot_decorator,</span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>        <span class="at">table =</span> table_decorator</span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>      )</span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>    )</span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>  )</span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>)</span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a></span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">interactive</span>()) {</span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a>  <span class="fu">shinyApp</span>(app<span class="sc">$</span>ui, app<span class="sc">$</span>server)</span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a>}</span></code></pre></div>
+</div>
+</div>
+</div>
+<div id="convenience" class="section level2">
+<h2>Convenience</h2>
+<p>Here we present some ways to work with transformators more
+conveniently. These are purely optional.</p>
+<div id="reducing-boilerplate" class="section level3">
+<h3>Reducing Boilerplate</h3>
+<p>The function <code>make_teal_transform_server</code> can be used to
+reduce the amount of boilerplate code when writing new transformators.
+It takes <code>language</code> as input and requires you to use
+<code>input</code> object names directly in the expression. The
+following calls yield the same transformator module. Note that the
+combination of <code>my_title = input$x_axis_title</code> and
+<code>xlab(my_title)</code> is replaced by a simple
+<code>xlab(x_axis_table)</code>.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">teal_transform_module</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>  <span class="at">label =</span> <span class="st">&quot;Static decorator&quot;</span>,</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>  <span class="at">ui =</span> <span class="cf">function</span>(id) {</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>    ns <span class="ot">&lt;-</span> <span class="fu">NS</span>(id)</span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>    <span class="fu">div</span>(</span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>      <span class="fu">textInput</span>(<span class="fu">ns</span>(<span class="st">&quot;x_axis_title&quot;</span>), <span class="st">&quot;X axis title&quot;</span>, <span class="at">value =</span> <span class="st">&quot;x axis&quot;</span>)</span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>    )</span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>  },</span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a>  <span class="at">server =</span> <span class="cf">function</span>(id, data) {</span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a>    <span class="fu">moduleServer</span>(id, <span class="cf">function</span>(input, output, session) {</span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a>      <span class="fu">reactive</span>({</span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a>        <span class="fu">req</span>(<span class="fu">data</span>())</span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a>        <span class="fu">within</span>(</span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a>          <span class="fu">data</span>(),</span>
+<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a>          {</span>
+<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a>            plot <span class="ot">&lt;-</span> plot <span class="sc">+</span> <span class="fu">ggtitle</span>(<span class="st">&quot;This is a better title&quot;</span>) <span class="sc">+</span> <span class="fu">xlab</span>(x_axis_title)</span>
+<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a>          },</span>
+<span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a>          <span class="at">x_axis_title =</span> input<span class="sc">$</span>x_axis_title</span>
+<span id="cb11-19"><a href="#cb11-19" tabindex="-1"></a>        )</span>
+<span id="cb11-20"><a href="#cb11-20" tabindex="-1"></a>      })</span>
+<span id="cb11-21"><a href="#cb11-21" tabindex="-1"></a>    })</span>
+<span id="cb11-22"><a href="#cb11-22" tabindex="-1"></a>  }</span>
+<span id="cb11-23"><a href="#cb11-23" tabindex="-1"></a>)</span>
+<span id="cb11-24"><a href="#cb11-24" tabindex="-1"></a></span>
+<span id="cb11-25"><a href="#cb11-25" tabindex="-1"></a><span class="fu">teal_transform_module</span>(</span>
+<span id="cb11-26"><a href="#cb11-26" tabindex="-1"></a>  <span class="at">label =</span> <span class="st">&quot;Static decorator (language)&quot;</span>,</span>
+<span id="cb11-27"><a href="#cb11-27" tabindex="-1"></a>  <span class="at">ui =</span> <span class="cf">function</span>(id) {</span>
+<span id="cb11-28"><a href="#cb11-28" tabindex="-1"></a>    ns <span class="ot">&lt;-</span> <span class="fu">NS</span>(id)</span>
+<span id="cb11-29"><a href="#cb11-29" tabindex="-1"></a>    <span class="fu">div</span>(</span>
+<span id="cb11-30"><a href="#cb11-30" tabindex="-1"></a>      <span class="fu">textInput</span>(<span class="fu">ns</span>(<span class="st">&quot;x_axis_title&quot;</span>), <span class="st">&quot;X axis title&quot;</span>, <span class="at">value =</span> <span class="st">&quot;x axis&quot;</span>)</span>
+<span id="cb11-31"><a href="#cb11-31" tabindex="-1"></a>    )</span>
+<span id="cb11-32"><a href="#cb11-32" tabindex="-1"></a>  },</span>
+<span id="cb11-33"><a href="#cb11-33" tabindex="-1"></a>  <span class="at">server =</span> <span class="fu">make_teal_transform_server</span>(</span>
+<span id="cb11-34"><a href="#cb11-34" tabindex="-1"></a>    <span class="fu">expression</span>(</span>
+<span id="cb11-35"><a href="#cb11-35" tabindex="-1"></a>      plot <span class="ot">&lt;-</span> plot <span class="sc">+</span> <span class="fu">ggtitle</span>(<span class="st">&quot;This is a better title&quot;</span>) <span class="sc">+</span> <span class="fu">xlab</span>(x_axis_title)</span>
+<span id="cb11-36"><a href="#cb11-36" tabindex="-1"></a>    )</span>
+<span id="cb11-37"><a href="#cb11-37" tabindex="-1"></a>  )</span>
+<span id="cb11-38"><a href="#cb11-38" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<div id="multiple-transformations" class="section level3">
+<h3>Multiple Transformations</h3>
+<p>Consider these constructs to accommodate an arbitrary number of
+transformators in your module. Note that with this method all
+decorations will be applied to one output.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="co"># in the module UI function</span></span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="fu">div</span>(</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>  <span class="at">id =</span> <span class="fu">ns</span>(<span class="st">&quot;deorator_container&quot;</span>),</span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>  <span class="fu">lapply</span>(<span class="fu">names</span>(decorators), <span class="cf">function</span>(decorator_name) {</span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>    <span class="fu">div</span>(</span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>      <span class="at">id =</span> <span class="fu">ns</span>(<span class="fu">paste0</span>(<span class="st">&quot;decorate_&quot;</span>, decorator_name)),</span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a>      <span class="fu">ui_transform_teal_data</span>(</span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a>        <span class="fu">ns</span>(<span class="fu">paste0</span>(<span class="st">&quot;decorate_&quot;</span>, decorator_name)),</span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a>        <span class="at">transformators =</span> decorators[[decorator_name]]</span>
+<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a>      )</span>
+<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a>    )</span>
+<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a>  })</span>
+<span id="cb12-13"><a href="#cb12-13" tabindex="-1"></a>)</span>
+<span id="cb12-14"><a href="#cb12-14" tabindex="-1"></a><span class="co"># in the module server function</span></span>
+<span id="cb12-15"><a href="#cb12-15" tabindex="-1"></a>output_data <span class="ot">&lt;-</span> <span class="fu">reactive</span>(<span class="fu">teal_data</span>())</span>
+<span id="cb12-16"><a href="#cb12-16" tabindex="-1"></a>decorations <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">names</span>(decorators), <span class="cf">function</span>(decorator_name) {</span>
+<span id="cb12-17"><a href="#cb12-17" tabindex="-1"></a>  <span class="cf">function</span>(data) {</span>
+<span id="cb12-18"><a href="#cb12-18" tabindex="-1"></a>    <span class="fu">srv_transform_teal_data</span>(</span>
+<span id="cb12-19"><a href="#cb12-19" tabindex="-1"></a>      <span class="fu">paste0</span>(<span class="st">&quot;decorate_&quot;</span>, decorator_name),</span>
+<span id="cb12-20"><a href="#cb12-20" tabindex="-1"></a>      <span class="at">data =</span> data,</span>
+<span id="cb12-21"><a href="#cb12-21" tabindex="-1"></a>      <span class="at">transformators =</span> decorators[[decorator_name]]</span>
+<span id="cb12-22"><a href="#cb12-22" tabindex="-1"></a>    )</span>
+<span id="cb12-23"><a href="#cb12-23" tabindex="-1"></a>  }</span>
+<span id="cb12-24"><a href="#cb12-24" tabindex="-1"></a>})</span>
+<span id="cb12-25"><a href="#cb12-25" tabindex="-1"></a>output_data_decorated <span class="ot">&lt;-</span> <span class="fu">Reduce</span>(<span class="cf">function</span>(f, ...) <span class="fu">f</span>(...), decorations, <span class="at">init =</span> output_data, <span class="at">right =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

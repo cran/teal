@@ -4,23 +4,44 @@
 \alias{example_module}
 \title{An example \code{teal} module}
 \usage{
-example_module(label = "example teal module", datanames = "all")
+example_module(
+  label = "example teal module",
+  datanames = "all",
+  transformators = list(),
+  decorators = list()
+)
 }
 \arguments{
 \item{label}{(\code{character(1)}) Label shown in the navigation item for the module or module group.
 For \code{modules()} defaults to \code{"root"}. See \code{Details}.}
 
-\item{datanames}{(\code{character}) A vector with \code{datanames} that are relevant for the item. The
-filter panel will automatically update the shown filters to include only
-filters in the listed datasets. \code{NULL} will hide the filter panel,
-and the keyword \code{"all"} will show filters of all datasets. \code{datanames} also determines
-a subset of datasets which are appended to the \code{data} argument in server function.}
+\item{datanames}{(\code{character}) Names of the datasets relevant to the item.
+There are 2 reserved values that have specific behaviors:
+\itemize{
+\item The keyword \code{"all"} includes all datasets available in the data passed to the teal application.
+\item \code{NULL} hides the sidebar panel completely.
+\item If \code{transformators} are specified, their \code{datanames} are automatically added to this \code{datanames}
+argument.
+}}
+
+\item{transformators}{(\code{list} of \code{teal_transform_module}) that will be applied to transform module's data input.
+To learn more check \code{vignette("transform-input-data", package = "teal")}.}
+
+\item{decorators}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} (\code{list} of \code{teal_transform_module}) optional,
+decorator for \code{object} included in the module.}
 }
 \value{
 A \code{teal} module which can be included in the \code{modules} argument to \code{\link[=init]{init()}}.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+}
+\details{
+This module creates an object called \code{object} that can be modified with decorators.
+The \code{object} is determined by what's selected in \verb{Choose a dataset} input in UI.
+The object can be anything that can be handled by \code{renderPrint()}.
+See the \code{vignette("transform-module-output", package = "teal")} or \code{\link{teal_transform_module}}
+to read more about decorators.
 }
 \examples{
 app <- init(
@@ -31,3 +52,13 @@ if (interactive()) {
   shinyApp(app$ui, app$server)
 }
 }
+\section{Examples in Shinylive}{
+\describe{
+  \item{example-1}{
+    \href{https://shinylive.io/r/app/#code=NobwRAdghgtgpmAXGKAHVA6ASmANGAYwHsIAXOMpMAGwEsAjAJykYE8AKcqagSgB0ItMnGYFStAG5wABAB4AtNIBmAVwhjaJdj2kAVLAFUAogIFpUcxUNql2A6dIAmUUlGkBeaV2oB9Z6-YASSxAgGUPaVpGWgBnXGkAWV0AYQBBLHDPGFICFhieXHtpGCJHFWo4GIi4AA9YVAqfErKK7QF+QSVpdiFyUXEpbR0QIpiACyFWVPR2cwASFVp4+ZiRKUYOgF8wTYBdIA}{Open in Shinylive}
+    \if{html}{\out{<iframe class="iframe_shinylive" src="https://shinylive.io/r/app/#code=NobwRAdghgtgpmAXGKAHVA6ASmANGAYwHsIAXOMpMAGwEsAjAJykYE8AKcqagSgB0ItMnGYFStAG5wABAB4AtNIBmAVwhjaJdj2kAVLAFUAogIFpUcxUNql2A6dIAmUUlGkBeaV2oB9Z6-YASSxAgGUPaVpGWgBnXGkAWV0AYQBBLHDPGFICFhieXHtpGCJHFWo4GIi4AA9YVAqfErKK7QF+QSVpdiFyUXEpbR0QIpiACyFWVPR2cwASFVp4+ZiRKUYOgF8wTYBdIA" style="height: 800px; width: 100vw; max-width: 1400px; border: 1px solid rgba(0,0,0,0.175); border-radius: .375rem; position: absolute; left: 50\%; margin-top: 30px; transform: translateX(-50\%); z-index: 1"></iframe>}}
+    \if{html}{\out{<a style='height: 800px; display: block;'></a>}}
+  }
+}
+}
+

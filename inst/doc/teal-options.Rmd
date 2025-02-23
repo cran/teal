@@ -11,7 +11,7 @@ editor_options:
 ---
 
 # Motivation
-Some `R` packages use `options` to modify their runtime behavior. They usually specify sensible default values for internal function arguments or determine responses to users actions. For example, `testthat` uses an option `testthat.progress.max_fails` to define a default number of failed expectations before the testing functions terminate execution. While some of these adjustable values can be exposed as function parameters, some are confined to an option. This vignette details the options available in the package `teal` and it's supporting packages `teal.logger`, `teal.widgets`, and `teal.slice`.
+Some `R` packages use `options` to modify their runtime behavior. They usually specify sensible default values for internal function arguments or determine responses to users actions. For example, `testthat` uses an option `testthat.progress.max_fails` to define a default number of failed expectations before the testing functions terminate execution. While some of these adjustable values can be exposed as function parameters, some are confined to an option. This vignette details the options available in the package `teal` and its supporting packages `teal.logger`, `teal.widgets`, and `teal.slice`.
 
 # Setting an option
 At any time during an interactive session, you can change an option using:
@@ -66,14 +66,14 @@ This option controls the dots per inch of the graphs rendered and downloaded whe
 Default: 72
 
 ### `teal.log_layout` (`character`)
-This defines the layout of a log message used in a `teal` application. `teal` uses this layout to format the emitted log messages. Read the documentation of `teal.logger::register_logger` for more information.
+This defines the layout of a log message used in a `teal` application. `teal` uses this layout to format the emitted log messages. Read the documentation of `teal.logger::register_logger` for more information. This must be set before loading any `teal` package(s). In case the option is set after attaching the packages, please re-attach the packages again to use it correctly.
 
 Default: `"[{level}] {format(time, \"%Y-%m-%d %H:%M:%OS4\")} pid:{pid} token:[{token}] {ans} {msg}"`.
 
 Note that this layout is formatted by the `glue` package.
 
 ### `teal.log_level` (`character`)
-This is the logging level threshold used in a `teal` application. A `teal` application will not emit logs below this level. Read the documentation of `teal.logger::register_logger` for more information. Possible values: `"TRACE"`, `"INFO"`, `"WARNING"`, `"ERROR"`. See the documentation of `logger::TRACE` for all possible values of logging threshold and more information on what it does.
+This is the logging level threshold used in a `teal` application. A `teal` application will not emit logs below this level. See the documentation of `logger::TRACE` for all possible values of logging threshold and more information on what it does. This must be set before loading any `teal` package(s). In case the option is set after attaching the packages, please re-attach the packages again to use it correctly.
 
 Default: `"INFO"`.
 
@@ -83,6 +83,20 @@ Note that there are two levels considered less severe than `"INFO"`: `"DEBUG"` a
 This indicates whether to print the `JavaScript` console logs to the `R` console. If set to `TRUE`, the logs will be printed; otherwise, they won't.
 
 Default: `FALSE`.
+
+### `teal.lockfile.mode` (`character`)
+
+This enables to compute `renv` lockfile and shows a button to `"download lockfile"` in the footer.
+
+Values:
+
+* `"auto"` - auto detect whether to compute `lockfile`
+* `"enabled"` - compute `lockfile` and show `"download lockfile"` in the footer
+* `"disabled"` - do not compute `lockfile` and do not show `"download lockfile"` in the footer
+
+Default: `"auto"`.
+
+To read more about lockfile usage creation check `?teal::module_teal_lockfile`.
 
 
 # Deprecated options

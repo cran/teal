@@ -1,4 +1,4 @@
-# `teal`: Interactive Exploratory Data Analysis with `Shiny` Web-Applications <a href='https://insightsengineering.github.io/teal/'><img src="man/figures/teal.png" align="right" height="139" style="max-width: 100%; max-height: 139px;"/></a  >
+# `teal`: Interactive Exploratory Data Analysis with `Shiny` Web-Applications <a href='https://insightsengineering.github.io/teal/'><img src="man/figures/logo.svg" align="right" height="139" style="max-width: 100%; max-height: 139px;"/></a  >
 
 <!-- start badges -->
 [![CRAN Version](https://www.r-pkg.org/badges/version/teal?color=green)](https://cran.r-project.org/package=teal)
@@ -50,22 +50,22 @@ A lot of the functionality of the `teal` framework derives from the following pa
 -   [`teal.logger`](https://insightsengineering.github.io/teal.logger/latest-tag/): standardizes logging within `teal` framework.
 -   [`teal.reporter`](https://insightsengineering.github.io/teal.reporter/latest-tag/): allows `teal` applications to generate reports.
 
+Dive deeper into `teal` with our comprehensive video guide.
+Please click the image below to start learning:
+
+[![A Complete Guide to Getting Started with teal](https://img.youtube.com/vi/N8ZamECICSI/0.jpg)](https://www.youtube.com/watch?v=N8ZamECICSI)
+
 <!-- markdownlint-enable MD007 MD030 -->
 
 ## Installation
 
 ```r
 install.packages("teal")
-
-# install.packages("pak")
-pak::pak("insightsengineering/teal@*release")
 ```
 
 Alternatively, you might also use the development version.
 
 ```r
-install.packages("teal", repos = c("https://pharmaverse.r-universe.dev", getOption("repos")))
-
 # install.packages("pak")
 pak::pak("insightsengineering/teal")
 ```

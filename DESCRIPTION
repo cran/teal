@@ -1,8 +1,8 @@
 Type: Package
 Package: teal
 Title: Exploratory Web Apps for Analyzing Clinical Trials Data
-Version: 0.15.2
-Date: 2024-03-07
+Version: 0.16.0
+Date: 2025-02-12
 Authors@R: c(
     person("Dawid", "Kaledkowski", , "dawid.kaledkowski@roche.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-9533-457X")),
@@ -34,43 +34,53 @@ License: Apache License 2.0
 URL: https://insightsengineering.github.io/teal/,
         https://github.com/insightsengineering/teal/
 BugReports: https://github.com/insightsengineering/teal/issues
-Depends: R (>= 4.0), shiny (>= 1.7.0), teal.data (>= 0.4.0), teal.slice
-        (>= 0.5.0)
-Imports: checkmate (>= 2.1.0), jsonlite, lifecycle (>= 0.2.0), logger
-        (>= 0.2.0), magrittr (>= 1.5), methods, rlang (>= 1.0.0),
-        shinyjs, stats, teal.code (>= 0.5.0), teal.logger (>= 0.1.1),
-        teal.reporter (>= 0.2.0), teal.widgets (>= 0.4.0), utils
-Suggests: bslib, knitr (>= 1.42), MultiAssayExperiment, R6, rmarkdown
-        (>= 2.19), shinyvalidate, testthat (>= 3.1.5), withr (>=
-        2.1.0), yaml (>= 1.1.0)
-VignetteBuilder: knitr
+Depends: R (>= 4.1), shiny (>= 1.8.1), teal.data (>= 0.7.0), teal.slice
+        (>= 0.6.0)
+Imports: checkmate (>= 2.1.0), cli, htmltools, jsonlite, lifecycle (>=
+        0.2.0), logger (>= 0.2.0), methods, rlang (>= 1.0.0), shinyjs,
+        stats, teal.code (>= 0.6.1), teal.logger (>= 0.3.2),
+        teal.reporter (>= 0.4.0), teal.widgets (>= 0.4.3), tools, utils
+Suggests: bslib, ggplot2 (>= 3.4.0), knitr (>= 1.42), mirai (>= 1.1.1),
+        MultiAssayExperiment, R6, renv (>= 1.0.11), rmarkdown (>=
+        2.23), roxy.shinylive, rvest (>= 1.0.0), shinytest2,
+        shinyvalidate, testthat (>= 3.2.0), withr (>= 2.1.0), yaml (>=
+        1.1.0)
+VignetteBuilder: knitr, rmarkdown
 RdMacros: lifecycle
 Config/Needs/verdepcheck: rstudio/shiny, insightsengineering/teal.data,
         insightsengineering/teal.slice, mllg/checkmate,
         jeroen/jsonlite, r-lib/lifecycle, daroczig/logger,
-        tidyverse/magrittr, r-lib/rlang, daattali/shinyjs,
-        insightsengineering/teal.logger,
+        shikokuchuo/mirai, r-lib/cli, shikokuchuo/nanonext,
+        rstudio/renv, r-lib/rlang, daattali/shinyjs,
+        insightsengineering/teal.code, insightsengineering/teal.logger,
         insightsengineering/teal.reporter,
         insightsengineering/teal.widgets, rstudio/bslib, yihui/knitr,
         bioc::MultiAssayExperiment, r-lib/R6, rstudio/rmarkdown,
-        rstudio/shinyvalidate, insightsengineering/teal.code,
-        r-lib/testthat, r-lib/withr, yaml=vubiostat/r-yaml
+        tidyverse/rvest, rstudio/shinytest2, rstudio/shinyvalidate,
+        r-lib/testthat, r-lib/withr, yaml=vubiostat/r-yaml,
+        rstudio/htmltools, bioc::matrixStats,
+        insightsengineering/roxy.shinylive
 Config/Needs/website: insightsengineering/nesttemplate
 Encoding: UTF-8
 Language: en-US
-RoxygenNote: 7.3.1
-Collate: 'dummy_functions.R' 'get_rcode_utils.R' 'include_css_js.R'
-        'modules.R' 'init.R' 'landing_popup_module.R'
-        'module_filter_manager.R' 'module_nested_tabs.R'
-        'module_snapshot_manager.R' 'module_tabs_with_filters.R'
-        'module_teal.R' 'module_teal_with_splash.R'
+RoxygenNote: 7.3.2
+Collate: 'TealAppDriver.R' 'checkmate.R' 'dummy_functions.R'
+        'include_css_js.R' 'modules.R' 'init.R'
+        'landing_popup_module.R' 'module_bookmark_manager.R'
+        'module_data_summary.R' 'module_filter_data.R'
+        'module_filter_manager.R' 'module_init_data.R'
+        'module_nested_tabs.R' 'module_session_info.R'
+        'module_snapshot_manager.R' 'module_teal.R'
+        'module_teal_data.R' 'module_teal_lockfile.R'
+        'module_teal_with_splash.R' 'module_transform_data.R'
         'reporter_previewer_module.R' 'show_rcode_modal.R' 'tdata.R'
         'teal.R' 'teal_data_module.R' 'teal_data_module-eval_code.R'
-        'teal_data_module-within.R' 'teal_reporter.R'
-        'teal_slices-store.R' 'teal_slices.R' 'utils.R'
+        'teal_data_module-within.R' 'teal_data_utils.R'
+        'teal_modifiers.R' 'teal_reporter.R' 'teal_slices-store.R'
+        'teal_slices.R' 'teal_transform_module.R' 'utils.R'
         'validate_inputs.R' 'validations.R' 'zzz.R'
 NeedsCompilation: no
-Packaged: 2024-03-07 20:41:59 UTC; unardid
+Packaged: 2025-02-18 20:11:07 UTC; unardid
 Author: Dawid Kaledkowski [aut, cre] (<https://orcid.org/0000-0001-9533-457X>),
   Pawel Rucki [aut],
   Aleksander Chlebowski [aut] (<https://orcid.org/0000-0001-5018-6294>),
@@ -91,4 +101,4 @@ Author: Dawid Kaledkowski [aut, cre] (<https://orcid.org/0000-0001-9533-457X>),
   Maximilian Mordig [ctb]
 Maintainer: Dawid Kaledkowski <dawid.kaledkowski@roche.com>
 Repository: CRAN
-Date/Publication: 2024-03-07 22:00:02 UTC
+Date/Publication: 2025-02-23 17:00:02 UTC

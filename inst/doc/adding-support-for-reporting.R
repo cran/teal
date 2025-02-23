@@ -1,14 +1,22 @@
-## ----message=FALSE------------------------------------------------------------
+## ----setup, include=FALSE-----------------------------------------------------
 library(teal)
-example_module <- function(label = "example teal module") {
+library(teal.reporter)
+
+## ----as_interactive, eval=FALSE, echo=FALSE-----------------------------------
+# interactive <- function() TRUE
+
+## ----module_1-----------------------------------------------------------------
+library(teal)
+library(teal.reporter)
+
+my_module <- function(label = "example teal module") {
   module(
     label = label,
     server = function(id, data) {
-      checkmate::assert_class(data, "reactive")
       checkmate::assert_class(isolate(data()), "teal_data")
 
       moduleServer(id, function(input, output, session) {
-        updateSelectInput(session, "dataname", choices = isolate(datanames(data())))
+        updateSelectInput(session, "dataname", choices = isolate(names(data())))
         output$dataset <- renderPrint({
           req(input$dataname)
           data()[[input$dataname]]
@@ -25,21 +33,33 @@ example_module <- function(label = "example teal module") {
   )
 }
 
-## ----eval = FALSE-------------------------------------------------------------
-#  app <- init(
-#    data = teal_data(IRIS = iris, MTCARS = mtcars),
-#    modules = example_module()
-#  )
-#  
-#  if (interactive()) shinyApp(app$ui, app$server)
+## ----app_1--------------------------------------------------------------------
+app <- init(
+  data = teal_data(IRIS = iris, MTCARS = mtcars),
+  modules = my_module()
+)
 
-## -----------------------------------------------------------------------------
-example_module_with_reporting <- function(label = "example teal module") {
+if (interactive()) {
+  shinyApp(app$ui, app$server)
+}
+
+## ----shinylive_iframe_1, echo = FALSE, out.width = '150%', out.extra = 'style = "position: relative; z-index:1"', eval = requireNamespace("roxy.shinylive", quietly = TRUE) && knitr::is_html_output() && identical(Sys.getenv("IN_PKGDOWN"), "true")----
+# code <- paste0(c(
+#   knitr::knit_code$get("as_interactive"),
+#   knitr::knit_code$get("module_1"),
+#   knitr::knit_code$get("app_1")
+# ), collapse = "\n")
+# 
+# url <- roxy.shinylive::create_shinylive_url(code)
+# knitr::include_url(url, height = "800px")
+
+## ----module_2-----------------------------------------------------------------
+my_module_with_reporting <- function(label = "example teal module") {
   module(
     label = label,
     server = function(id, data, reporter) {
       moduleServer(id, function(input, output, session) {
-        updateSelectInput(session, "dataname", choices = isolate(datanames(data())))
+        updateSelectInput(session, "dataname", choices = isolate(names(data())))
         output$dataset <- renderPrint({
           req(input$dataname)
           data()[[input$dataname]]
@@ -56,16 +76,29 @@ example_module_with_reporting <- function(label = "example teal module") {
   )
 }
 
-## -----------------------------------------------------------------------------
+## ----app_2--------------------------------------------------------------------
 app <- init(
   data = teal_data(IRIS = iris, MTCARS = mtcars),
-  modules = example_module_with_reporting()
+  modules = my_module_with_reporting()
 )
 
-if (interactive()) shinyApp(app$ui, app$server)
+if (interactive()) {
+  shinyApp(app$ui, app$server)
+}
 
-## -----------------------------------------------------------------------------
-example_module_with_reporting <- function(label = "example teal module") {
+## ----shinylive_iframe_2, echo = FALSE, out.width = '150%', out.extra = 'style = "position: relative; z-index:1"', eval = requireNamespace("roxy.shinylive", quietly = TRUE) && knitr::is_html_output() && identical(Sys.getenv("IN_PKGDOWN"), "true")----
+# code <- paste0(c(
+#   knitr::knit_code$get("as_interactive"),
+#   knitr::knit_code$get("setup"),
+#   knitr::knit_code$get("module_2"),
+#   knitr::knit_code$get("app_2")
+# ), collapse = "\n")
+# 
+# url <- roxy.shinylive::create_shinylive_url(code)
+# knitr::include_url(url, height = "800px")
+
+## ----module_3-----------------------------------------------------------------
+my_module_with_reporting <- function(label = "example teal module") {
   module(
     label = label,
     server = function(id, data, reporter) {
@@ -75,7 +108,7 @@ example_module_with_reporting <- function(label = "example teal module") {
           reporter = reporter,
           card_fun = function(card) card
         )
-        updateSelectInput(session, "dataname", choices = isolate(datanames(data())))
+        updateSelectInput(session, "dataname", choices = isolate(names(data())))
         output$dataset <- renderPrint({
           req(input$dataname)
           data()[[input$dataname]]
@@ -95,21 +128,34 @@ example_module_with_reporting <- function(label = "example teal module") {
   )
 }
 
-## -----------------------------------------------------------------------------
+## ----app_3--------------------------------------------------------------------
 app <- init(
   data = teal_data(IRIS = iris, MTCARS = mtcars),
-  modules = example_module_with_reporting()
+  modules = my_module_with_reporting()
 )
 
-if (interactive()) shinyApp(app$ui, app$server)
+if (interactive()) {
+  shinyApp(app$ui, app$server)
+}
 
-## -----------------------------------------------------------------------------
+## ----shinylive_iframe_3, echo = FALSE, out.width = '150%', out.extra = 'style = "position: relative; z-index:1"', eval = requireNamespace("roxy.shinylive", quietly = TRUE) && knitr::is_html_output() && identical(Sys.getenv("IN_PKGDOWN"), "true")----
+# code <- paste0(c(
+#   knitr::knit_code$get("as_interactive"),
+#   knitr::knit_code$get("setup"),
+#   knitr::knit_code$get("module_3"),
+#   knitr::knit_code$get("app_3")
+# ), collapse = "\n")
+# 
+# url <- roxy.shinylive::create_shinylive_url(code)
+# knitr::include_url(url, height = "800px")
+
+## ----module_4-----------------------------------------------------------------
 custom_function <- function(card = teal.reporter::ReportCard$new()) {
   card$append_text("This is content from a custom teal module!")
   card
 }
 
-example_module_with_reporting <- function(label = "example teal module") {
+my_module_with_reporting <- function(label = "example teal module") {
   module(
     label = label,
     server = function(id, data, reporter) {
@@ -119,7 +165,7 @@ example_module_with_reporting <- function(label = "example teal module") {
           reporter = reporter,
           card_fun = custom_function
         )
-        updateSelectInput(session, "dataname", choices = isolate(datanames(data())))
+        updateSelectInput(session, "dataname", choices = isolate(names(data())))
         output$dataset <- renderPrint({
           req(input$dataname)
           data()[[input$dataname]]
@@ -139,13 +185,26 @@ example_module_with_reporting <- function(label = "example teal module") {
   )
 }
 
-## -----------------------------------------------------------------------------
+## ----app_4--------------------------------------------------------------------
 app <- init(
   data = teal_data(IRIS = iris, MTCARS = mtcars),
-  modules = example_module_with_reporting()
+  modules = my_module_with_reporting()
 )
 
-if (interactive()) shinyApp(app$ui, app$server)
+if (interactive()) {
+  shinyApp(app$ui, app$server)
+}
+
+## ----shinylive_iframe_4, echo = FALSE, out.width = '150%', out.extra = 'style = "position: relative; z-index:1"', eval = requireNamespace("roxy.shinylive", quietly = TRUE) && knitr::is_html_output() && identical(Sys.getenv("IN_PKGDOWN"), "true")----
+# code <- paste0(c(
+#   knitr::knit_code$get("as_interactive"),
+#   knitr::knit_code$get("setup"),
+#   knitr::knit_code$get("module_4"),
+#   knitr::knit_code$get("app_4")
+# ), collapse = "\n")
+# 
+# url <- roxy.shinylive::create_shinylive_url(code)
+# knitr::include_url(url, height = "800px")
 
 ## -----------------------------------------------------------------------------
 custom_function <- function(card = TealReportCard$new()) {
@@ -153,19 +212,17 @@ custom_function <- function(card = TealReportCard$new()) {
   card
 }
 
-## -----------------------------------------------------------------------------
-library(teal)
-library(teal.reporter)
-
+## ----app_5--------------------------------------------------------------------
 example_reporter_module <- function(label = "Example") {
   module(
     label = label,
     server = function(id, data, reporter, filter_panel_api) {
       with_filter <- !missing(filter_panel_api) && inherits(filter_panel_api, "FilterPanelApi")
       moduleServer(id, function(input, output, session) {
-        updateSelectInput(session, "dataname", choices = isolate(datanames(data())))
+        updateSelectInput(session, "dataname", choices = isolate(names(data())))
         dat <- reactive(data()[[input$dataname]])
         observe({
+          req(input$dataname)
           req(dat())
           updateSliderInput(session, "nrow", max = nrow(dat()), value = floor(nrow(dat()) / 5))
         })
@@ -233,7 +290,7 @@ example_reporter_module <- function(label = "Example") {
 
       sidebarLayout(
         sidebarPanel(
-          div(
+          tags$div(
             teal.reporter::add_card_button_ui(ns("addReportCard")),
             teal.reporter::download_report_button_ui(ns("downloadButton")),
             teal.reporter::reset_report_button_ui(ns("resetButton"))
@@ -251,11 +308,24 @@ app <- init(
   data = teal_data(AIR = airquality, IRIS = iris),
   modules = list(
     example_reporter_module(label = "with Reporter"),
-    example_module(label = "without Reporter")
+    my_module(label = "without Reporter")
   ),
-  filter = teal_slices(teal_slice(dataname = "AIR", varname = "Temp", selected = c(72, 85))),
-  header = "Example teal app with reporter"
-)
+  filter = teal_slices(teal_slice(dataname = "AIR", varname = "Temp", selected = c(72, 85)))
+) |>
+  modify_header(tags$h2("Example teal app with reporter"))
 
-if (interactive()) shinyApp(app$ui, app$server)
+if (interactive()) {
+  shinyApp(app$ui, app$server)
+}
+
+## ----shinylive_iframe_5, echo = FALSE, out.width = '150%', out.extra = 'style = "position: relative; z-index:1"', eval = requireNamespace("roxy.shinylive", quietly = TRUE) && knitr::is_html_output() && identical(Sys.getenv("IN_PKGDOWN"), "true")----
+# code <- paste0(c(
+#   knitr::knit_code$get("as_interactive"),
+#   knitr::knit_code$get("module_1"),
+#   knitr::knit_code$get("module_5"),
+#   knitr::knit_code$get("app_5")
+# ), collapse = "\n")
+# 
+# url <- roxy.shinylive::create_shinylive_url(code)
+# knitr::include_url(url, height = "800px")
 

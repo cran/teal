@@ -9,7 +9,7 @@
 #'
 #' @inheritParams teal.slice::teal_slices
 #'
-#' @param module_specific optional (`logical(1)`)
+#' @param module_specific (`logical(1)`) optional,
 #'  - `FALSE` (default) when one filter panel applied to all modules.
 #'  All filters will be shared by all modules.
 #'  - `TRUE` when filter panel module-specific.
@@ -37,6 +37,10 @@
 #'
 #' @seealso [`teal.slice::teal_slices`], [`teal.slice::teal_slice`], [slices_store()]
 #'
+#' @examplesShinylive
+#' library(teal)
+#' interactive <- function() TRUE
+#' {{ next_example }}
 #' @examples
 #' filter <- teal_slices(
 #'   teal_slice(dataname = "iris", varname = "Species", id = "species"),
@@ -84,8 +88,13 @@ teal_slices <- function(...,
     all_slice_id <- vapply(slices, `[[`, character(1L), "id")
 
     if (missing(mapping)) {
-      mapping <- list(global_filters = all_slice_id)
+      mapping <- if (length(all_slice_id)) {
+        list(global_filters = all_slice_id)
+      } else {
+        list()
+      }
     }
+
     if (!module_specific) {
       mapping[setdiff(names(mapping), "global_filters")] <- NULL
     }
