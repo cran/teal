@@ -1,7 +1,6 @@
 #' `teal` main module
 #'
 #' @description
-#' `r lifecycle::badge("stable")`
 #' Module to create a `teal` app as a Shiny Module.
 #'
 #' @details
@@ -51,59 +50,67 @@ ui_teal <- function(id, modules) {
   checkmate::assert_class(modules, "teal_modules")
   ns <- NS(id)
 
-  modules <- append_reporter_module(modules)
+  mod <- extract_module(modules, class = "teal_module_previewer")
+  reporter_opts <- if (length(mod)) .get_reporter_options(mod[[1]]$server_args)
+  modules <- drop_module(modules, "teal_module_landing")
+  modules <- drop_module(modules, "teal_module_previewer")
 
-  # show busy icon when `shiny` session is busy computing stuff
-  # based on https://stackoverflow.com/questions/17325521/r-shiny-display-loading-message-while-function-is-running/22475216#22475216 # nolint: line_length.
   shiny_busy_message_panel <- conditionalPanel(
     condition = "(($('html').hasClass('shiny-busy')) && (document.getElementById('shiny-notification-panel') == null))", # nolint: line_length.
     tags$div(
       icon("arrows-rotate", class = "fa-spin", prefer_type = "solid"),
       "Computing ...",
-      # CSS defined in `custom.css`
-      class = "shinybusymessage"
+      style = "position: fixed; bottom: 0; right: 0;
+          width: 140px; margin: 15px; padding: 5px 0 5px 10px;
+          text-align: left; font-weight: bold; font-size: 100%;
+          color: #ffffff; background-color: #347ab7; z-index: 105;"
     )
   )
 
-  fluidPage(
+  navbar <- ui_teal_module(id = ns("teal_modules"), modules = modules)
+  module_items <- ui_teal_module(id = ns("teal_modules"), modules = modules)
+  nav_elements <- list(
+    withr::with_options(reporter_opts, { # for backwards compatibility of the report_previewer_module$server_args
+      shinyjs::hidden(
+        tags$div(
+          id = ns("reporter_menu_container"),
+          .teal_navbar_menu(
+            label = "Report",
+            icon = "file-text-fill",
+            class = "reporter-menu",
+            if ("preview" %in% getOption("teal.reporter.nav_buttons")) {
+              teal.reporter::preview_report_button_ui(ns("preview_report"), label = "Preview Report")
+            },
+            tags$hr(style = "margin: 0.5rem;"),
+            if ("download" %in% getOption("teal.reporter.nav_buttons")) {
+              teal.reporter::download_report_button_ui(ns("download_report"), label = "Download Report")
+            },
+            if ("load" %in% getOption("teal.reporter.nav_buttons")) {
+              teal.reporter::report_load_ui(ns("load_report"), label = "Load Report")
+            },
+            tags$hr(style = "margin: 0.5rem;"),
+            if ("reset" %in% getOption("teal.reporter.nav_buttons")) {
+              teal.reporter::reset_report_button_ui(ns("reset_reports"), label = "Reset Report")
+            }
+          )
+        )
+      )
+    }),
+    tags$span(style = "margin-left: auto;"),
+    ui_bookmark_panel(ns("bookmark_manager"), modules),
+    ui_snapshot_manager_panel(ns("snapshot_manager_panel")),
+    ui_filter_manager_panel(ns("filter_manager_panel"))
+  )
+  navbar <- .teal_navbar_append(navbar, nav_elements)
+
+  bslib::page_fluid(
     id = id,
     theme = get_teal_bs_theme(),
     include_teal_css_js(),
-    tags$hr(class = "my-2"),
+    shinyjs::useShinyjs(),
     shiny_busy_message_panel,
-    tags$div(
-      id = ns("tabpanel_wrapper"),
-      class = "teal-body",
-      ui_teal_module(id = ns("teal_modules"), modules = modules)
-    ),
-    tags$div(
-      id = ns("options_buttons"),
-      style = "position: absolute; right: 10px;",
-      ui_bookmark_panel(ns("bookmark_manager"), modules),
-      tags$button(
-        class = "btn action-button filter_hamburger", # see sidebar.css for style filter_hamburger
-        href = "javascript:void(0)",
-        onclick = sprintf("toggleFilterPanel('%s');", ns("tabpanel_wrapper")),
-        title = "Toggle filter panel",
-        icon("fas fa-bars")
-      ),
-      ui_snapshot_manager_panel(ns("snapshot_manager_panel")),
-      ui_filter_manager_panel(ns("filter_manager_panel"))
-    ),
-    tags$script(
-      HTML(
-        sprintf(
-          "
-            $(document).ready(function() {
-              $('#%s').appendTo('#%s');
-            });
-          ",
-          ns("options_buttons"),
-          ns("teal_modules-active_tab")
-        )
-      )
-    ),
-    tags$hr()
+    tags$div(id = ns("tabpanel_wrapper"), class = "teal-body", navbar),
+    tags$hr(style = "margin: 1rem 0 0.5rem 0;")
   )
 }
 
@@ -115,7 +122,8 @@ srv_teal <- function(id, data, modules, filter = teal_slices()) {
   checkmate::assert_class(modules, "teal_modules")
   checkmate::assert_class(filter, "teal_slices")
 
-  modules <- append_reporter_module(modules)
+  modules <- drop_module(modules, "teal_module_landing")
+  modules <- drop_module(modules, "teal_module_previewer")
 
   moduleServer(id, function(input, output, session) {
     logger::log_debug("srv_teal initializing.")
@@ -123,9 +131,6 @@ srv_teal <- function(id, data, modules, filter = teal_slices()) {
     if (getOption("teal.show_js_log", default = FALSE)) {
       shinyjs::showLog()
     }
-
-    # `JavaScript` code
-    run_js_files(files = "init.js")
 
     # set timezone in shiny app
     # timezone is set in the early beginning so it will be available also
@@ -171,13 +176,80 @@ srv_teal <- function(id, data, modules, filter = teal_slices()) {
 
     data_load_status <- reactive({
       if (inherits(data_handled(), "teal_data")) {
+        shinyjs::enable(id = "close_teal_data_module_modal")
         "ok"
       } else if (inherits(data, "teal_data_module")) {
+        shinyjs::disable(id = "close_teal_data_module_modal")
         "teal_data_module failed"
       } else {
         "external failed"
       }
     })
+
+    if (inherits(data, "teal_data_module")) {
+      setBookmarkExclude(c("teal_data_module_ui", "open_teal_data_module_ui"))
+      .teal_navbar_insert_ui(
+        ui = .expand_button(
+          id = session$ns("open_teal_data_module_ui"),
+          label = "Load Data",
+          icon = "database-fill"
+        )
+      )
+      observeEvent(
+        input$open_teal_data_module_ui,
+        ignoreInit = TRUE,
+        ignoreNULL = FALSE, # should be shown on startup
+        {
+          showModal(
+            div(
+              class = "teal teal-data-module-popup",
+              modalDialog(
+                id = session$ns("teal_data_module_ui"),
+                size = "xl",
+                tags$div(
+                  ui_init_data(session$ns("data")),
+                  validate_ui
+                ),
+                easyClose = FALSE,
+                footer = tags$div(id = session$ns("close_teal_data_module_modal"), modalButton("Dismiss"))
+              )
+            )
+          )
+          if (data_load_status() == "ok") {
+            shinyjs::enable(id = "close_teal_data_module_modal")
+          } else {
+            shinyjs::disable(id = "close_teal_data_module_modal")
+          }
+        }
+      )
+
+      if (isTRUE(attr(data, "once"))) {
+        # when once = TRUE we pull data once and then remove data button and a modal
+        shiny::removeUI(selector = sprintf(".teal.expand-button:has(#%s)", session$ns("open_teal_data_module_ui")))
+        observeEvent(data_signatured(), once = TRUE, {
+          logger::log_debug("srv_teal@2 removing data tab.")
+          shiny::removeModal()
+        })
+      }
+    } else {
+      # when no teal_data_module then we want to display messages above tabsetPanel (because there is no data-tab)
+      insertUI(
+        selector = sprintf("#%s", session$ns("tabpanel_wrapper")),
+        where = "beforeBegin",
+        ui = tags$div(validate_ui)
+      )
+    }
+
+    if (is_arg_used(modules, "reporter")) {
+      shinyjs::show("reporter_menu_container")
+    } else {
+      removeUI(selector = sprintf("#%s", session$ns("reporter_menu_container")))
+    }
+    reporter <- teal.reporter::Reporter$new()$set_id(attr(filter, "app_id"))
+    teal.reporter::preview_report_button_srv("preview_report", reporter)
+    teal.reporter::report_load_srv("load_report", reporter)
+    teal.reporter::download_report_button_srv(id = "download_report", reporter = reporter)
+    teal.reporter::reset_report_button_srv("reset_reports", reporter)
 
     datasets_rv <- if (!isTRUE(attr(filter, "module_specific"))) {
       eventReactive(data_signatured(), {
@@ -186,53 +258,19 @@ srv_teal <- function(id, data, modules, filter = teal_slices()) {
         teal_data_to_filtered_data(data_signatured())
       })
     }
-
-
-
-    if (inherits(data, "teal_data_module")) {
-      setBookmarkExclude(c("teal_modules-active_tab"))
-      shiny::insertTab(
-        inputId = "teal_modules-active_tab",
-        position = "before",
-        select = TRUE,
-        tabPanel(
-          title = icon("fas fa-database"),
-          value = "teal_data_module",
-          tags$div(
-            ui_init_data(session$ns("data")),
-            validate_ui
-          )
-        )
-      )
-
-      if (attr(data, "once")) {
-        observeEvent(data_signatured(), once = TRUE, {
-          logger::log_debug("srv_teal@2 removing data tab.")
-          # when once = TRUE we pull data once and then remove data tab
-          removeTab("teal_modules-active_tab", target = "teal_data_module")
-        })
-      }
-    } else {
-      # when no teal_data_module then we want to display messages above tabsetPanel (because there is no data-tab)
-      insertUI(
-        selector = sprintf("#%s", session$ns("tabpanel_wrapper")),
-        where = "beforeBegin",
-        ui = tags$div(validate_ui, tags$br())
-      )
-    }
-
-    reporter <- teal.reporter::Reporter$new()$set_id(attr(filter, "app_id"))
-    module_labels <- unlist(module_labels(modules), use.names = FALSE)
+    module_labels <- unlist(modules_slot(modules, "label"), use.names = FALSE)
     slices_global <- methods::new(".slicesGlobal", filter, module_labels)
+
     modules_output <- srv_teal_module(
-      id = "teal_modules",
+      "teal_modules",
       data = data_signatured,
-      datasets = datasets_rv,
       modules = modules,
+      datasets = datasets_rv,
       slices_global = slices_global,
-      data_load_status = data_load_status,
-      reporter = reporter
+      reporter = reporter,
+      data_load_status = data_load_status
     )
+
     mapping_table <- srv_filter_manager_panel("filter_manager_panel", slices_global = slices_global)
     snapshots <- srv_snapshot_manager_panel("snapshot_manager_panel", slices_global = slices_global)
     srv_bookmark_panel("bookmark_manager", modules)

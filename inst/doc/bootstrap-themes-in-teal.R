@@ -28,7 +28,6 @@ options(
   "teal.bs_theme" = bslib::bs_theme(
     version = "5",
     font_scale = 1.25,
-    `enable-rounded` = FALSE,
     bootswatch = "minty"
   )
 )

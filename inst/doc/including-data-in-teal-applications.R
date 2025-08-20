@@ -34,11 +34,13 @@ data_populated_2 <- within(data_empty, {
 })
 
 ## -----------------------------------------------------------------------------
-data_with_code <- teal_data(
-  iris = iris, cars = mtcars,
-  code = "iris <- iris
-          cars <- mtcars"
-)
+m <- diag(5)
+data_populated_3 <- eval_code(data_empty, code = "D5 <- m")
+data_populated_3
+
+## -----------------------------------------------------------------------------
+data_populated_4 <- eval_code(data_empty, code = "D5 <- diag(5)")
+data_populated_4
 
 ## ----eval=FALSE---------------------------------------------------------------
 # # not run
@@ -90,8 +92,6 @@ data_relational2 <- teal_data(DS1 = ds1, DS2 = ds2)
 join_keys(data_relational2) <- keys
 
 ## -----------------------------------------------------------------------------
-data_with_code
-
 data_with_objects_and_code <- teal_data(iris = iris, cars = mtcars, code = expression(iris <- iris, cars <- mtcars))
 data_with_objects_and_code
 

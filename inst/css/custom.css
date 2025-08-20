@@ -1,78 +1,6 @@
 /* teal custom css */
 
-.flex-grow {
-  flex-grow: 1;
-}
-
-.my-2 {
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.mb-4 {
-  margin-bottom: 1rem;
-}
-
-.mt-6 {
-  margin-top: 1.5rem;
-}
-
-.overflow-auto {
-  overflow: auto;
-}
-
-/* display waiting box at bottom right corner when Shiny is computing */
-.shinybusymessage {
-  position: fixed;
-  bottom: 0;
-  right: 0;
-  width: 140px;
-  margin: 15px;
-  padding: 5px 0 5px 10px;
-  text-align: left;
-  font-weight: bold;
-  font-size: 100%;
-  color: #ffffff;
-  background-color: #347ab7;
-  z-index: 105;
-}
-
-/* DataTable connected if any exists */
-.dataTables_wrapper {
-  overflow: auto;
-}
-
-/* to set the alignment of pickerInput dropdowns */
-.dropdown-menu.open {
-  width: 100%;
-}
-
 /* per tag */
-
-.nav {
-  display: flex;
-  flex-wrap: wrap;
-  width: calc(100% - 160px);
-}
-
-header {
-  display: flow-root;
-}
-
-footer {
-  text-align: left;
-  padding: 5px;
-  font-size: 0.8em;
-  opacity: 0.6;
-}
-
-#teal_secondary_col .well {
-  margin: 0 0 15px 0;
-}
-
-#shiny-modal:has(> .modal-dialog > .modal-content > #landingpopup) {
-  backdrop-filter: blur(10px);
-}
 
 body:not(.modal-open) {
   padding-right: 0 !important;
@@ -93,5 +21,115 @@ body > div:has(~ #shiny-modal-wrapper .blur_background) {
 }
 
 #shiny-modal:has(.hide_background) {
-  background-color: white;
+  background-color: var(--bs-white);
+}
+
+.btn {
+  --bs-btn-padding-x: 0.7em;
+  --bs-btn-padding-y: 0.4em;
+}
+
+:root {
+  --bs-body-font-size: 0.875rem;
+}
+
+.accordion-button {
+  font-size: 0.875rem;
+  font-weight: bold;
+}
+
+.teal-body .tabbable > .nav-pills {
+  width: calc(100% - 5rem);
+}
+
+.teal.bookmark-popup .modal-body {
+  padding: 0 1.5rem;
+}
+
+.modal-dialog:has(.teal-filter-manager-modal) {
+  width: fit-content;
+}
+
+.teal-body .bslib-mb-spacing {
+  --bslib-mb-spacer: 0;
+}
+
+.teal-data-module-popup .modal-dialog {
+  --bs-modal-margin: 20px;
+}
+
+.teal-data-module-popup .modal-content {
+  overflow: auto;
+  max-height: 90vh;
+  height: 90vh;
+}
+
+@media (min-width: 576px) {
+  .teal-data-module-popup .modal-dialog {
+    --bs-modal-width: 500px;
+  }
+}
+
+@media (min-width: 992px) {
+  .teal-data-module-popup .modal-dialog {
+    --bs-modal-width: 90vw;
+  }
+}
+
+.teal.expand-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 40px;
+  transition: max-width 0.3s ease;
+}
+
+.teal.expand-button button {
+  color: var(--bs-primary);
+  background-color: transparent;
+  border: 2px solid transparent;
+  padding: 0.5rem;
+}
+
+.teal.expand-button button:disabled {
+  color: var(--bs-dark-text-emphasis);
+}
+
+.teal.expand-button:hover button:disabled {
+  border-bottom: 2px solid var(--bs-dark-bg-subtle);
+}
+
+.teal.expand-button .label {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.teal.expand-button:hover {
+  max-width: 200px;
+}
+
+.teal.expand-button:hover button {
+  border-bottom: 2px solid var(--bs-primary-border-subtle);
+}
+
+.teal.expand-button:hover .label {
+  opacity: 1;
+}
+
+.teal.primary-button {
+  border: solid 1px var(--bs-primary);
+  padding: 0.3em;
+  border-radius: 5px;
+}
+
+.teal.primary-button.disabled {
+  color: var(--bs-primary);
+  pointer-events: none;
+  opacity: 0.65;
+}
+
+.teal.primary-button:not(.disabled):hover {
+  background: var(--bs-primary-bg-subtle);
 }

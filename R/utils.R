@@ -30,16 +30,16 @@ get_teal_bs_theme <- function() {
   bs_theme <- getOption("teal.bs_theme")
 
   if (is.null(bs_theme)) {
-    return(NULL)
+    bs_theme <- bslib::bs_theme()
   }
 
   if (!checkmate::test_class(bs_theme, "bs_theme")) {
     warning(
       "Assertion on 'teal.bs_theme' option value failed: ",
       checkmate::check_class(bs_theme, "bs_theme"),
-      ". The default Shiny Bootstrap theme will be used."
+      ". The default bslib Bootstrap theme will be used."
     )
-    return(NULL)
+    bs_theme <- bslib::bs_theme()
   }
 
   bs_theme
@@ -359,7 +359,9 @@ create_app_id <- function(data, modules) {
   }
   modules <- lapply(modules, defunction)
 
-  rlang::hash(list(data = data, modules = modules))
+  # Suppress warnings of type: `package:MultiAssayExperiment' may not be available when loading`
+  # This is because the package namespace may be part of the `data` object
+  suppressWarnings(rlang::hash(list(data = data, modules = modules)))
 }
 
 #' Go through list and extract bodies of encountered functions as string, recursively.
@@ -490,4 +492,58 @@ pluralize <- function(x, singular, plural = NULL) {
       plural
     }
   }
+}
+
+#' @keywords internal
+.dropdown_button <- function(id = NULL, label, icon) {
+  tags$span(
+    class = "teal dropdown-button",
+    tags$a(
+      id = id,
+      class = "action-button",
+      role = "button",
+      style = "text-decoration: none;",
+      bsicons::bs_icon(icon, class = "text-primary"),
+      label,
+      bsicons::bs_icon("chevron-down", class = "text-primary dropdown-arrow")
+    )
+  )
+}
+
+#' @keywords internal
+.expand_button <- function(id, label, icon) {
+  tags$span(
+    class = "teal expand-button",
+    htmltools::htmlDependency(
+      name = "teal-busy-disable",
+      version = utils::packageVersion("teal"),
+      package = "teal",
+      src = "js",
+      script = "busy-disable.js"
+    ),
+    shinyjs::useShinyjs(),
+    tags$button(
+      id = id,
+      class = "action-button teal-busy-disable",
+      role = "button",
+      style = "text-decoration: none;",
+      tags$span(class = "icon", bsicons::bs_icon(icon, class = "text-primary")),
+      tags$span(class = "label", label)
+    )
+  )
+}
+
+
+#' @keywords internal
+.primary_button <- function(id, label, icon = NULL) {
+  tags$a(
+    id = id,
+    class = "teal primary-button action-button",
+    role = "button",
+    style = "text-decoration: none;",
+    if (!is.null(icon)) {
+      bsicons::bs_icon(icon, class = "text-primary")
+    },
+    label
+  )
 }

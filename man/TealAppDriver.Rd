@@ -49,7 +49,6 @@ driving a teal application for performing interactions for \code{shinytest2} tes
 \item \href{#method-TealAppDriver-get_html_rvest}{\code{TealAppDriver$get_html_rvest()}}
 \item \href{#method-TealAppDriver-open_url}{\code{TealAppDriver$open_url()}}
 \item \href{#method-TealAppDriver-wait_for_active_module_value}{\code{TealAppDriver$wait_for_active_module_value()}}
-\item \href{#method-TealAppDriver-clone}{\code{TealAppDriver$clone()}}
 }
 }
 \if{html}{\out{
@@ -217,17 +216,14 @@ The \code{TealAppDriver} object invisibly.
 \subsection{Method \code{navigate_teal_tab()}}{
 Navigate the teal tabs in the \code{teal} app.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TealAppDriver$navigate_teal_tab(tabs)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{TealAppDriver$navigate_teal_tab(tab)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{tabs}}{(character) Labels of tabs to navigate to. The order of the tabs is important,
-and it should start with the most parent level tab.
-Note: In case the teal tab group has duplicate names, the first tab will be selected,
-If you wish to select the second tab with the same name, use the suffix "_1".
-If you wish to select the third tab with the same name, use the suffix "_2" and so on.}
+\item{\code{tab}}{(character) Labels of tabs to navigate to.
+Note: Make sure to provide unique labels for the tabs.}
 }
 \if{html}{\out{</div>}}
 }
@@ -682,23 +678,6 @@ Only one of these parameters may be used.}
 
 \item{\code{...}}{Must be empty. Allows for parameter expansion.
 Parameter with additional value to passed in \code{wait_for_value}.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-TealAppDriver-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-TealAppDriver-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TealAppDriver$clone(deep = FALSE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
 }
 \if{html}{\out{</div>}}
 }

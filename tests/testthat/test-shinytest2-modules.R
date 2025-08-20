@@ -65,15 +65,12 @@ testthat::test_that("e2e: filter panel shows all the datasets when datanames is 
     )
   )
 
-  testthat::expect_identical(
-    app$get_active_filter_vars(),
-    c("iris", "mtcars")
-  )
+  testthat::expect_identical(app$get_active_filter_vars(), c("iris", "mtcars"))
   app$stop()
 })
 
 
-testthat::test_that("e2e: all the nested teal modules are initiated as expected", {
+testthat::test_that("e2e: nested modules layout in navigation respect order and keeps group names", {
   skip_if_too_deep(5)
   app <- TealAppDriver$new(
     data = simple_teal_data(),
@@ -81,22 +78,29 @@ testthat::test_that("e2e: all the nested teal modules are initiated as expected"
       example_module(label = "Example Module"),
       modules(
         label = "Nested Modules",
-        example_module(label = "Nested 1"),
-        example_module(label = "Nested 2"),
+        example_module(label = "Nested 1.1"),
+        example_module(label = "Nested 1.2"),
         modules(
           label = "Sub Nested Modules",
-          example_module(label = "Nested 1"),
-          example_module(label = "Nested 1")
+          example_module(label = "Nested 2.1"),
+          example_module(label = "Nested 2.2")
         )
       )
     )
   )
-  app_modules <- app$get_text(selector = "ul.shiny-bound-input li a")
+  app_modules <- app$get_text(
+    selector = sprintf("ul.teal-modules-tree li %s", c("a", "span.module-group-label"))
+  )
   testthat::expect_identical(
     app_modules,
     c(
-      "Example Module", "Nested Modules", "Nested 1", "Nested 2",
-      "Sub Nested Modules", "Nested 1", "Nested 1"
+      "Example Module", # Depth: 1
+      "Nested Modules", # Depth: 1
+      "Nested 1.1", # Depth: 2
+      "Nested 1.2", # Depth: 2
+      "Sub Nested Modules", # Depth: 2
+      "Nested 2.1", # Depth: 3
+      "Nested 2.2" # Depth: 3
     )
   )
   app$stop()

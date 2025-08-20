@@ -5,9 +5,7 @@ testthat::test_that("e2e: teal app with landing_popup_module initializes with no
   skip_if_too_deep(5)
   app <- TealAppDriver$new(
     data = simple_teal_data(),
-    modules = modules(
-      example_module()
-    ),
+    modules = modules(example_module()),
     landing_popup_args = list(
       title = "Welcome",
       content = tags$b("A welcome message!", style = "color: red;")
@@ -101,7 +99,7 @@ testthat::test_that(
     )
 
     testthat::expect_equal(
-      app$get_text(".btn-default:nth-child(1)"),
+      app$get_text(".modal-footer button:nth-child(1)"),
       "Proceed"
     )
 

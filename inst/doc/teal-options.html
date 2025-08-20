@@ -388,7 +388,7 @@ object)</h3>
 <code>teal</code> apps. Achieve better UX with the customized UI of an
 app. Please see the <a href="bootstrap-themes-in-teal.html">vignette on
 Bootstrap themes</a> to read more about the functionality.</p>
-<p>Default: <code>NULL</code></p>
+<p>Default: <code>bslib::bs_theme()</code></p>
 </div>
 <div id="teal.load_nest_code-character" class="section level3">
 <h3><code>teal.load_nest_code</code> (<code>character</code>)</h3>
@@ -491,6 +491,57 @@ do not show <code>&quot;download lockfile&quot;</code> in the footer</li>
 <p>Default: <code>&quot;auto&quot;</code>.</p>
 <p>To read more about lockfile usage creation check
 <code>?teal::module_teal_lockfile</code>.</p>
+</div>
+<div id="teal.sidebar.width-numeric" class="section level3">
+<h3><code>teal.sidebar.width</code> (<code>numeric</code>)</h3>
+<p>This sets the sidebar width in pixels in the teal app.</p>
+<p>Default: <code>250</code></p>
+</div>
+<div id="teal.reporter.nav_buttons-character" class="section level3">
+<h3><code>teal.reporter.nav_buttons</code> (<code>character</code>)</h3>
+<p>This option controls which of the four reporter navigation buttons
+(Preview Report, Download Report, Load Report, and Reset Report) should
+be displayed.</p>
+<p>Default: <code>c(&quot;preview&quot;, &quot;download&quot;, &quot;load&quot;, &quot;reset&quot;)</code>.</p>
+</div>
+<div id="teal.reporter.rmd_output-character" class="section level3">
+<h3><code>teal.reporter.rmd_output</code> (<code>character</code>)</h3>
+<p>This option allows customizing the R Markdown output types when a
+report is downloaded. It should be a subset of “html_document”,
+“pdf_document”, “powerpoint_presentation”, “word_document”.</p>
+<p>Default:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">c</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  <span class="st">&quot;html&quot;</span> <span class="ot">=</span> <span class="st">&quot;html_document&quot;</span>, <span class="st">&quot;pdf&quot;</span> <span class="ot">=</span> <span class="st">&quot;pdf_document&quot;</span>,</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="st">&quot;powerpoint&quot;</span> <span class="ot">=</span> <span class="st">&quot;powerpoint_presentation&quot;</span>,</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="st">&quot;word&quot;</span> <span class="ot">=</span> <span class="st">&quot;word_document&quot;</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<div id="teal.reporter.rmd_yaml_args-character" class="section level3">
+<h3><code>teal.reporter.rmd_yaml_args</code>
+(<code>character</code>)</h3>
+<p>It allows customizing the R Markdown YAML arguments for the report.
+It should be a named vector and the names should be a subset of the
+supported YAML args: “author”, “title”, “date”, “output”, “toc”.</p>
+<p>Default:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">list</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="at">author =</span> <span class="st">&quot;NEST&quot;</span>,</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="at">title =</span> <span class="st">&quot;Report&quot;</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  <span class="at">date =</span> <span class="fu">as.character</span>(<span class="fu">Sys.Date</span>()),</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  <span class="at">output =</span> <span class="st">&quot;html_document&quot;</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  <span class="at">toc =</span> <span class="cn">FALSE</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<div id="teal.reporter.global_knitr-list" class="section level3">
+<h3><code>teal.reporter.global_knitr</code> (<code>list</code>)</h3>
+<p>It allows customizing the global <code>knitr</code> parameters which
+are passed to <code>knitr::opts_chunk$set</code> for customizing the
+rendering process.</p>
+<p>Default:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">list</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="at">echo =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="at">tidy.opts =</span> <span class="fu">list</span>(<span class="at">width.cutoff =</span> <span class="dv">60</span>),</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="at">tidy =</span> <span class="fu">requireNamespace</span>(<span class="st">&quot;formatR&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>)</span></code></pre></div>
 </div>
 </div>
 <div id="deprecated-options" class="section level1">

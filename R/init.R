@@ -5,7 +5,7 @@
 
 #' Create the server and UI function for the `shiny` app
 #'
-#' @description `r lifecycle::badge("stable")`
+#' @description
 #'
 #' End-users: This is the most important function for you to start a
 #' `teal` app that is composed of `teal` modules.
@@ -134,7 +134,7 @@ init <- function(data,
   # argument checking (interdependent)
   ## `filter` - `modules`
   if (isTRUE(attr(filter, "module_specific"))) {
-    module_names <- unlist(c(module_labels(modules), "global_filters"))
+    module_names <- unlist(c(modules_slot(modules, "label"), "global_filters"))
     failed_mod_names <- setdiff(names(attr(filter, "mapping")), module_names)
     if (length(failed_mod_names)) {
       stop(
@@ -203,7 +203,9 @@ init <- function(data,
   res <- structure(
     list(
       ui = function(request) {
-        fluidPage(
+        bslib::page_fluid(
+          theme = get_teal_bs_theme(),
+          style = "--bs-gutter-x: 0;",
           title = tags$div(
             id = "teal-app-title",
             tags$head(
@@ -217,6 +219,7 @@ init <- function(data,
           ),
           tags$header(
             id = "teal-header",
+            style = "margin: 1em 1em 0 1em;",
             tags$div(id = "teal-header-content")
           ),
           ui_teal(
@@ -225,6 +228,7 @@ init <- function(data,
           ),
           tags$footer(
             id = "teal-footer",
+            style = "margin: 0.5em 1em;",
             tags$div(id = "teal-footer-content"),
             ui_session_info("teal-footer-session_info")
           )

@@ -50,21 +50,11 @@ ui_bookmark_panel <- function(id, modules) {
   is_unbookmarkable <- need_bookmarking(modules)
   shinyOptions(bookmarkStore = bookmark_option)
 
-  # Render bookmark warnings count
   if (!all(is_unbookmarkable) && identical(bookmark_option, "server")) {
-    tags$button(
+    .expand_button(
       id = ns("do_bookmark"),
-      class = "btn action-button wunder_bar_button bookmark_manager_button",
-      title = "Add bookmark",
-      tags$span(
-        suppressMessages(icon("fas fa-bookmark")),
-        if (any(is_unbookmarkable)) {
-          tags$span(
-            sum(is_unbookmarkable),
-            class = "badge-warning badge-count text-white bg-danger"
-          )
-        }
-      )
+      label = "Bookmark",
+      icon = "bookmark-fill"
     )
   }
 }
@@ -128,12 +118,17 @@ srv_bookmark_panel <- function(id, modules) {
         )
       }
 
+
       showModal(
-        modalDialog(
-          id = ns("bookmark_modal"),
-          title = "Bookmarked teal app url",
-          modal_content,
-          easyClose = TRUE
+        div(
+          class = "teal bookmark-popup",
+          modalDialog(
+            id = ns("bookmark_modal"),
+            title = "Bookmarked teal app url",
+            modal_content,
+            easyClose = TRUE,
+            footer = NULL
+          )
         )
       )
     })
