@@ -68,13 +68,14 @@ histogram_module_server <- function(id, data) {
 
     # Render the histogram from the updated teal_data object
     output$histogram_plot <- shiny::renderPlot({
-      result()[["my_plot"]] # Access and render the plot stored in `new_data`
+      plot(result()[["my_plot"]]) # Access and render the plot stored in `new_data`
     })
 
     # Reactive expression to get the generated code for the plot
     output$plot_code <- shiny::renderText({
       teal.code::get_code(result()) # Retrieve and display the code for the updated `teal_data` object
     })
+    result
   })
 }
 

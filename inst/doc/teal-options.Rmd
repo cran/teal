@@ -98,6 +98,11 @@ Default: `"auto"`.
 
 To read more about lockfile usage creation check `?teal::module_teal_lockfile`.
 
+### `teal.sidebar.position` (`character`)
+This sets the position of the sidebar in the teal app. Possible values are `"left"` and `"right"`.
+
+Default: `left`
+
 ### `teal.sidebar.width` (`numeric`)
 
 This sets the sidebar width in pixels in the teal app.
@@ -150,6 +155,16 @@ list(
   tidy = requireNamespace("formatR", quietly = TRUE)
 )
 ```
+
+###  `teal.reporter.max_request_size` (`numeric`)
+
+Allows to control the maximum size of a `shiny::fileInput`. Meant for large report file uploads.
+Default: `10 * 1024^2` which stands for 10MB.
+### `teal.show_src` (`logical`)
+
+It allows customizing the visibility of the "Show R Code" button in the module title bar.
+
+Default: `TRUE`.
 
 # Deprecated options
 

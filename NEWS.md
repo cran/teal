@@ -1,3 +1,16 @@
+# teal 1.1.0
+
+### Deprecations and removals
+
+* Removed `ui_teal_with_splash`, `srv_teal_with_splash`, `new_tdata`, `tdata2env`, `get_code_tdata`, `join_keys.tdata`, `get_metadata`,
+ `as_tdata`, `landing_popup_module` and `show_rcode_modal` that were deprecated in 0.16.0.
+
+### New features
+
+* `init` and `srv_teal` have new `reporter` parameter, that allows to pre-define `teal.reporter::Reporter` object to be
+used for storing the content of the report. You can also globally disable reporting by setting `reporter = NULL`
+(and `disable = TRUE` in `ui_teal` for cases when `ui_teal` is used as shiny module).
+
 # teal 1.0.0
 
 ### Breaking changes

@@ -492,6 +492,12 @@ do not show <code>&quot;download lockfile&quot;</code> in the footer</li>
 <p>To read more about lockfile usage creation check
 <code>?teal::module_teal_lockfile</code>.</p>
 </div>
+<div id="teal.sidebar.position-character" class="section level3">
+<h3><code>teal.sidebar.position</code> (<code>character</code>)</h3>
+<p>This sets the position of the sidebar in the teal app. Possible
+values are <code>&quot;left&quot;</code> and <code>&quot;right&quot;</code>.</p>
+<p>Default: <code>left</code></p>
+</div>
 <div id="teal.sidebar.width-numeric" class="section level3">
 <h3><code>teal.sidebar.width</code> (<code>numeric</code>)</h3>
 <p>This sets the sidebar width in pixels in the teal app.</p>
@@ -542,6 +548,17 @@ rendering process.</p>
 <span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="at">tidy.opts =</span> <span class="fu">list</span>(<span class="at">width.cutoff =</span> <span class="dv">60</span>),</span>
 <span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="at">tidy =</span> <span class="fu">requireNamespace</span>(<span class="st">&quot;formatR&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<div id="teal.reporter.max_request_size-numeric" class="section level3">
+<h3><code>teal.reporter.max_request_size</code>
+(<code>numeric</code>)</h3>
+<p>Allows to control the maximum size of a
+<code>shiny::fileInput</code>. Meant for large report file uploads.
+Default: <code>10 * 1024^2</code> which stands for 10MB. ###
+<code>teal.show_src</code> (<code>logical</code>)</p>
+<p>It allows customizing the visibility of the “Show R Code” button in
+the module title bar.</p>
+<p>Default: <code>TRUE</code>.</p>
 </div>
 </div>
 <div id="deprecated-options" class="section level1">

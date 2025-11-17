@@ -109,12 +109,7 @@ format.teal_modules(). Determines whether to show "TEAL ROOT" header}
 \value{
 \code{module()} returns an object of class \code{teal_module}.
 
-\code{modules()} returns a \code{teal_modules} object which contains following fields:
-\itemize{
-\item \code{label}: taken from the \code{label} argument.
-\item \code{children}: a list containing objects passed in \code{...}. List elements are named after
-their \code{label} attribute converted to a valid \code{shiny} id.
-}
+\code{modules()} returns an object of class \code{teal_modules}.
 }
 \description{
 Create a nested tab structure to embed modules in a \code{teal} application.
@@ -224,13 +219,13 @@ mod <- module(
 )
 cat(format(mod))
 custom_module <- function(
-    label = "label", ui_args = NULL, server_args = NULL,
-    datanames = "all", transformators = list(), bk = FALSE) {
+  label = "label", ui_args = NULL, server_args = NULL,
+  datanames = "all", transformators = list(), bk = FALSE
+) {
   ans <- module(
     label,
     server = function(id, data, ...) {},
-    ui = function(id, ...) {
-    },
+    ui = function(id, ...) {},
     datanames = datanames,
     transformators = transformators,
     ui_args = ui_args,

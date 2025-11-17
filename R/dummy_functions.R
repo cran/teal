@@ -10,6 +10,16 @@
 #' @param decorators `r lifecycle::badge("experimental")` (`list` of `teal_transform_module`) optional,
 #' decorator for `object` included in the module.
 #'
+#' @section Reporting:
+#'
+#' This module returns an object of class `teal_module`, that contains a `server` function.
+#' Since the server function returns a `teal_report` object, this makes this module reportable, which means that
+#' the reporting functionality will be turned on automatically by the `teal` framework.
+#'
+#' For more information on reporting in `teal`, see the vignettes:
+#' - `vignette("reportable-shiny-application", package = "teal.reporter")`
+#' - `vignette("adding-support-for-reporting-to-custom-modules", package = "teal")`
+#'
 #' @return A `teal` module which can be included in the `modules` argument to [init()].
 #'
 #' @examplesShinylive
@@ -75,12 +85,6 @@ example_module <- function(label = "example teal module",
           table_data_decorated()[["object"]]
         })
 
-        teal.widgets::verbatim_popup_srv(
-          id = "rcode",
-          verbatim_content = reactive(teal.code::get_code(req(table_data_decorated()))),
-          title = "Example Code"
-        )
-
         table_data_decorated
       })
     },
@@ -90,8 +94,7 @@ example_module <- function(label = "example teal module",
         output = verbatimTextOutput(ns("text")),
         encoding = tags$div(
           selectInput(ns("dataname"), "Choose a dataset", choices = NULL),
-          ui_transform_teal_data(ns("decorate"), transformators = decorators),
-          teal.widgets::verbatim_popup_ui(ns("rcode"), "Show R code")
+          ui_transform_teal_data(ns("decorate"), transformators = decorators)
         )
       )
     },

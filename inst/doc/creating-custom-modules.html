@@ -550,6 +550,9 @@ injecting <code>input$dataset</code> and
 <li><strong>Render the Plot</strong>: <code>renderPlot()</code> displays
 the plot by referencing the plot stored in the updated
 <code>teal_data</code> object, <code>new_data</code>.</li>
+<li><strong>Return the data</strong>: To allow for reporting
+capabilities we need to return the data. See <a href="adding-support-for-reporting.html">adding support for reporting
+vignette</a></li>
 </ol>
 <p>Here’s the code:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Server function for the custom histogram module with injected variables in within()</span></span>
@@ -596,15 +599,16 @@ the plot by referencing the plot stored in the updated
 <span id="cb6-42"><a href="#cb6-42" tabindex="-1"></a></span>
 <span id="cb6-43"><a href="#cb6-43" tabindex="-1"></a>    <span class="co"># Render the histogram from the updated teal_data object</span></span>
 <span id="cb6-44"><a href="#cb6-44" tabindex="-1"></a>    output<span class="sc">$</span>histogram_plot <span class="ot">&lt;-</span> shiny<span class="sc">::</span><span class="fu">renderPlot</span>({</span>
-<span id="cb6-45"><a href="#cb6-45" tabindex="-1"></a>      <span class="fu">result</span>()[[<span class="st">&quot;my_plot&quot;</span>]] <span class="co"># Access and render the plot stored in `new_data`</span></span>
+<span id="cb6-45"><a href="#cb6-45" tabindex="-1"></a>      <span class="fu">plot</span>(<span class="fu">result</span>()[[<span class="st">&quot;my_plot&quot;</span>]]) <span class="co"># Access and render the plot stored in `new_data`</span></span>
 <span id="cb6-46"><a href="#cb6-46" tabindex="-1"></a>    })</span>
 <span id="cb6-47"><a href="#cb6-47" tabindex="-1"></a></span>
 <span id="cb6-48"><a href="#cb6-48" tabindex="-1"></a>    <span class="co"># Reactive expression to get the generated code for the plot</span></span>
 <span id="cb6-49"><a href="#cb6-49" tabindex="-1"></a>    output<span class="sc">$</span>plot_code <span class="ot">&lt;-</span> shiny<span class="sc">::</span><span class="fu">renderText</span>({</span>
 <span id="cb6-50"><a href="#cb6-50" tabindex="-1"></a>      teal.code<span class="sc">::</span><span class="fu">get_code</span>(<span class="fu">result</span>()) <span class="co"># Retrieve and display the code for the updated `teal_data` object</span></span>
 <span id="cb6-51"><a href="#cb6-51" tabindex="-1"></a>    })</span>
-<span id="cb6-52"><a href="#cb6-52" tabindex="-1"></a>  })</span>
-<span id="cb6-53"><a href="#cb6-53" tabindex="-1"></a>}</span></code></pre></div>
+<span id="cb6-52"><a href="#cb6-52" tabindex="-1"></a>    result</span>
+<span id="cb6-53"><a href="#cb6-53" tabindex="-1"></a>  })</span>
+<span id="cb6-54"><a href="#cb6-54" tabindex="-1"></a>}</span></code></pre></div>
 <p>Let’s review what we’ve done so far:</p>
 <ol style="list-style-type: decimal">
 <li><strong>Dynamic Variable Injection with

@@ -82,10 +82,7 @@ setOldClass("teal_modules")
 #' @return
 #' `module()` returns an object of class `teal_module`.
 #'
-#' `modules()` returns a `teal_modules` object which contains following fields:
-#' - `label`: taken from the `label` argument.
-#' - `children`: a list containing objects passed in `...`. List elements are named after
-#' their `label` attribute converted to a valid `shiny` id.
+#' `modules()` returns an object of class `teal_modules`.
 #'
 #' @name teal_modules
 #' @aliases teal_module
@@ -169,10 +166,10 @@ module <- function(label = "module",
       call. = FALSE
     )
   }
-  if (label == "Report previewer") {
+  if (label == "Report Previewer") {
     stop(
       sprintf("module(label = \"%s\", ...\n  ", label),
-      "Label 'Report previewer' is reserved in teal. Please change to something else.",
+      "Label 'Report Previewer' is reserved in teal. Please change to something else.",
       call. = FALSE
     )
   }
@@ -342,11 +339,12 @@ modules <- function(..., label = character(0)) {
 #' cat(format(mod))
 #' @export
 format.teal_module <- function(
-    x,
-    is_last = FALSE,
-    parent_prefix = "",
-    what = c("datasets", "properties", "ui_args", "server_args", "decorators", "transformators"),
-    ...) {
+  x,
+  is_last = FALSE,
+  parent_prefix = "",
+  what = c("datasets", "properties", "ui_args", "server_args", "decorators", "transformators"),
+  ...
+) {
   empty_text <- ""
   branch <- if (is_last) "L-" else "|-"
   current_prefix <- paste0(parent_prefix, branch, " ")
@@ -446,13 +444,13 @@ format.teal_module <- function(
 #' @rdname teal_modules
 #' @examples
 #' custom_module <- function(
-#'     label = "label", ui_args = NULL, server_args = NULL,
-#'     datanames = "all", transformators = list(), bk = FALSE) {
+#'   label = "label", ui_args = NULL, server_args = NULL,
+#'   datanames = "all", transformators = list(), bk = FALSE
+#' ) {
 #'   ans <- module(
 #'     label,
 #'     server = function(id, data, ...) {},
-#'     ui = function(id, ...) {
-#'     },
+#'     ui = function(id, ...) {},
 #'     datanames = datanames,
 #'     transformators = transformators,
 #'     ui_args = ui_args,

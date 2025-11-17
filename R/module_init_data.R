@@ -20,7 +20,6 @@
 #' lies in data control: the first method involves external control, while the second method
 #' involves control from a custom module within the app.
 #'
-#' For more details, see [`module_teal_data`].
 #'
 #' @inheritParams module_teal
 #'
@@ -90,15 +89,31 @@ srv_init_data <- function(id, data) {
 #' @keywords internal
 .add_signature_to_data <- function(data) {
   hashes <- .get_hashes_code(data)
+  data_teal_report <- as(data, "teal_report")
+  if (!inherits(data, "teal_report")) {
+    teal.reporter::teal_card(data_teal_report) <- c(
+      teal.reporter::teal_card(),
+      "## Data preparation",
+      teal.reporter::teal_card(data_teal_report)
+    )
+  }
   tdata <- do.call(
-    teal.data::teal_data,
+    teal.reporter::teal_report,
     c(
-      list(code = trimws(c(teal.code::get_code(data), hashes), which = "right")),
-      list(join_keys = teal.data::join_keys(data)),
-      as.list(data, all.names = TRUE)
+      list(
+        code = trimws(c(teal.code::get_code(data_teal_report), hashes), which = "right"),
+        join_keys = teal.data::join_keys(data_teal_report),
+        teal_card = teal.reporter::teal_card(data_teal_report)
+      ),
+      sapply(
+        names(data_teal_report),
+        base::get,
+        envir = data_teal_report,
+        simplify = FALSE
+      )
     )
   )
-  tdata@verified <- data@verified
+  tdata@verified <- data_teal_report@verified
   tdata
 }
 

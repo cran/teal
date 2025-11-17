@@ -17,10 +17,23 @@
 NULL
 
 #' @rdname teal_data_utilities
-.append_evaluated_code <- function(data, code) {
+.append_evaluated_code <- function(data, code, filter_states) {
   checkmate::assert_class(data, "teal_data")
-  data@code <- c(data@code, code2list(code))
-  methods::validObject(data)
+  checkmate::assert_class(filter_states, "teal_slices", null.ok = TRUE)
+  if (length(code) && !identical(code, "")) {
+    data@code <- c(data@code, code2list(code))
+    teal.reporter::teal_card(data) <- c(
+      teal.reporter::teal_card(data),
+      "### Filter settings",
+      teal.reporter::code_chunk(
+        .teal_slice_to_yaml(filter_states),
+        lang = "filters",
+        echo = TRUE # to not hide chunk when `global_knitr$echo` is set to `FALSE`
+      ),
+      teal.reporter::code_chunk(code)
+    )
+    methods::validObject(data)
+  }
   data
 }
 
@@ -32,4 +45,35 @@ NULL
   rlang::env_coalesce(new_env, as.environment(data))
   data@.xData <- new_env
   data
+}
+
+#' @rdname teal_data_utilities
+.collapse_subsequent_chunks <- function(card) {
+  checkmate::assert_class(card, "teal_card")
+  init_template <- teal.reporter::teal_card()
+  mostattributes(init_template) <- attributes(card)
+  Reduce(
+    function(x, this) {
+      l <- length(x)
+      if (
+        l &&
+          inherits(x[[l]], "code_chunk") &&
+          inherits(this, "code_chunk") &&
+          identical(attr(x[[l]], "params"), attr(this, "params"))
+      ) {
+        x[[length(x)]] <- do.call(
+          teal.reporter::code_chunk,
+          args = c(
+            list(code = paste(x[[l]], this, sep = "\n")),
+            attr(x[[l]], "params")
+          )
+        )
+        x
+      } else {
+        c(x, this)
+      }
+    },
+    init = init_template,
+    x = card
+  )
 }

@@ -226,7 +226,15 @@ srv_teal_module <- function(id,
     id = container_id,
     class = c("tab-pane", "teal_module", if (identical(module_id, active_module_id)) "active"),
     tagList(
-      .modules_breadcrumb(modules),
+      tags$div(
+        style = "display: flex; justify-content: space-between; align-items: center; width: 100%;",
+        .modules_breadcrumb(modules),
+        tags$div(
+          style = "display: flex; gap: 0.5em;",
+          ui_add_reporter(ns("add_reporter_wrapper")),
+          ui_source_code(ns("source_code_wrapper"))
+        )
+      ),
       if (!is.null(modules$datanames)) {
         tagList(
           bslib::layout_sidebar(
@@ -234,6 +242,7 @@ srv_teal_module <- function(id,
             sidebar = bslib::sidebar(
               id = ns("teal_module_sidebar"),
               class = "teal-sidebar",
+              position = getOption("teal.sidebar.position", "left"),
               width = getOption("teal.sidebar.width", 250),
               tags$div(
                 tags$div(
@@ -334,7 +343,7 @@ srv_teal_module <- function(id,
   checkmate::assert_multi_class(modules, c("teal_modules", "teal_module"))
   assert_reactive(datasets, null.ok = TRUE)
   checkmate::assert_class(slices_global, ".slicesGlobal")
-  checkmate::assert_class(reporter, "Reporter")
+  checkmate::assert_class(reporter, "Reporter", null.ok = TRUE)
   assert_reactive(data_load_status)
   UseMethod(".srv_teal_module", modules)
 }
@@ -488,21 +497,17 @@ srv_teal_module <- function(id,
       })
 
       # Call modules.
-      if (!inherits(modules, "teal_module_previewer")) {
-        obs_module <- .call_once_when(
-          !is.null(module_teal_data()),
-          ignoreNULL = TRUE,
-          handlerExpr = {
-            module_out(.call_teal_module(modules, datasets, module_teal_data, reporter))
-          }
-        )
-      } else {
-        # Report previewer must be initiated on app start for report cards to be included in bookmarks.
-        # When previewer is delayed, cards are bookmarked only if previewer has been initiated (visited).
-        module_out(.call_teal_module(modules, datasets, module_teal_data, reporter))
-      }
+      obs_module <- .call_once_when(
+        !is.null(module_teal_data()),
+        ignoreNULL = TRUE,
+        handlerExpr = {
+          out <- .call_teal_module(modules, datasets, module_teal_data, reporter)
+          srv_add_reporter("add_reporter_wrapper", module_out = out, reporter = reporter, module_label = modules$label)
+          srv_source_code("source_code_wrapper", out)
+          module_out(out)
+        }
+      )
     })
-
     module_out
   })
 }
@@ -513,7 +518,7 @@ srv_teal_module <- function(id,
 
   # collect arguments to run teal_module
   args <- c(list(id = "module"), modules$server_args)
-  if (is_arg_used(modules$server, "reporter")) {
+  if (is_arg_used(modules$server, "reporter") && !is.null(reporter)) {
     args <- c(args, list(reporter = reporter))
   }
 

@@ -352,14 +352,16 @@ module</a></li>
 <ul>
 <li><a href="#modify-the-declaration-of-the-server-function" id="toc-modify-the-declaration-of-the-server-function">Modify the
 declaration of the server function</a></li>
-<li><a href="#insert-teal.reporter-module" id="toc-insert-teal.reporter-module">Insert <code>teal.reporter</code>
-module</a></li>
+<li><a href="#return-the-reporter-object" id="toc-return-the-reporter-object">Return the reporter object</a></li>
 <li><a href="#add-content-to-the-card" id="toc-add-content-to-the-card">Add content to the card</a></li>
 <li><a href="#add-non-text-content-to-the-card" id="toc-add-non-text-content-to-the-card">Add non-text content to the
 card</a></li>
-<li><a href="#tealreportcard" id="toc-tealreportcard"><code>TealReportCard</code></a></li>
 </ul></li>
-<li><a href="#example" id="toc-example">Example</a></li>
+<li><a href="#removing-support-for-displaying-reproducible-code" id="toc-removing-support-for-displaying-reproducible-code">Removing
+support for displaying reproducible code</a></li>
+<li><a href="#removing-reporting" id="toc-removing-reporting">Removing
+reporting</a></li>
+<li><a href="#customizing-the-reporter" id="toc-customizing-the-reporter">Customizing the reporter</a></li>
 </ul>
 </div>
 
@@ -369,15 +371,15 @@ card</a></li>
 utilizing the <code>teal.reporter</code> package. For a comprehensive
 explanation of the reporting functionality itself, please refer to the
 documentation therein.</p>
-<p>This article is intended for module developers and aims to provide
-guidance on enhancing a custom <code>teal</code> module with an
+<p>This article is <em>intended for module developers</em> and aims to
+provide guidance on enhancing a custom <code>teal</code> module with an
 automatic reporting feature. This enhancement enables users to
 incorporate snapshots of the module outputs into a report which can then
 be reviewed in another module automatically provided by
 <code>teal</code>. Thus the app user can interact with the report.</p>
 <p>The responsibilities of a module developer include:</p>
 <ul>
-<li>Adding support for reporting to their module.</li>
+<li>Choosing whether reporting of their module is needed.</li>
 <li>Specifying the outputs that constitute a snapshot of their
 module.</li>
 </ul>
@@ -430,84 +432,108 @@ following:</p>
 <h2>Add support for reporting</h2>
 <div id="modify-the-declaration-of-the-server-function" class="section level3">
 <h3>Modify the declaration of the server function</h3>
-<p>The first step is to add an additional argument to the server
-function declaration - <code>reporter</code>. This informs
-<code>teal</code> that the module requires <code>reporter</code>, and it
-will be included when the module is called. See below:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>my_module_with_reporting <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">label =</span> <span class="st">&quot;example teal module&quot;</span>) {</span>
+<p>First we need to prepare the code inside the module to be added to
+the report. See below:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>my_module_with_card <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">label =</span> <span class="st">&quot;example teal module&quot;</span>) {</span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="fu">module</span>(</span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>    <span class="at">label =</span> label,</span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>    <span class="at">server =</span> <span class="cf">function</span>(id, data, reporter) {</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>    <span class="at">server =</span> <span class="cf">function</span>(id, data) {</span>
 <span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>      <span class="fu">moduleServer</span>(id, <span class="cf">function</span>(input, output, session) {</span>
 <span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>        <span class="fu">updateSelectInput</span>(session, <span class="st">&quot;dataname&quot;</span>, <span class="at">choices =</span> <span class="fu">isolate</span>(<span class="fu">names</span>(<span class="fu">data</span>())))</span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>        output<span class="sc">$</span>dataset <span class="ot">&lt;-</span> <span class="fu">renderPrint</span>({</span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>          <span class="fu">req</span>(input<span class="sc">$</span>dataname)</span>
-<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>          <span class="fu">data</span>()[[input<span class="sc">$</span>dataname]]</span>
-<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>        })</span>
-<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>      })</span>
-<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>    },</span>
-<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>    <span class="at">ui =</span> <span class="cf">function</span>(id) {</span>
-<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>      ns <span class="ot">&lt;-</span> <span class="fu">NS</span>(id)</span>
-<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>      <span class="fu">sidebarLayout</span>(</span>
-<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>        <span class="fu">sidebarPanel</span>(<span class="fu">selectInput</span>(<span class="fu">ns</span>(<span class="st">&quot;dataname&quot;</span>), <span class="st">&quot;Choose a dataset&quot;</span>, <span class="at">choices =</span> <span class="cn">NULL</span>)),</span>
-<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>        <span class="fu">mainPanel</span>(<span class="fu">verbatimTextOutput</span>(<span class="fu">ns</span>(<span class="st">&quot;dataset&quot;</span>)))</span>
-<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a>      )</span>
-<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a>    }</span>
-<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a>  )</span>
-<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a>}</span></code></pre></div>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>        <span class="co"># Prepare the report:</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>        report <span class="ot">&lt;-</span> <span class="fu">reactive</span>({</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>          <span class="fu">req</span>(obj <span class="ot">&lt;-</span> <span class="fu">data</span>())</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>          <span class="fu">teal_card</span>(obj) <span class="ot">&lt;-</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>            <span class="fu">c</span>(</span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>              <span class="fu">teal_card</span>(<span class="st">&quot;# Module with reporting&quot;</span>),</span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>              <span class="fu">teal_card</span>(obj),</span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>              <span class="fu">teal_card</span>(<span class="st">&quot;## Module&#39;s code&quot;</span>)</span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>            )</span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>          obj</span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a>        })</span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a></span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a>        <span class="co"># Add to the report the code of the module</span></span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a>        data_r <span class="ot">&lt;-</span> <span class="fu">reactive</span>({</span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a>          <span class="fu">req</span>(teal_data <span class="ot">&lt;-</span> <span class="fu">report</span>(), input<span class="sc">$</span>dataname)</span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a>          <span class="fu">within</span>(teal_data, table, <span class="at">table =</span> <span class="fu">as.name</span>(input<span class="sc">$</span>dataname))</span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a>        })</span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a></span>
+<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a>        output<span class="sc">$</span>dataset <span class="ot">&lt;-</span> <span class="fu">renderPrint</span>({</span>
+<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a>          <span class="fu">req</span>(teal_data <span class="ot">&lt;-</span> <span class="fu">data_r</span>())</span>
+<span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a>          teal_data[[input<span class="sc">$</span>dataname]]</span>
+<span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a>        })</span>
+<span id="cb3-30"><a href="#cb3-30" tabindex="-1"></a>      })</span>
+<span id="cb3-31"><a href="#cb3-31" tabindex="-1"></a>    },</span>
+<span id="cb3-32"><a href="#cb3-32" tabindex="-1"></a>    <span class="at">ui =</span> <span class="cf">function</span>(id) {</span>
+<span id="cb3-33"><a href="#cb3-33" tabindex="-1"></a>      ns <span class="ot">&lt;-</span> <span class="fu">NS</span>(id)</span>
+<span id="cb3-34"><a href="#cb3-34" tabindex="-1"></a>      <span class="fu">sidebarLayout</span>(</span>
+<span id="cb3-35"><a href="#cb3-35" tabindex="-1"></a>        <span class="fu">sidebarPanel</span>(<span class="fu">selectInput</span>(<span class="fu">ns</span>(<span class="st">&quot;dataname&quot;</span>), <span class="st">&quot;Choose a dataset&quot;</span>, <span class="at">choices =</span> <span class="cn">NULL</span>)),</span>
+<span id="cb3-36"><a href="#cb3-36" tabindex="-1"></a>        <span class="fu">mainPanel</span>(<span class="fu">verbatimTextOutput</span>(<span class="fu">ns</span>(<span class="st">&quot;dataset&quot;</span>)))</span>
+<span id="cb3-37"><a href="#cb3-37" tabindex="-1"></a>      )</span>
+<span id="cb3-38"><a href="#cb3-38" tabindex="-1"></a>    }</span>
+<span id="cb3-39"><a href="#cb3-39" tabindex="-1"></a>  )</span>
+<span id="cb3-40"><a href="#cb3-40" tabindex="-1"></a>}</span></code></pre></div>
 <p>With these modifications, the module is now ready to be launched with
 <code>teal</code>:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>app <span class="ot">&lt;-</span> <span class="fu">init</span>(</span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="at">data =</span> <span class="fu">teal_data</span>(<span class="at">IRIS =</span> iris, <span class="at">MTCARS =</span> mtcars),</span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="at">modules =</span> <span class="fu">my_module_with_reporting</span>()</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="at">modules =</span> <span class="fu">my_module_with_card</span>()</span>
 <span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>)</span>
 <span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a></span>
 <span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">interactive</span>()) {</span>
 <span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  <span class="fu">shinyApp</span>(app<span class="sc">$</span>ui, app<span class="sc">$</span>server)</span>
 <span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>}</span></code></pre></div>
-<p><code>teal</code> adds another tab to the application, titled
-<code>Report previewer</code>. However, there is no visible change in
-how the module operates and appears and the user cannot add content to
-the report from this module. That requires inserting UI and server
-elements of the <code>teal.reporter</code> module into the module
-body.</p>
+<p>The output hasn’t changed (yet). The final step is to have the server
+return the reporter object, enabling the module to be reported.</p>
 </div>
-<div id="insert-teal.reporter-module" class="section level3">
-<h3>Insert <code>teal.reporter</code> module</h3>
-<p>The UI and the server logic necessary for adding cards from
-<code>my_module_with_reporting</code> to the report are provided by
-<code>teal.reporter::simple_reporter_ui</code> and
-<code>teal.reporter::simple_reporter_srv</code>.</p>
+<div id="return-the-reporter-object" class="section level3">
+<h3>Return the reporter object</h3>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>my_module_with_reporting <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">label =</span> <span class="st">&quot;example teal module&quot;</span>) {</span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="fu">module</span>(</span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>    <span class="at">label =</span> label,</span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>    <span class="at">server =</span> <span class="cf">function</span>(id, data, reporter) {</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>    <span class="at">server =</span> <span class="cf">function</span>(id, data) {</span>
 <span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>      <span class="fu">moduleServer</span>(id, <span class="cf">function</span>(input, output, session) {</span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>        teal.reporter<span class="sc">::</span><span class="fu">simple_reporter_srv</span>(</span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>          <span class="at">id =</span> <span class="st">&quot;reporter&quot;</span>,</span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>          <span class="at">reporter =</span> reporter,</span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>          <span class="at">card_fun =</span> <span class="cf">function</span>(card) card</span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>        )</span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>        <span class="fu">updateSelectInput</span>(session, <span class="st">&quot;dataname&quot;</span>, <span class="at">choices =</span> <span class="fu">isolate</span>(<span class="fu">names</span>(<span class="fu">data</span>())))</span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>        output<span class="sc">$</span>dataset <span class="ot">&lt;-</span> <span class="fu">renderPrint</span>({</span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>          <span class="fu">req</span>(input<span class="sc">$</span>dataname)</span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>          <span class="fu">data</span>()[[input<span class="sc">$</span>dataname]]</span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>        })</span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>      })</span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>    },</span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>    <span class="at">ui =</span> <span class="cf">function</span>(id) {</span>
-<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a>      ns <span class="ot">&lt;-</span> <span class="fu">NS</span>(id)</span>
-<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a>      <span class="fu">sidebarLayout</span>(</span>
-<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a>        <span class="fu">sidebarPanel</span>(</span>
-<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a>          teal.reporter<span class="sc">::</span><span class="fu">simple_reporter_ui</span>(<span class="fu">ns</span>(<span class="st">&quot;reporter&quot;</span>)),</span>
-<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a>          <span class="fu">selectInput</span>(<span class="fu">ns</span>(<span class="st">&quot;dataname&quot;</span>), <span class="st">&quot;Choose a dataset&quot;</span>, <span class="at">choices =</span> <span class="cn">NULL</span>)</span>
-<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a>        ),</span>
-<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a>        <span class="fu">mainPanel</span>(<span class="fu">verbatimTextOutput</span>(<span class="fu">ns</span>(<span class="st">&quot;dataset&quot;</span>)))</span>
-<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a>      )</span>
-<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a>    }</span>
-<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a>  )</span>
-<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a>}</span></code></pre></div>
-<p>This updated module is now ready to be launched:</p>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>        <span class="fu">updateSelectInput</span>(session, <span class="st">&quot;dataname&quot;</span>, <span class="at">choices =</span> <span class="fu">isolate</span>(<span class="fu">names</span>(<span class="fu">data</span>())))</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>        <span class="co"># Prepare the report:</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>        report <span class="ot">&lt;-</span> <span class="fu">reactive</span>({</span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>          <span class="fu">req</span>(obj <span class="ot">&lt;-</span> <span class="fu">data</span>())</span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>          <span class="fu">teal_card</span>(obj) <span class="ot">&lt;-</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>            <span class="fu">c</span>(</span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>              <span class="fu">teal_card</span>(<span class="st">&quot;# Module with reporting&quot;</span>),</span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>              <span class="fu">teal_card</span>(obj),</span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>              <span class="fu">teal_card</span>(<span class="st">&quot;## Module&#39;s code&quot;</span>)</span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>            )</span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>          obj</span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>        })</span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a>        <span class="co"># Add to the report the code of the module</span></span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a>        data_r <span class="ot">&lt;-</span> <span class="fu">reactive</span>({</span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a>          <span class="fu">req</span>(rtd <span class="ot">&lt;-</span> <span class="fu">report</span>(), input<span class="sc">$</span>dataname)</span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a>          <span class="fu">within</span>(rtd, table, <span class="at">table =</span> <span class="fu">as.name</span>(input<span class="sc">$</span>dataname))</span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a>        })</span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a></span>
+<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a>        output<span class="sc">$</span>dataset <span class="ot">&lt;-</span> <span class="fu">renderPrint</span>({</span>
+<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a>          <span class="fu">req</span>(dr <span class="ot">&lt;-</span> <span class="fu">data_r</span>())</span>
+<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a>          dr[[input<span class="sc">$</span>dataname]]</span>
+<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a>        })</span>
+<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a></span>
+<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a>        <span class="co"># the reactive teal_report is returned by the module</span></span>
+<span id="cb5-32"><a href="#cb5-32" tabindex="-1"></a>        data_r</span>
+<span id="cb5-33"><a href="#cb5-33" tabindex="-1"></a>      })</span>
+<span id="cb5-34"><a href="#cb5-34" tabindex="-1"></a>    },</span>
+<span id="cb5-35"><a href="#cb5-35" tabindex="-1"></a>    <span class="at">ui =</span> <span class="cf">function</span>(id) {</span>
+<span id="cb5-36"><a href="#cb5-36" tabindex="-1"></a>      ns <span class="ot">&lt;-</span> <span class="fu">NS</span>(id)</span>
+<span id="cb5-37"><a href="#cb5-37" tabindex="-1"></a>      <span class="fu">sidebarLayout</span>(</span>
+<span id="cb5-38"><a href="#cb5-38" tabindex="-1"></a>        <span class="fu">sidebarPanel</span>(<span class="fu">selectInput</span>(<span class="fu">ns</span>(<span class="st">&quot;dataname&quot;</span>), <span class="st">&quot;Choose a dataset&quot;</span>, <span class="at">choices =</span> <span class="cn">NULL</span>)),</span>
+<span id="cb5-39"><a href="#cb5-39" tabindex="-1"></a>        <span class="fu">mainPanel</span>(<span class="fu">verbatimTextOutput</span>(<span class="fu">ns</span>(<span class="st">&quot;dataset&quot;</span>)))</span>
+<span id="cb5-40"><a href="#cb5-40" tabindex="-1"></a>      )</span>
+<span id="cb5-41"><a href="#cb5-41" tabindex="-1"></a>    }</span>
+<span id="cb5-42"><a href="#cb5-42" tabindex="-1"></a>  )</span>
+<span id="cb5-43"><a href="#cb5-43" tabindex="-1"></a>}</span></code></pre></div>
+<p>With these modifications, the module is now ready to be launched with
+<code>teal</code>:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>app <span class="ot">&lt;-</span> <span class="fu">init</span>(</span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  <span class="at">data =</span> <span class="fu">teal_data</span>(<span class="at">IRIS =</span> iris, <span class="at">MTCARS =</span> mtcars),</span>
 <span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="at">modules =</span> <span class="fu">my_module_with_reporting</span>()</span>
@@ -516,218 +542,107 @@ body.</p>
 <span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">interactive</span>()) {</span>
 <span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>  <span class="fu">shinyApp</span>(app<span class="sc">$</span>ui, app<span class="sc">$</span>server)</span>
 <span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>}</span></code></pre></div>
-<p>A new piece of <code>UI</code> has been added, and the buttons are
-clickable. The user can now add a card to the report and view it in the
-<code>Report previewer</code> module but the preview is still empty
-since we have not instructed our module what to put on the card.</p>
+<p>The key step is to return a reactive <code>teal_report</code> object
+containing everything. This informs <code>teal</code> that the module
+provides a <code>reporter</code>, and teal will add a button
+<code>+ Add to Report</code> to add the modules’ content to the report.
+The user can now add a card to the report with the current state of the
+module. The report can be seen after clicking
+<code>Preview report</code> under the <code>Report</code> button.</p>
 </div>
 <div id="add-content-to-the-card" class="section level3">
 <h3>Add content to the card</h3>
-<p>To add content to a card, we will utilize the public API exposed by
-the <code>TealReportCard</code> class. The
-<code>teal.reporter::simple_reporter_srv</code> module accepts the
-<code>card_fun</code> argument that determines the appearance of the
-output from our custom module. <code>ReportCard</code> and its
-derivatives allow the sequential addition of content according to the
-order of method calls. To explore the content, we can use the
-<code>$get_content</code> method. For further details, refer to the
-documentation of <code>TealReportCard</code> and
-<code>teal.reporter::ReportCard</code>.</p>
-<p>We will add simple text to the card by modifying the
-<code>card_fun</code> argument passed to
-<code>teal.reporter::simple_reporter_srv</code>. The function must
-return the <code>card</code> object, otherwise errors may occur in
-<code>teal</code>.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>custom_function <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">card =</span> teal.reporter<span class="sc">::</span>ReportCard<span class="sc">$</span><span class="fu">new</span>()) {</span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  card<span class="sc">$</span><span class="fu">append_text</span>(<span class="st">&quot;This is content from a custom teal module!&quot;</span>)</span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  card</span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>}</span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a></span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>my_module_with_reporting <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">label =</span> <span class="st">&quot;example teal module&quot;</span>) {</span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  <span class="fu">module</span>(</span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>    <span class="at">label =</span> label,</span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>    <span class="at">server =</span> <span class="cf">function</span>(id, data, reporter) {</span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>      <span class="fu">moduleServer</span>(id, <span class="cf">function</span>(input, output, session) {</span>
-<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>        teal.reporter<span class="sc">::</span><span class="fu">simple_reporter_srv</span>(</span>
-<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>          <span class="at">id =</span> <span class="st">&quot;reporter&quot;</span>,</span>
-<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>          <span class="at">reporter =</span> reporter,</span>
-<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>          <span class="at">card_fun =</span> custom_function</span>
-<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a>        )</span>
-<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a>        <span class="fu">updateSelectInput</span>(session, <span class="st">&quot;dataname&quot;</span>, <span class="at">choices =</span> <span class="fu">isolate</span>(<span class="fu">names</span>(<span class="fu">data</span>())))</span>
-<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a>        output<span class="sc">$</span>dataset <span class="ot">&lt;-</span> <span class="fu">renderPrint</span>({</span>
-<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a>          <span class="fu">req</span>(input<span class="sc">$</span>dataname)</span>
-<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a>          <span class="fu">data</span>()[[input<span class="sc">$</span>dataname]]</span>
-<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a>        })</span>
-<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a>      })</span>
-<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a>    },</span>
-<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a>    <span class="at">ui =</span> <span class="cf">function</span>(id) {</span>
-<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a>      ns <span class="ot">&lt;-</span> <span class="fu">NS</span>(id)</span>
-<span id="cb7-25"><a href="#cb7-25" tabindex="-1"></a>      <span class="fu">sidebarLayout</span>(</span>
-<span id="cb7-26"><a href="#cb7-26" tabindex="-1"></a>        <span class="fu">sidebarPanel</span>(</span>
-<span id="cb7-27"><a href="#cb7-27" tabindex="-1"></a>          teal.reporter<span class="sc">::</span><span class="fu">simple_reporter_ui</span>(<span class="fu">ns</span>(<span class="st">&quot;reporter&quot;</span>)),</span>
-<span id="cb7-28"><a href="#cb7-28" tabindex="-1"></a>          <span class="fu">selectInput</span>(<span class="fu">ns</span>(<span class="st">&quot;dataname&quot;</span>), <span class="st">&quot;Choose a dataset&quot;</span>, <span class="at">choices =</span> <span class="cn">NULL</span>)</span>
-<span id="cb7-29"><a href="#cb7-29" tabindex="-1"></a>        ),</span>
-<span id="cb7-30"><a href="#cb7-30" tabindex="-1"></a>        <span class="fu">mainPanel</span>(<span class="fu">verbatimTextOutput</span>(<span class="fu">ns</span>(<span class="st">&quot;dataset&quot;</span>)))</span>
-<span id="cb7-31"><a href="#cb7-31" tabindex="-1"></a>      )</span>
-<span id="cb7-32"><a href="#cb7-32" tabindex="-1"></a>    }</span>
-<span id="cb7-33"><a href="#cb7-33" tabindex="-1"></a>  )</span>
-<span id="cb7-34"><a href="#cb7-34" tabindex="-1"></a>}</span></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>app <span class="ot">&lt;-</span> <span class="fu">init</span>(</span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="at">data =</span> <span class="fu">teal_data</span>(<span class="at">IRIS =</span> iris, <span class="at">MTCARS =</span> mtcars),</span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="at">modules =</span> <span class="fu">my_module_with_reporting</span>()</span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>)</span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a></span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">interactive</span>()) {</span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  <span class="fu">shinyApp</span>(app<span class="sc">$</span>ui, app<span class="sc">$</span>server)</span>
-<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>}</span></code></pre></div>
-<p>Now, an application user can see the text added by
-<code>custom_function</code> in the <code>Report previewer</code>
-module.</p>
+<p>The user can modify the text of a card or add new text with the
+button <code>+ Add text block</code> present at the bottom of the card.
+Text can also be added inside the module by appending a
+<code>teal_card()</code> to the card of the report.</p>
+<p>As the module writer, you can also add any other content to the
+report you’d like: titles, text.</p>
 </div>
 <div id="add-non-text-content-to-the-card" class="section level3">
 <h3>Add non-text content to the card</h3>
 <p><code>teal.reporter</code> supports the addition of tables, charts,
 and more. For more information, explore the API of
-<code>teal.reporter::ReportCard</code> to learn about the supported
-content types.</p>
-</div>
-<div id="tealreportcard" class="section level3">
-<h3><code>TealReportCard</code></h3>
-<p><code>teal</code> exports the <code>TealReportCard</code> class,
-which extends the <code>teal.reporter::ReportCard</code> class and
-provides several convenient methods to facilitate working with
-<code>teal</code> features like the filter panel or source code. For
-more details, refer to the documentation of
-<code>TealReportCard</code>.</p>
-<p>To support <code>TealReportCard</code>, the function that is passed
-to <code>teal.reporter::simple_reporter_srv</code> must define a default
-value for the card, as shown below:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>custom_function <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">card =</span> TealReportCard<span class="sc">$</span><span class="fu">new</span>()) {</span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  <span class="co"># ... some code ... #</span></span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  card</span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>}</span></code></pre></div>
-<p>Without this definition, the API of <code>TealReportCard</code> will
-not be available within the function.</p>
+<code>teal_report()</code> to learn about the supported content
+types.</p>
 </div>
 </div>
-<div id="example" class="section level2">
-<h2>Example</h2>
-<p>In conclusion, we have demonstrated how to build a standard
-<code>teal</code> app with code reproducibility and reporter
-functionalities. Note that the server function requires the
-<code>filter_panel_api</code> argument so that the filter panel state
-can be added to the report.</p>
-<p>In the final example, we have incorporated <code>teal.code</code>
-snippets. <code>teal.code</code> is an <code>R</code> library that
-offers utilities for storing code and associating it with an execution
-environment. This allows <code>ReporterCard</code> to store the code
-necessary to generate the table along with the table itself. To learn
-more about <code>teal.code</code> see the vignette
-<em><code>qenv</code></em> in <code>teal.code</code>.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>example_reporter_module <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">label =</span> <span class="st">&quot;Example&quot;</span>) {</span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>  <span class="fu">module</span>(</span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>    <span class="at">label =</span> label,</span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>    <span class="at">server =</span> <span class="cf">function</span>(id, data, reporter, filter_panel_api) {</span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>      with_filter <span class="ot">&lt;-</span> <span class="sc">!</span><span class="fu">missing</span>(filter_panel_api) <span class="sc">&amp;&amp;</span> <span class="fu">inherits</span>(filter_panel_api, <span class="st">&quot;FilterPanelApi&quot;</span>)</span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>      <span class="fu">moduleServer</span>(id, <span class="cf">function</span>(input, output, session) {</span>
-<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>        <span class="fu">updateSelectInput</span>(session, <span class="st">&quot;dataname&quot;</span>, <span class="at">choices =</span> <span class="fu">isolate</span>(<span class="fu">names</span>(<span class="fu">data</span>())))</span>
-<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>        dat <span class="ot">&lt;-</span> <span class="fu">reactive</span>(<span class="fu">data</span>()[[input<span class="sc">$</span>dataname]])</span>
-<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>        <span class="fu">observe</span>({</span>
-<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>          <span class="fu">req</span>(input<span class="sc">$</span>dataname)</span>
-<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>          <span class="fu">req</span>(<span class="fu">dat</span>())</span>
-<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>          <span class="fu">updateSliderInput</span>(session, <span class="st">&quot;nrow&quot;</span>, <span class="at">max =</span> <span class="fu">nrow</span>(<span class="fu">dat</span>()), <span class="at">value =</span> <span class="fu">floor</span>(<span class="fu">nrow</span>(<span class="fu">dat</span>()) <span class="sc">/</span> <span class="dv">5</span>))</span>
-<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>        })</span>
-<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a></span>
-<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a>        table_q <span class="ot">&lt;-</span> <span class="fu">reactive</span>({</span>
-<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a>          <span class="fu">req</span>(input<span class="sc">$</span>dataname)</span>
-<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a>          <span class="fu">req</span>(input<span class="sc">$</span>nrow)</span>
-<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a>          <span class="fu">within</span>(</span>
-<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a>            <span class="fu">data</span>(),</span>
-<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a>            result <span class="ot">&lt;-</span> <span class="fu">head</span>(dataset, nrows),</span>
-<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a>            <span class="at">dataset =</span> <span class="fu">as.name</span>(input<span class="sc">$</span>dataname),</span>
-<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a>            <span class="at">nrows =</span> input<span class="sc">$</span>nrow</span>
-<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a>          )</span>
-<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a>        })</span>
-<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a></span>
-<span id="cb10-26"><a href="#cb10-26" tabindex="-1"></a>        output<span class="sc">$</span>table <span class="ot">&lt;-</span> <span class="fu">renderTable</span>(<span class="fu">table_q</span>()[[<span class="st">&quot;result&quot;</span>]])</span>
-<span id="cb10-27"><a href="#cb10-27" tabindex="-1"></a></span>
-<span id="cb10-28"><a href="#cb10-28" tabindex="-1"></a>        <span class="do">### REPORTER</span></span>
-<span id="cb10-29"><a href="#cb10-29" tabindex="-1"></a>        card_fun <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">card =</span> teal.reporter<span class="sc">::</span>ReportCard<span class="sc">$</span><span class="fu">new</span>(), comment) {</span>
-<span id="cb10-30"><a href="#cb10-30" tabindex="-1"></a>          card<span class="sc">$</span><span class="fu">set_name</span>(<span class="st">&quot;Table Module&quot;</span>)</span>
-<span id="cb10-31"><a href="#cb10-31" tabindex="-1"></a>          card<span class="sc">$</span><span class="fu">append_text</span>(<span class="fu">paste</span>(<span class="st">&quot;Selected dataset&quot;</span>, input<span class="sc">$</span>dataname), <span class="st">&quot;header2&quot;</span>)</span>
-<span id="cb10-32"><a href="#cb10-32" tabindex="-1"></a>          card<span class="sc">$</span><span class="fu">append_text</span>(<span class="st">&quot;Selected Filters&quot;</span>, <span class="st">&quot;header3&quot;</span>)</span>
-<span id="cb10-33"><a href="#cb10-33" tabindex="-1"></a>          <span class="cf">if</span> (with_filter) {</span>
-<span id="cb10-34"><a href="#cb10-34" tabindex="-1"></a>            card<span class="sc">$</span><span class="fu">append_text</span>(filter_panel_api<span class="sc">$</span><span class="fu">get_filter_state</span>(), <span class="st">&quot;verbatim&quot;</span>)</span>
-<span id="cb10-35"><a href="#cb10-35" tabindex="-1"></a>          }</span>
-<span id="cb10-36"><a href="#cb10-36" tabindex="-1"></a>          card<span class="sc">$</span><span class="fu">append_text</span>(<span class="st">&quot;Encoding&quot;</span>, <span class="st">&quot;header3&quot;</span>)</span>
-<span id="cb10-37"><a href="#cb10-37" tabindex="-1"></a>          card<span class="sc">$</span><span class="fu">append_text</span>(</span>
-<span id="cb10-38"><a href="#cb10-38" tabindex="-1"></a>            yaml<span class="sc">::</span><span class="fu">as.yaml</span>(</span>
-<span id="cb10-39"><a href="#cb10-39" tabindex="-1"></a>              stats<span class="sc">::</span><span class="fu">setNames</span>(</span>
-<span id="cb10-40"><a href="#cb10-40" tabindex="-1"></a>                <span class="fu">lapply</span>(<span class="fu">c</span>(<span class="st">&quot;dataname&quot;</span>, <span class="st">&quot;nrow&quot;</span>), <span class="cf">function</span>(x) input[[x]]), <span class="fu">c</span>(<span class="st">&quot;dataname&quot;</span>, <span class="st">&quot;nrow&quot;</span>)</span>
-<span id="cb10-41"><a href="#cb10-41" tabindex="-1"></a>              )</span>
-<span id="cb10-42"><a href="#cb10-42" tabindex="-1"></a>            ),</span>
-<span id="cb10-43"><a href="#cb10-43" tabindex="-1"></a>            <span class="st">&quot;verbatim&quot;</span></span>
-<span id="cb10-44"><a href="#cb10-44" tabindex="-1"></a>          )</span>
-<span id="cb10-45"><a href="#cb10-45" tabindex="-1"></a>          card<span class="sc">$</span><span class="fu">append_text</span>(<span class="st">&quot;Module Table&quot;</span>, <span class="st">&quot;header3&quot;</span>)</span>
-<span id="cb10-46"><a href="#cb10-46" tabindex="-1"></a>          card<span class="sc">$</span><span class="fu">append_table</span>(<span class="fu">table_q</span>()[[<span class="st">&quot;result&quot;</span>]])</span>
-<span id="cb10-47"><a href="#cb10-47" tabindex="-1"></a>          card<span class="sc">$</span><span class="fu">append_text</span>(<span class="st">&quot;Show R Code&quot;</span>, <span class="st">&quot;header3&quot;</span>)</span>
-<span id="cb10-48"><a href="#cb10-48" tabindex="-1"></a>          card<span class="sc">$</span><span class="fu">append_text</span>(teal.code<span class="sc">::</span><span class="fu">get_code</span>(<span class="fu">table_q</span>()), <span class="st">&quot;verbatim&quot;</span>)</span>
-<span id="cb10-49"><a href="#cb10-49" tabindex="-1"></a>          <span class="cf">if</span> (<span class="sc">!</span>comment <span class="sc">==</span> <span class="st">&quot;&quot;</span>) {</span>
-<span id="cb10-50"><a href="#cb10-50" tabindex="-1"></a>            card<span class="sc">$</span><span class="fu">append_text</span>(<span class="st">&quot;Comment&quot;</span>, <span class="st">&quot;header3&quot;</span>)</span>
-<span id="cb10-51"><a href="#cb10-51" tabindex="-1"></a>            card<span class="sc">$</span><span class="fu">append_text</span>(comment)</span>
-<span id="cb10-52"><a href="#cb10-52" tabindex="-1"></a>          }</span>
-<span id="cb10-53"><a href="#cb10-53" tabindex="-1"></a>          card</span>
-<span id="cb10-54"><a href="#cb10-54" tabindex="-1"></a>        }</span>
-<span id="cb10-55"><a href="#cb10-55" tabindex="-1"></a>        teal.reporter<span class="sc">::</span><span class="fu">add_card_button_srv</span>(</span>
-<span id="cb10-56"><a href="#cb10-56" tabindex="-1"></a>          <span class="st">&quot;addReportCard&quot;</span>,</span>
-<span id="cb10-57"><a href="#cb10-57" tabindex="-1"></a>          <span class="at">reporter =</span> reporter,</span>
-<span id="cb10-58"><a href="#cb10-58" tabindex="-1"></a>          <span class="at">card_fun =</span> card_fun</span>
-<span id="cb10-59"><a href="#cb10-59" tabindex="-1"></a>        )</span>
-<span id="cb10-60"><a href="#cb10-60" tabindex="-1"></a>        teal.reporter<span class="sc">::</span><span class="fu">download_report_button_srv</span>(<span class="st">&quot;downloadButton&quot;</span>, <span class="at">reporter =</span> reporter)</span>
-<span id="cb10-61"><a href="#cb10-61" tabindex="-1"></a>        teal.reporter<span class="sc">::</span><span class="fu">reset_report_button_srv</span>(<span class="st">&quot;resetButton&quot;</span>, reporter)</span>
-<span id="cb10-62"><a href="#cb10-62" tabindex="-1"></a>        <span class="do">###</span></span>
-<span id="cb10-63"><a href="#cb10-63" tabindex="-1"></a>      })</span>
-<span id="cb10-64"><a href="#cb10-64" tabindex="-1"></a>    },</span>
-<span id="cb10-65"><a href="#cb10-65" tabindex="-1"></a>    <span class="at">ui =</span> <span class="cf">function</span>(id) {</span>
-<span id="cb10-66"><a href="#cb10-66" tabindex="-1"></a>      ns <span class="ot">&lt;-</span> <span class="fu">NS</span>(id)</span>
-<span id="cb10-67"><a href="#cb10-67" tabindex="-1"></a></span>
-<span id="cb10-68"><a href="#cb10-68" tabindex="-1"></a>      <span class="fu">sidebarLayout</span>(</span>
-<span id="cb10-69"><a href="#cb10-69" tabindex="-1"></a>        <span class="fu">sidebarPanel</span>(<span class="fu">selectInput</span>(<span class="fu">ns</span>(<span class="st">&quot;dataname&quot;</span>), <span class="st">&quot;Choose a dataset&quot;</span>, <span class="at">choices =</span> <span class="cn">NULL</span>)),</span>
-<span id="cb10-70"><a href="#cb10-70" tabindex="-1"></a>        <span class="fu">mainPanel</span>(</span>
-<span id="cb10-71"><a href="#cb10-71" tabindex="-1"></a>          teal.reporter<span class="sc">::</span><span class="fu">simple_reporter_ui</span>(<span class="fu">ns</span>(<span class="st">&quot;reporter&quot;</span>)),</span>
-<span id="cb10-72"><a href="#cb10-72" tabindex="-1"></a>          <span class="fu">verbatimTextOutput</span>(<span class="fu">ns</span>(<span class="st">&quot;dataset&quot;</span>))</span>
-<span id="cb10-73"><a href="#cb10-73" tabindex="-1"></a>        )</span>
-<span id="cb10-74"><a href="#cb10-74" tabindex="-1"></a>      )</span>
-<span id="cb10-75"><a href="#cb10-75" tabindex="-1"></a></span>
-<span id="cb10-76"><a href="#cb10-76" tabindex="-1"></a>      <span class="fu">sidebarLayout</span>(</span>
-<span id="cb10-77"><a href="#cb10-77" tabindex="-1"></a>        <span class="fu">sidebarPanel</span>(</span>
-<span id="cb10-78"><a href="#cb10-78" tabindex="-1"></a>          tags<span class="sc">$</span><span class="fu">div</span>(</span>
-<span id="cb10-79"><a href="#cb10-79" tabindex="-1"></a>            teal.reporter<span class="sc">::</span><span class="fu">add_card_button_ui</span>(<span class="fu">ns</span>(<span class="st">&quot;addReportCard&quot;</span>)),</span>
-<span id="cb10-80"><a href="#cb10-80" tabindex="-1"></a>            teal.reporter<span class="sc">::</span><span class="fu">download_report_button_ui</span>(<span class="fu">ns</span>(<span class="st">&quot;downloadButton&quot;</span>)),</span>
-<span id="cb10-81"><a href="#cb10-81" tabindex="-1"></a>            teal.reporter<span class="sc">::</span><span class="fu">reset_report_button_ui</span>(<span class="fu">ns</span>(<span class="st">&quot;resetButton&quot;</span>))</span>
-<span id="cb10-82"><a href="#cb10-82" tabindex="-1"></a>          ),</span>
-<span id="cb10-83"><a href="#cb10-83" tabindex="-1"></a>          <span class="fu">selectInput</span>(<span class="fu">ns</span>(<span class="st">&quot;dataname&quot;</span>), <span class="st">&quot;Choose a dataset&quot;</span>, <span class="at">choices =</span> <span class="cn">NULL</span>),</span>
-<span id="cb10-84"><a href="#cb10-84" tabindex="-1"></a>          <span class="fu">sliderInput</span>(<span class="fu">ns</span>(<span class="st">&quot;nrow&quot;</span>), <span class="st">&quot;Number of rows&quot;</span>, <span class="at">min =</span> <span class="dv">1</span>, <span class="at">max =</span> <span class="dv">1</span>, <span class="at">value =</span> <span class="dv">1</span>, <span class="at">step =</span> <span class="dv">1</span>)</span>
-<span id="cb10-85"><a href="#cb10-85" tabindex="-1"></a>        ),</span>
-<span id="cb10-86"><a href="#cb10-86" tabindex="-1"></a>        <span class="fu">mainPanel</span>(<span class="fu">tableOutput</span>(<span class="fu">ns</span>(<span class="st">&quot;table&quot;</span>)))</span>
-<span id="cb10-87"><a href="#cb10-87" tabindex="-1"></a>      )</span>
-<span id="cb10-88"><a href="#cb10-88" tabindex="-1"></a>    }</span>
-<span id="cb10-89"><a href="#cb10-89" tabindex="-1"></a>  )</span>
-<span id="cb10-90"><a href="#cb10-90" tabindex="-1"></a>}</span>
-<span id="cb10-91"><a href="#cb10-91" tabindex="-1"></a></span>
-<span id="cb10-92"><a href="#cb10-92" tabindex="-1"></a>app <span class="ot">&lt;-</span> <span class="fu">init</span>(</span>
-<span id="cb10-93"><a href="#cb10-93" tabindex="-1"></a>  <span class="at">data =</span> <span class="fu">teal_data</span>(<span class="at">AIR =</span> airquality, <span class="at">IRIS =</span> iris),</span>
-<span id="cb10-94"><a href="#cb10-94" tabindex="-1"></a>  <span class="at">modules =</span> <span class="fu">list</span>(</span>
-<span id="cb10-95"><a href="#cb10-95" tabindex="-1"></a>    <span class="fu">example_reporter_module</span>(<span class="at">label =</span> <span class="st">&quot;with Reporter&quot;</span>),</span>
-<span id="cb10-96"><a href="#cb10-96" tabindex="-1"></a>    <span class="fu">my_module</span>(<span class="at">label =</span> <span class="st">&quot;without Reporter&quot;</span>)</span>
-<span id="cb10-97"><a href="#cb10-97" tabindex="-1"></a>  ),</span>
-<span id="cb10-98"><a href="#cb10-98" tabindex="-1"></a>  <span class="at">filter =</span> <span class="fu">teal_slices</span>(<span class="fu">teal_slice</span>(<span class="at">dataname =</span> <span class="st">&quot;AIR&quot;</span>, <span class="at">varname =</span> <span class="st">&quot;Temp&quot;</span>, <span class="at">selected =</span> <span class="fu">c</span>(<span class="dv">72</span>, <span class="dv">85</span>)))</span>
-<span id="cb10-99"><a href="#cb10-99" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb10-100"><a href="#cb10-100" tabindex="-1"></a>  <span class="fu">modify_header</span>(tags<span class="sc">$</span><span class="fu">h2</span>(<span class="st">&quot;Example teal app with reporter&quot;</span>))</span>
-<span id="cb10-101"><a href="#cb10-101" tabindex="-1"></a></span>
-<span id="cb10-102"><a href="#cb10-102" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">interactive</span>()) {</span>
-<span id="cb10-103"><a href="#cb10-103" tabindex="-1"></a>  <span class="fu">shinyApp</span>(app<span class="sc">$</span>ui, app<span class="sc">$</span>server)</span>
-<span id="cb10-104"><a href="#cb10-104" tabindex="-1"></a>}</span></code></pre></div>
+<div id="removing-support-for-displaying-reproducible-code" class="section level2">
+<h2>Removing support for displaying reproducible code</h2>
+<p>If your module supports a report but you want to disable the button
+that allows to display the module’s reproducible code (“Show R code”),
+use <code>disable_src()</code>:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>app <span class="ot">&lt;-</span> <span class="fu">init</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="at">data =</span> <span class="fu">teal_data</span>(<span class="at">IRIS =</span> iris, <span class="at">MTCARS =</span> mtcars),</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="at">modules =</span> <span class="fu">my_module_with_reporting</span>() <span class="sc">|&gt;</span> <span class="fu">disable_src</span>()</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>)</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">interactive</span>()) {</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  <span class="fu">shinyApp</span>(app<span class="sc">$</span>ui, app<span class="sc">$</span>server)</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>}</span></code></pre></div>
+<p>You can use <code>disable_src()</code> on multiple modules at the
+same time and nested modules too. For example on:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>app <span class="ot">&lt;-</span> <span class="fu">init</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="at">data =</span> <span class="fu">teal_data</span>(<span class="at">IRIS =</span> iris, <span class="at">MTCARS =</span> mtcars),</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="at">modules =</span> <span class="fu">c</span>(</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>    <span class="fu">modules</span>(</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>      <span class="at">label =</span> <span class="st">&quot;One nested module disabled&quot;</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>      <span class="fu">example_module</span>(<span class="at">label =</span> <span class="st">&quot;Module 1&quot;</span>),</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>      <span class="fu">example_module</span>(<span class="at">label =</span> <span class="st">&quot;Module 2&quot;</span>),</span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>      <span class="fu">example_module</span>(<span class="at">label =</span> <span class="st">&quot;Module 3&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">disable_src</span>()</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>    ),</span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>    <span class="fu">modules</span>(</span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>      <span class="at">label =</span> <span class="st">&quot;Nested modules without source&quot;</span>,</span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>      <span class="fu">example_module</span>(<span class="at">label =</span> <span class="st">&quot;Module 1&quot;</span>),</span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>      <span class="fu">example_module</span>(<span class="at">label =</span> <span class="st">&quot;Module 2&quot;</span>)</span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>    ) <span class="sc">|&gt;</span> <span class="fu">disable_src</span>()</span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a>  )</span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<div id="removing-reporting" class="section level2">
+<h2>Removing reporting</h2>
+<p>If a module has the reporter functionality the teal app developer can
+disable it with <code>disable_report()</code>.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>app <span class="ot">&lt;-</span> <span class="fu">init</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  <span class="at">data =</span> <span class="fu">teal_data</span>(<span class="at">IRIS =</span> iris, <span class="at">MTCARS =</span> mtcars),</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="at">modules =</span> <span class="fu">my_module_with_reporting</span>() <span class="sc">|&gt;</span> <span class="fu">disable_report</span>()</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>)</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">interactive</span>()) {</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>  <span class="fu">shinyApp</span>(app<span class="sc">$</span>ui, app<span class="sc">$</span>server)</span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>}</span></code></pre></div>
+<p>To remove reporting from the whole application, set
+<code>reporter = NULL</code> in <code>init()</code>. This will
+completely disable all the reporter related buttons on the
+application:</p>
+<div class="float">
+<img role="img" aria-label="Screenshot of an app without the reporter options" src="data:image/png;base64,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" alt="Screenshot of an app without the reporter options" />
+<div class="figcaption">Screenshot of an app without the reporter
+options</div>
+</div>
+</div>
+<div id="customizing-the-reporter" class="section level2">
+<h2>Customizing the reporter</h2>
+<p>A template can be set for the report; when a template is used each
+card added to the report contains the template’s default content.
+Additionally, cards can be added to the report before the application
+starts.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>reporter <span class="ot">&lt;-</span> Reporter<span class="sc">$</span><span class="fu">new</span>()</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>template_fun <span class="ot">&lt;-</span> <span class="cf">function</span>(document) {</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>  header <span class="ot">&lt;-</span> <span class="fu">teal_card</span>(<span class="st">&quot;Here comes header text.&quot;</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  logo_url <span class="ot">&lt;-</span> <span class="st">&quot;https://raw.githubusercontent.com/insightsengineering/teal/refs/heads/main/man/figures/logo.svg&quot;</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>  footer <span class="ot">&lt;-</span> <span class="fu">teal_card</span>(<span class="fu">paste0</span>(</span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>    <span class="st">&quot;Here comes footer text. Report generated with teal ![logo](%s &#39;teal logo&#39;){height=70}&quot;</span>,</span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>    logo_url</span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>  ))</span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>  <span class="fu">c</span>(header, document, footer)</span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>}</span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>reporter<span class="sc">$</span><span class="fu">set_template</span>(template_fun)</span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a></span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>card1 <span class="ot">&lt;-</span> <span class="fu">teal_card</span>(<span class="st">&quot;## Header 2 text&quot;</span>, <span class="st">&quot;Regular text&quot;</span>)</span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="fu">metadata</span>(card1, <span class="st">&quot;title&quot;</span>) <span class="ot">&lt;-</span> <span class="st">&quot;Welcome card&quot;</span></span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a>reporter<span class="sc">$</span><span class="fu">append_cards</span>(card1)</span></code></pre></div>
+<p>Once the reporter is created we can use in the teal application.</p>
 </div>
 
 
