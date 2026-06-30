@@ -916,34 +916,21 @@ combination of <code>my_title = input$x_axis_title</code> and
 </div>
 <div id="multiple-transformations" class="section level3">
 <h3>Multiple Transformations</h3>
-<p>Consider these constructs to accommodate an arbitrary number of
-transformators in your module. Note that with this method all
-decorations will be applied to one output.</p>
+<p>Multiple decorators can be passed to
+<code>srv_transform_teal_data()</code>/<code>ui_transform_teal_data()</code>.
+They will be executed in sequence, errors and warnings will show up on
+the appropriate decorator. Remember that they should receive a list of
+<code>teal_transform_module</code>.</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="co"># in the module UI function</span></span>
-<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="fu">div</span>(</span>
-<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>  <span class="at">id =</span> <span class="fu">ns</span>(<span class="st">&quot;deorator_container&quot;</span>),</span>
-<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>  <span class="fu">lapply</span>(<span class="fu">names</span>(decorators), <span class="cf">function</span>(decorator_name) {</span>
-<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>    <span class="fu">div</span>(</span>
-<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>      <span class="at">id =</span> <span class="fu">ns</span>(<span class="fu">paste0</span>(<span class="st">&quot;decorate_&quot;</span>, decorator_name)),</span>
-<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a>      <span class="fu">ui_transform_teal_data</span>(</span>
-<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a>        <span class="fu">ns</span>(<span class="fu">paste0</span>(<span class="st">&quot;decorate_&quot;</span>, decorator_name)),</span>
-<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a>        <span class="at">transformators =</span> decorators[[decorator_name]]</span>
-<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a>      )</span>
-<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a>    )</span>
-<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a>  })</span>
-<span id="cb12-13"><a href="#cb12-13" tabindex="-1"></a>)</span>
-<span id="cb12-14"><a href="#cb12-14" tabindex="-1"></a><span class="co"># in the module server function</span></span>
-<span id="cb12-15"><a href="#cb12-15" tabindex="-1"></a>output_data <span class="ot">&lt;-</span> <span class="fu">reactive</span>(<span class="fu">teal_data</span>())</span>
-<span id="cb12-16"><a href="#cb12-16" tabindex="-1"></a>decorations <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">names</span>(decorators), <span class="cf">function</span>(decorator_name) {</span>
-<span id="cb12-17"><a href="#cb12-17" tabindex="-1"></a>  <span class="cf">function</span>(data) {</span>
-<span id="cb12-18"><a href="#cb12-18" tabindex="-1"></a>    <span class="fu">srv_transform_teal_data</span>(</span>
-<span id="cb12-19"><a href="#cb12-19" tabindex="-1"></a>      <span class="fu">paste0</span>(<span class="st">&quot;decorate_&quot;</span>, decorator_name),</span>
-<span id="cb12-20"><a href="#cb12-20" tabindex="-1"></a>      <span class="at">data =</span> data,</span>
-<span id="cb12-21"><a href="#cb12-21" tabindex="-1"></a>      <span class="at">transformators =</span> decorators[[decorator_name]]</span>
-<span id="cb12-22"><a href="#cb12-22" tabindex="-1"></a>    )</span>
-<span id="cb12-23"><a href="#cb12-23" tabindex="-1"></a>  }</span>
-<span id="cb12-24"><a href="#cb12-24" tabindex="-1"></a>})</span>
-<span id="cb12-25"><a href="#cb12-25" tabindex="-1"></a>output_data_decorated <span class="ot">&lt;-</span> <span class="fu">Reduce</span>(<span class="cf">function</span>(f, ...) <span class="fu">f</span>(...), decorations, <span class="at">init =</span> output_data, <span class="at">right =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="fu">ui_transform_module</span>(<span class="fu">ns</span>(<span class="st">&quot;decorate&quot;</span>), decorators)</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="co"># in the module server function</span></span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="fu">srv_transform_teal_data</span>(</span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>  <span class="st">&quot;decorate&quot;</span>,</span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a>  <span class="at">data =</span> data,</span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a>  <span class="at">transformators =</span> decorators,</span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a>  <span class="at">expr =</span> <span class="fu">quote</span>(obj) <span class="co"># Often we want to display the output of the decorator at the end</span></span>
+<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a>)</span></code></pre></div>
 </div>
 </div>
 

@@ -10,7 +10,7 @@ testthat::test_that("e2e: reporter tab is visible when reporter is specified (de
     )
   )
 
-  testthat::expect_true(app$is_visible(selector = "#teal-reporter_menu_container"))
+  app$expect_visible(selector = "#teal-reporter_menu_container")
   app$stop()
 })
 
@@ -36,6 +36,12 @@ testthat::test_that("e2e: reporter tab is visible when the teal ui creation is d
   )
 
   # Runs the same check as `app$is_visible` to check if the selector is visible
+  app$wait_for_js(
+    sprintf(
+      "Array.from(document.querySelectorAll('%s')).map(el => el.checkVisibility({}))",
+      "#teal-reporter_menu_container"
+    )
+  )
   testthat::expect_true(
     unlist(
       app$get_js(

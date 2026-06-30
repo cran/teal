@@ -388,7 +388,8 @@ object)</h3>
 <code>teal</code> apps. Achieve better UX with the customized UI of an
 app. Please see the <a href="bootstrap-themes-in-teal.html">vignette on
 Bootstrap themes</a> to read more about the functionality.</p>
-<p>Default: <code>bslib::bs_theme()</code></p>
+<p>Default:
+<code>bslib::bs_theme(`font-size-base` = &quot;0.875rem&quot;)</code></p>
 </div>
 <div id="teal.load_nest_code-character" class="section level3">
 <h3><code>teal.load_nest_code</code> (<code>character</code>)</h3>
@@ -560,6 +561,26 @@ Default: <code>10 * 1024^2</code> which stands for 10MB. ###
 the module title bar.</p>
 <p>Default: <code>TRUE</code>.</p>
 </div>
+<div id="teal.enable_deep_linking-logical" class="section level3">
+<h3><code>teal.enable_deep_linking</code> (<code>logical</code>)</h3>
+<p>This option enables URL-based module navigation in <code>teal</code>
+apps. When set to <code>TRUE</code>, the active module is reflected in
+the URL as a query parameter
+(<code>?active_module=&lt;module path&gt;</code>). Navigating to such a
+URL or using the browser’s back/forward buttons switches to the
+corresponding tab.</p>
+<p>Default: <code>FALSE</code>.</p>
+</div>
+<div id="teal.snapshot_manager.enable-logical" class="section level3">
+<h3><code>teal.snapshot_manager.enable</code>
+(<code>logical</code>)</h3>
+<p>This option controls whether the Snapshot Manager panel (the camera
+icon in the tabset bar) is rendered in a <code>teal</code> app. When set
+to <code>FALSE</code>, both <code>ui_snapshot_manager_panel()</code> and
+<code>srv_snapshot_manager_panel()</code> return <code>NULL</code>, so
+the panel is not displayed and no snapshot logic is attached.</p>
+<p>Default: <code>TRUE</code>.</p>
+</div>
 </div>
 <div id="deprecated-options" class="section level1">
 <h1>Deprecated options</h1>
@@ -571,6 +592,13 @@ logging.</p>
 <div id="teal_show_js_log" class="section level3">
 <h3><code>teal_show_js_log</code></h3>
 <p>Deprecated in favor of <code>teal.show_js_log</code> (see above).</p>
+</div>
+<div id="teal.ui.class-character1" class="section level3">
+<h3><code>teal.ui.class</code> (<code>character(1)</code>)</h3>
+<p>Adds additional class to the ui container of the teal app. This is
+useful to style teal apps embedded as modules in larger Shiny
+Applications.</p>
+<p>Default: <code>NULL</code></p>
 </div>
 </div>
 
