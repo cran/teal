@@ -1,6 +1,6 @@
-19b7533915956e1fe3212a6452298675 *DESCRIPTION
+a5606da5db399bf64b8ab1909f5bcd52 *DESCRIPTION
 615ff729c22fc20f123eafdc657cad90 *NAMESPACE
-defa80aee07e14a9d7caa496f0137abb *NEWS.md
+eb95be8c676a26b3265e3ddb52b4dad8 *NEWS.md
 9869b42ecac1cf3acf04af155e792c59 *R/TealAppDriver.R
 165a4ceb738e79f366c01a40571f2b58 *R/after.R
 be9641b2bbb4395b95b222760aac53c8 *R/checkmate.R
@@ -16,7 +16,7 @@ cad9759419e96c5073b46c6dd7cb7d9d *R/module_filter_manager.R
 d9b0f8cc13695cf1e5536c07dee5728b *R/module_session_info.R
 62cacde272f73a1cd422a1bd0b06d5f1 *R/module_snapshot_manager.R
 52ee5032a1e9ad3233d047c5e59707df *R/module_source_code.R
-248aab1aeb4947b74d65a2af149b7e4e *R/module_teal.R
+41c0205aa2ba01bd03bda1cc2861fc1a *R/module_teal.R
 956a634a58d48a6ed69e302c251601e5 *R/module_teal_lockfile.R
 6a9b9c346dbb4382cfe6d59ecfa5e6ec *R/module_teal_reporter.R
 2da836de3306072f83f33aa042af4da0 *R/module_transform_data.R
@@ -32,13 +32,13 @@ cec4aa86415ddba02683be7769e51152 *R/teal_modifiers.R
 42669b8af6c31fac4cc70fa810decfc4 *R/teal_slices-store.R
 9c952de2bfac0dbec45d39e7c6b8efe1 *R/teal_slices.R
 016d55cedde6371f0c49437939767a0e *R/teal_transform_module.R
-6fbe34f64f933f7fcc9bf044ddf0e7de *R/utils.R
+30c7874c3f32ea3c8b2a8129f234e6be *R/utils.R
 09648b63fce0c464870c83ee1b0b2e7d *R/validate_inputs.R
 0e12d729c34d03abf430e45a8e2c3c84 *R/validations.R
-60ed4259784d7c70859059fb41de0c48 *R/zzz.R
+97fbe4c927e9038e8fc2c7dd43c82112 *R/zzz.R
 03f394e8838f97d1c0b96334068f1ad2 *README.md
-71988641556c021977c9e6f95145e459 *build/vignette.rds
-1c3b0165ed7e1d8474d262e28cb24c3d *inst/WORDLIST
+c7b8529c61986fe2b7b405b851135d36 *build/vignette.rds
+802143deb35521d37b9a82f9d81bde95 *inst/WORDLIST
 dd1fcd61f8bf77aa80a17d9ba5b38ee7 *inst/css/custom.css
 668efdfb950c96ba44112075e5c94f1d *inst/css/sidebar.css
 6c47f090cfd92cf7161286b2a0694b39 *inst/css/validation.css
@@ -67,7 +67,7 @@ fcfe385c6659a4dbe0b899c7ed853fbb *inst/doc/filter-panel.html
 d40d81bcefc99ae24d2d5481601ae1ec *inst/doc/getting-started-with-teal.html
 cbe01c195234097d554610e6f9d79f38 *inst/doc/including-data-in-teal-applications.R
 5b4519cacf41a8ac55521af53b4de5a9 *inst/doc/including-data-in-teal-applications.Rmd
-b0f42f1b56634a15d28eeab93dbde163 *inst/doc/including-data-in-teal-applications.html
+2b545f2c4e5d26497c1b7ed56cdaa26d *inst/doc/including-data-in-teal-applications.html
 f78f1b28b463185ccf4bc5208f1ac64b *inst/doc/teal-as-a-shiny-module.R
 85703806aa53cab59da681e28aa82cbf *inst/doc/teal-as-a-shiny-module.Rmd
 2d8cc85303e6f57e9a64b5e77476a56c *inst/doc/teal-as-a-shiny-module.html
@@ -227,7 +227,6 @@ cc8fe5eec8d51393b1e934995fbc3363 *vignettes/blueprint/images/showrcode.png
 fbc3e6f9061b33a5cd3391d7d5db4c25 *vignettes/blueprint/intro.Rmd
 240250c5e1d80ab060596224e509dc7b *vignettes/blueprint/module_encapsulation.Rmd
 b15157590c5cb5a723c67dd3ae168a70 *vignettes/blueprint/product_map.Rmd
-3dc1afc045edae10a585030e52095203 *vignettes/blueprint_qmd/render.R
 e2ac273783ee197cbfa1ca847fa57533 *vignettes/bootstrap-themes-in-teal.Rmd
 5c6b2c2db0cbb283d4a90d5418edced4 *vignettes/creating-custom-modules.Rmd
 87e1eedc9530a527684066af7317fddc *vignettes/data-as-shiny-module.Rmd
@@ -245,6 +244,7 @@ edc309ba3c2b9dffd72b299a4be4c169 *vignettes/images/teal-app-components-hover.dra
 f1667d3fbcec9d7a6bd06e920feb2d73 *vignettes/images/teal-transform-module-decorators.svg
 d6327dde3c8721b2c282cd7169b62408 *vignettes/images/teal-transform-module-transformators.svg
 5b4519cacf41a8ac55521af53b4de5a9 *vignettes/including-data-in-teal-applications.Rmd
+1a6394f5d80dfcda77ff37fcb5e523a2 *vignettes/teal-as-a-module.html
 85703806aa53cab59da681e28aa82cbf *vignettes/teal-as-a-shiny-module.Rmd
 bbbfa31c6573373bd4fd443a0edd7b6a *vignettes/teal-options.Rmd
 f1b6b4ee39048475cd1ed457daa2fdcb *vignettes/transform-input-data.Rmd

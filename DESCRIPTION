@@ -1,8 +1,8 @@
 Type: Package
 Package: teal
 Title: Exploratory Web Apps for Analyzing Clinical Trials Data
-Version: 1.2.0
-Date: 2026-06-29
+Version: 1.2.1
+Date: 2026-07-28
 Authors@R: c(
     person("Dony", "Unardi", , "unardid@gene.com", role = c("aut", "cre")),
     person("Dawid", "Kaledkowski", , "dawid.kaledkowski@roche.com", role = "aut",
@@ -81,7 +81,7 @@ Collate: 'TealAppDriver.R' 'after.R' 'checkmate.R'
         'teal_transform_module.R' 'utils.R' 'validate_inputs.R'
         'validations.R' 'zzz.R'
 NeedsCompilation: no
-Packaged: 2026-06-30 07:28:19 UTC; averissimo
+Packaged: 2026-07-29 03:51:33 UTC; unardid
 Author: Dony Unardi [aut, cre],
   Dawid Kaledkowski [aut] (ORCID:
     <https://orcid.org/0000-0001-9533-457X>),
@@ -105,4 +105,4 @@ Author: Dony Unardi [aut, cre],
   Maximilian Mordig [ctb]
 Maintainer: Dony Unardi <unardid@gene.com>
 Repository: CRAN
-Date/Publication: 2026-06-30 13:50:02 UTC
+Date/Publication: 2026-07-29 16:30:02 UTC
